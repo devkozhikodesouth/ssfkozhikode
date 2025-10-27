@@ -4,7 +4,7 @@ import { Calendar, MapPin, Users } from "lucide-react";
 
 export default function StudentGalaLanding() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50">
+    <div className="min-h-screen  from-pink-50 via-white to-blue-50">
       {/* Header */}
       
 
@@ -36,12 +36,13 @@ export default function StudentGalaLanding() {
             >
               Register Now
             </Link>
-            <a
+            {/* <a
               href="#intro"
               className="flex items-center gap-2 text-indigo-600 hover:underline font-medium"
             >
               ▶ Watch Intro
-            </a>
+            </a> */}
+            
           </div>
 
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
@@ -70,7 +71,7 @@ export default function StudentGalaLanding() {
         {/* Right Side (Mockup Card) */}
         <div className="order-first md:order-last flex justify-center">
           <div className="bg-white rounded-3xl shadow-lg p-6 w-80 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 to-white opacity-70"></div>
+            <div className="absolute inset-0  from-indigo-50 to-white opacity-70"></div>
             <div className="relative z-10">
               <div className="rounded-2xl overflow-hidden shadow-lg">
                 <img
@@ -107,7 +108,7 @@ export default function StudentGalaLanding() {
           <img
             src="https://randomuser.me/api/portraits/men/1.jpg"
             alt=""
-            className="w-8 h-8 rounded-full border-2 border-white -ml-0"
+            className="w-8 h-8 rounded-full border-2 border-white"
           />
           <img
             src="https://randomuser.me/api/portraits/women/2.jpg"

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import { kozhikodeSchools } from "../../utils/schoolsData";
 import { sectors, sectorUnits } from "../../utils/hirarcyList";
-
+import Swal from "sweetalert2";
 const StudentsGalaPage = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -15,38 +15,71 @@ const StudentsGalaPage = () => {
     sector: "",
     unit: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  if (isSubmitting) return; // prevent double submissions
 
-    const data = await res.json();
-    if (data.success) {
-      alert("✅ Registered Successfully");
-      setFormData({
-        name: "",
-        mobile: "",
-        email: "",
-        school: "",
-        course: "",
-        year: "",
-        division: "",
-        sector: "",
-        unit: "",
+  setIsSubmitting(true);
+
+  fetch("/api/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Registered Successfully!",
+          text: "Your registration was completed successfully.",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+
+        setFormData({
+          name: "",
+          mobile: "",
+          email: "",
+          school: "",
+          course: "",
+          year: "",
+          division: "",
+          sector: "",
+          unit: "",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Registration Failed!",
+          text: data.message || "Please try again later.",
+          confirmButtonColor: "#d33",
+        });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: "There was a problem connecting to the server.",
+        confirmButtonColor: "#d33",
       });
-    } else {
-      alert("❌ Registration Failed");
-    }
-  };
+    })
+    .finally(() => {
+      setIsSubmitting(false);
+    });
+};
+
 
   return (
     <main className="min-h-screen bg-base-200 py-10 px-4 md:px-10">
@@ -123,14 +156,18 @@ const StudentsGalaPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="label font-medium">Course</label>
-              <input
-                type="text"
+              <select
                 name="course"
-                placeholder="Enter your course"
-                className="input input-bordered w-full"
+                className="select select-bordered w-full"
                 value={formData.course}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select Course</option>
+                <option>Science</option>
+                <option>Commerce</option>
+                <option>Humanities</option>
+                <option>VHSE</option>
+              </select>
             </div>
 
             <div>
@@ -142,9 +179,8 @@ const StudentsGalaPage = () => {
                 onChange={handleChange}
               >
                 <option value="">Select Year</option>
-                <option>1st Year</option>
-                <option>2nd Year</option>
-                <option>3rd Year</option>
+                <option>Plus One</option>
+                <option>Plus Two</option>
               </select>
             </div>
           </div>
@@ -187,36 +223,44 @@ const StudentsGalaPage = () => {
                   ))}
               </select>
             </div>
-            </div>
-            {/* Unit */}
-            <div>
-              <label className="label font-medium">Unit</label>
-              <select
-                name="unit"
-                className="select select-bordered w-full"
-                value={formData.unit}
-                onChange={handleChange}
-                disabled={!formData.sector}
-              >
-                <option value="">Choose your unit</option>
-                {formData.sector &&
-                  sectorUnits[formData.sector]?.map((unit) => (
-                    <option key={unit} value={unit}>
-                      {unit}
-                    </option>
-                  ))}
-              </select>
-            </div>
-         
+          </div>
+          {/* Unit */}
+          <div>
+            <label className="label font-medium">Unit</label>
+            <select
+              name="unit"
+              className="select select-bordered w-full"
+              value={formData.unit}
+              onChange={handleChange}
+              disabled={!formData.sector}
+            >
+              <option value="">Choose your unit</option>
+              {formData.sector &&
+                sectorUnits[formData.sector]?.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+            </select>
+          </div>
 
           {/* Submit */}
-          <div
-           className="pt-4 text-center ">
+          <div className="pt-4 text-center ">
             <button
               type="submit"
-              className="btn bg-green-600 text-white  hover:bg-green-700"
+              disabled={isSubmitting}
+              className={`btn bg-green-600 text-white hover:bg-green-700 ${
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Submit
+              {isSubmitting ? (
+                <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Submitting...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </form>
