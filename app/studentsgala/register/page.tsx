@@ -1,9 +1,37 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { kozhikodeSchools } from "../../utils/schoolsData";
 import { sectors, sectorUnits } from "../../utils/hirarcyList";
 import Swal from "sweetalert2";
+
 const StudentsGalaPage = () => {
+  const [divisions, setDivisions] = useState<string[]>([]);
+  const [availableSectors, setAvailableSectors] = useState<string[]>([]);
+  const [availableUnits, setAvailableUnits] = useState<string[]>([]);
+
+  // fetch divisions from server on mount (route supports GET). fall back to local keys
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/register", { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!mounted) return;
+        if (data?.success && Array.isArray(data.data) && data.data.length) {
+          // If server returns division documents with a `name` field, map accordingly
+          const names = data.data.map((d: any) => d.divisionName || String(d));
+          setDivisions(names);
+        } else {
+          setDivisions(Object.keys(sectors));
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setDivisions(Object.keys(sectors));
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -20,7 +48,51 @@ const StudentsGalaPage = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target as HTMLInputElement;
+    // if division changes, update available sectors and clear dependent fields
+    if (name === "division") {
+      const localSectors = sectors[value] || [];
+      if (localSectors && localSectors.length) {
+        setAvailableSectors(localSectors);
+      } else {
+        // try fetching sectors from server by division name
+        fetch(`/api/sectors?division=${encodeURIComponent(value)}`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (d?.success && Array.isArray(d.data)) {
+              setAvailableSectors(d.data.map((s: any) => s.sectorName));
+            } else {
+              setAvailableSectors([]);
+            }
+          })
+          .catch(() => setAvailableSectors([]));
+      }
+      setFormData({ ...formData, division: value, sector: "", unit: "" });
+      return;
+    }
+
+    // if sector changes, update available units and clear dependent field
+    if (name === "sector") {
+      const localUnits = sectorUnits[value] || [];
+      if (localUnits && localUnits.length) {
+        setAvailableUnits(localUnits);
+      } else {
+        fetch(`/api/units?sector=${encodeURIComponent(value)}`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (d?.success && Array.isArray(d.data)) {
+              setAvailableUnits(d.data.map((u: any) => u.unitName));
+            } else {
+              setAvailableUnits([]);
+            }
+          })
+          .catch(() => setAvailableUnits([]));
+      }
+      setFormData({ ...formData, sector: value, unit: "" });
+      return;
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
 
 
@@ -196,7 +268,7 @@ const handleSubmit = (e: React.FormEvent) => {
                 onChange={handleChange}
               >
                 <option value="">Select Division</option>
-                {Object.keys(sectors).map((division) => (
+                {divisions.map((division) => (
                   <option key={division} value={division}>
                     {division}
                   </option>
@@ -216,7 +288,9 @@ const handleSubmit = (e: React.FormEvent) => {
               >
                 <option value="">Choose your sector</option>
                 {formData.division &&
-                  sectors[formData.division].map((sector) => (
+                  (availableSectors.length > 0
+                    ? availableSectors
+                    : sectors[formData.division] || []).map((sector) => (
                     <option key={sector} value={sector}>
                       {sector}
                     </option>
@@ -227,21 +301,23 @@ const handleSubmit = (e: React.FormEvent) => {
           {/* Unit */}
           <div>
             <label className="label font-medium">Unit</label>
-            <select
-              name="unit"
-              className="select select-bordered w-full"
-              value={formData.unit}
-              onChange={handleChange}
-              disabled={!formData.sector}
-            >
-              <option value="">Choose your unit</option>
-              {formData.sector &&
-                sectorUnits[formData.sector]?.map((unit) => (
-                  <option key={unit} value={unit}>
-                    {unit}
-                  </option>
-                ))}
-            </select>
+              <select
+                name="unit"
+                className="select select-bordered w-full"
+                value={formData.unit}
+                onChange={handleChange}
+                disabled={!formData.sector}
+              >
+                <option value="">Choose your unit</option>
+                {formData.sector &&
+                  (availableUnits.length > 0
+                    ? availableUnits
+                    : sectorUnits[formData.sector] || []).map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+              </select>
           </div>
 
           {/* Submit */}
