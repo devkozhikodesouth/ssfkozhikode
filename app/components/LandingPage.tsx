@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
+import LogoSlider from "./LogoSlider";
 
 const LandingPage = () => {
   return (
@@ -40,6 +41,8 @@ const LandingPage = () => {
         </motion.div>
       </section>
 
+       <LogoSlider />
+
       {/* About Section */}
       <section id="about" className="px-8 py-16 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-5xl mx-auto text-center">
@@ -74,19 +77,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="bg-green-600 text-white py-16 px-8 text-center">
-        <h2 className="text-3xl font-semibold mb-4">Get in Touch</h2>
-        <p className="mb-6">Have questions or want to join us? Reach out today.</p>
-        <button className="bg-white text-green-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">
-          Contact Us
-        </button>
-      </section>
 
-      {/* Footer */}
-      <footer className="py-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-        © {new Date().getFullYear()} Your Organization. All rights reserved.
-      </footer>
+     
     </div>
   );
 };

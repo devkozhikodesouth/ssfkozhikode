@@ -55,9 +55,9 @@ const Navbar = () => {
         </div>
 
         {/* Logo + Title */}
-        <Link href="/" className="flex items-center gap-2 pl-2">
+        <Link href="/" className="flex items-center w-[90%] gap-2 pl-2">
           <img src="/logo.png" width={30} height={30} alt="SSF Logo" />
-          <span className="font-semibold text-lg md:text-xl">
+          <span className="font-semibold text-lg md:text-xl hidden md:block ">
             SSF Kozhikode South
           </span>
         </Link>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import "./globals.css";
 import Navbar from "./components/Navbar";
-import './globals.css';
+import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
   title: "SSF Kozhikode south",
@@ -19,6 +20,7 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
