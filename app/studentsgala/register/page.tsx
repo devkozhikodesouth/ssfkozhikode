@@ -1,14 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { kozhikodeSchools } from "../../utils/schoolsData";
-import { sectors, sectorUnits } from "../../utils/hirarcyList";
+import { groupLinks, sectors, sectorUnits } from "../../utils/hirarcyList";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 const StudentsGalaPage = () => {
   const [divisions, setDivisions] = useState<string[]>([]);
   const [availableSectors, setAvailableSectors] = useState<string[]>([]);
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const router = useRouter();
   // fetch divisions from server on mount (route supports GET). fall back to local keys
   useEffect(() => {
     let mounted = true;
@@ -49,6 +51,15 @@ const StudentsGalaPage = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target as HTMLInputElement;
+
+    if (errors[name]) {
+      setErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
+
     // if division changes, update available sectors and clear dependent fields
     if (name === "division") {
       const localSectors = sectors[value] || [];
@@ -95,22 +106,55 @@ const StudentsGalaPage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return; // prevent double submissions
+    const newErrors: { [key: string]: string } = {};
+    const {
+      name,
+      mobile,
+      email,
+      school,
+      course,
+      year,
+      division,
+      sector,
+      unit,
+    } = formData;
 
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  if (isSubmitting) return; // prevent double submissions
+    // 🧾 Validate fields
+    if (!name.trim()) newErrors.name = "Please enter your name.";
+    if (!mobile.trim()) newErrors.mobile = "Please enter your mobile number.";
+    else if (!/^[0-9]{10}$/.test(mobile))
+      newErrors.mobile = "Mobile number must be 10 digits.";
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      newErrors.email = "Enter a valid email address.";
+    if (!school.trim()) newErrors.school = "Please enter your school name.";
+    if (!course) newErrors.course = "Please select your course.";
+    if (!year) newErrors.year = "Please select your year.";
+    if (!division) newErrors.division = "Please select your division.";
+    if (!sector) newErrors.sector = "Please select your sector.";
+    if (!unit) newErrors.unit = "Please select your unit.";
 
-  setIsSubmitting(true);
+    setErrors(newErrors);
 
-  fetch("/api/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  })
-    .then((res) => res.json())
-    .then((data) => {
+    // 🚫 Stop if there are any errors
+    if (Object.keys(newErrors).length > 0) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
       if (data.success) {
-        Swal.fire({
+        // ✅ Success Alert
+        await Swal.fire({
           icon: "success",
           title: "Registered Successfully!",
           text: "Your registration was completed successfully.",
@@ -118,6 +162,16 @@ const handleSubmit = (e: React.FormEvent) => {
           timer: 2000,
         });
 
+        // ✅ Open WhatsApp group
+        const groupLink = groupLinks[formData.division.toUpperCase()];
+
+        if (groupLink) {
+          console.log("Opening link:", groupLink);
+          window.open(groupLink, "_blank", "noopener,noreferrer");
+        } else {
+          console.warn("No group link found for:", formData.division);
+        }
+        // ✅ Reset the form
         setFormData({
           name: "",
           mobile: "",
@@ -130,6 +184,7 @@ const handleSubmit = (e: React.FormEvent) => {
           unit: "",
         });
       } else {
+        // ❌ Error from server
         Swal.fire({
           icon: "error",
           title: "Registration Failed!",
@@ -137,8 +192,7 @@ const handleSubmit = (e: React.FormEvent) => {
           confirmButtonColor: "#d33",
         });
       }
-    })
-    .catch((err) => {
+    } catch (err) {
       console.error(err);
       Swal.fire({
         icon: "error",
@@ -146,17 +200,14 @@ const handleSubmit = (e: React.FormEvent) => {
         text: "There was a problem connecting to the server.",
         confirmButtonColor: "#d33",
       });
-    })
-    .finally(() => {
+    } finally {
       setIsSubmitting(false);
-    });
-};
-
+    }
+  };
 
   return (
-    <main className="min-h-screen bg-base-200 py-10 px-4 md:px-10">
-      <div className="max-w-2xl mx-auto bg-base-100 shadow-md rounded-xl p-8">
-        <h1 className="text-3xl font-bold text-center text-green-600 mb-8">
+<main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-10 px-4 md:px-10">      <div className="max-w-2xl mx-auto bg-base-100 shadow-md rounded-xl p-8">
+        <h1 className="text-3xl font-bold text-center text-blue-900 mb-8">
           Students Gala Registration
         </h1>
 
@@ -168,11 +219,15 @@ const handleSubmit = (e: React.FormEvent) => {
               type="text"
               name="name"
               placeholder="Enter your name"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                errors.name ? "border-red-500" : ""
+              }`}
               value={formData.name}
               onChange={handleChange}
-              required
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -184,11 +239,15 @@ const handleSubmit = (e: React.FormEvent) => {
                 name="mobile"
                 placeholder="10-digit mobile number"
                 pattern="[0-9]{10}"
-                className="input input-bordered w-full"
+                className={`input input-bordered w-full ${
+                  errors.mobile ? "border-red-500" : ""
+                }`}
                 value={formData.mobile}
                 onChange={handleChange}
-                required
               />
+              {errors.mobile && (
+                <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -198,10 +257,15 @@ const handleSubmit = (e: React.FormEvent) => {
                 type="email"
                 name="email"
                 placeholder="mail@site.com"
-                className="input input-bordered w-full"
+                className={`input input-bordered w-full ${
+                  errors.email ? "border-red-500" : ""
+                }`}
                 value={formData.email}
                 onChange={handleChange}
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
           </div>
 
@@ -211,7 +275,9 @@ const handleSubmit = (e: React.FormEvent) => {
             <input
               type="text"
               name="school"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                errors.school ? "border-red-500" : ""
+              }`}
               placeholder="Select your school"
               list="schools"
               value={formData.school}
@@ -222,6 +288,9 @@ const handleSubmit = (e: React.FormEvent) => {
                 <option key={school} value={school} />
               ))}
             </datalist>
+            {errors.school && (
+              <p className="text-red-500 text-sm mt-1">{errors.school}</p>
+            )}
           </div>
 
           {/* Course + Year */}
@@ -230,7 +299,9 @@ const handleSubmit = (e: React.FormEvent) => {
               <label className="label font-medium">Course</label>
               <select
                 name="course"
-                className="select select-bordered w-full"
+                className={`select select-bordered w-full ${
+                  errors.course ? "border-red-500" : ""
+                }`}
                 value={formData.course}
                 onChange={handleChange}
               >
@@ -240,13 +311,18 @@ const handleSubmit = (e: React.FormEvent) => {
                 <option>Humanities</option>
                 <option>VHSE</option>
               </select>
+              {errors.course && (
+                <p className="text-red-500 text-sm mt-1">{errors.course}</p>
+              )}
             </div>
 
             <div>
               <label className="label font-medium">Year</label>
               <select
                 name="year"
-                className="select select-bordered w-full"
+                className={`select select-bordered w-full ${
+                  errors.year ? "border-red-500" : ""
+                }`}
                 value={formData.year}
                 onChange={handleChange}
               >
@@ -254,6 +330,9 @@ const handleSubmit = (e: React.FormEvent) => {
                 <option>Plus One</option>
                 <option>Plus Two</option>
               </select>
+              {errors.year && (
+                <p className="text-red-500 text-sm mt-1">{errors.year}</p>
+              )}
             </div>
           </div>
 
@@ -263,7 +342,9 @@ const handleSubmit = (e: React.FormEvent) => {
               <label className="label font-medium">Division</label>
               <select
                 name="division"
-                className="select select-bordered w-full"
+                className={`select select-bordered w-full ${
+                  errors.division ? "border-red-500" : ""
+                }`}
                 value={formData.division}
                 onChange={handleChange}
               >
@@ -274,6 +355,9 @@ const handleSubmit = (e: React.FormEvent) => {
                   </option>
                 ))}
               </select>
+              {errors.division && (
+                <p className="text-red-500 text-sm mt-1">{errors.division}</p>
+              )}
             </div>
 
             {/* Sector */}
@@ -281,7 +365,9 @@ const handleSubmit = (e: React.FormEvent) => {
               <label className="label font-medium">Sector</label>
               <select
                 name="sector"
-                className="select select-bordered w-full"
+                className={`select select-bordered w-full ${
+                  errors.sector ? "border-red-500" : ""
+                }`}
                 value={formData.sector}
                 onChange={handleChange}
                 disabled={!formData.division}
@@ -290,55 +376,65 @@ const handleSubmit = (e: React.FormEvent) => {
                 {formData.division &&
                   (availableSectors.length > 0
                     ? availableSectors
-                    : sectors[formData.division] || []).map((sector) => (
+                    : sectors[formData.division] || []
+                  ).map((sector) => (
                     <option key={sector} value={sector}>
                       {sector}
                     </option>
                   ))}
               </select>
+              {errors.sector && (
+                <p className="text-red-500 text-sm mt-1">{errors.sector}</p>
+              )}
             </div>
           </div>
           {/* Unit */}
           <div>
             <label className="label font-medium">Unit</label>
-              <select
-                name="unit"
-                className="select select-bordered w-full"
-                value={formData.unit}
-                onChange={handleChange}
-                disabled={!formData.sector}
-              >
-                <option value="">Choose your unit</option>
-                {formData.sector &&
-                  (availableUnits.length > 0
-                    ? availableUnits
-                    : sectorUnits[formData.sector] || []).map((unit) => (
-                    <option key={unit} value={unit}>
-                      {unit}
-                    </option>
-                  ))}
-              </select>
+            <select
+              name="unit"
+              className={`select select-bordered w-full ${
+                errors.unit ? "border-red-500" : ""
+              }`}
+              value={formData.unit}
+              onChange={handleChange}
+              disabled={!formData.sector}
+            >
+              <option value="">Choose your unit</option>
+              {formData.sector &&
+                (availableUnits.length > 0
+                  ? availableUnits
+                  : sectorUnits[formData.sector] || []
+                ).map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+            </select>
+            {errors.unit && (
+              <p className="text-red-500 text-sm mt-1">{errors.unit}</p>
+            )}
           </div>
 
           {/* Submit */}
-          <div className="pt-4 text-center ">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`btn bg-green-600 text-white hover:bg-green-700 ${
-                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="loading loading-spinner loading-sm"></span>
-                  Submitting...
-                </>
-              ) : (
-                "Submit"
-              )}
-            </button>
-          </div>
+  <div className="pt-4 text-center">
+  <button
+    type="submit"
+    disabled={isSubmitting}
+    className={` w-full btn bg-blue-900 text-white hover:bg-blue-700 text-lg px-8 py-3 rounded-xl transition-all ${
+      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+  >
+    {isSubmitting ? (
+      <>
+        <span className="loading loading-spinner loading-md"></span>
+        Submitting...
+      </>
+    ) : (
+      "Submit"
+    )}
+  </button>
+</div>
         </form>
       </div>
     </main>

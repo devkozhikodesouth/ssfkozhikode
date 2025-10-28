@@ -8,9 +8,13 @@ const studentSchema = new Schema(
     school: { type: String, required: true },
     course: { type: String },
     year: { type: String },
-    division: { type: String },
-    sector: { type: String },
-    unit: { type: String },
+
+    // Changed from String to ObjectId
+    unitId: {
+      type: Schema.Types.ObjectId,
+      ref: "Unit", // 👈 reference to the Unit collection
+      required: true, // make true if every student must belong to a unit
+    },
   },
   { timestamps: true }
 );

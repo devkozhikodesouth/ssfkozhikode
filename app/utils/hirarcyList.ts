@@ -1,3 +1,10 @@
+// Define all group links
+export const groupLinks: Record<string, string> = {
+  FEROKE: "https://chat.whatsapp.com/EIVIhY4ZwJBFDek9EZUTXb?mode=wwt",
+  CALICUT: "https://chat.whatsapp.com/some-other-link",
+  MALAPPURAM: "https://chat.whatsapp.com/another-link"
+};
+
 
 export const sectors: Record<string, string[]>= {
   KUNNAMANGALAM: [
