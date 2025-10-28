@@ -9,10 +9,10 @@ export default function StudentGalaLanding() {
       
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12 py-20">
+      <section className="bg-gradient-to-br    from-blue-50 via-white to-blue-100 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
         {/* Left Content */}
-        <div>
-          <p className="text-sm text-indigo-600 font-medium flex items-center gap-2">
+        <div className="pl-7 md:pl-24"> 
+          <p className="-mt-44 md:mt-0  text-sm text-indigo-600 font-medium flex items-center gap-2">
             <Calendar size={16} /> Saturday, November 29 · 09:00 AM
           </p>
           <img
@@ -68,21 +68,14 @@ export default function StudentGalaLanding() {
           </div>
         </div>
 
-        {/* Right Side (Mockup Card) */}
-        <div className="order-first md:order-last flex justify-center">
-          <div className="bg-white rounded-3xl shadow-lg p-6 w-80 relative overflow-hidden">
-            <div className="absolute inset-0  from-indigo-50 to-white opacity-70"></div>
-            <div className="relative z-10">
-              <div className="rounded-2xl overflow-hidden shadow-lg">
-                <img
-                  src="/gala.jpeg"
-                  alt="Event Preview"
-                  className="rounded-2xl w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+{/* Right Side (Mockup Card) */}
+<div className="order-first md:order-last flex justify-center">
+  <img
+    src="/galamain.png"
+    alt="Event Preview"
+    className="w-full max-w-md md:max-w-lg object-cover"
+  />
+</div>
       </section>
 
      {/* Awards Section */}

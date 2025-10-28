@@ -127,7 +127,8 @@ const StudentsGalaPage = () => {
     if (!mobile.trim()) newErrors.mobile = "Please enter your mobile number.";
     else if (!/^[0-9]{10}$/.test(mobile))
       newErrors.mobile = "Mobile number must be 10 digits.";
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    if (!email.trim()) newErrors.email = "Please enter your email address.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       newErrors.email = "Enter a valid email address.";
     if (!school.trim()) newErrors.school = "Please enter your school name.";
     if (!course) newErrors.course = "Please select your course.";
@@ -254,7 +255,7 @@ const StudentsGalaPage = () => {
             <div>
               <label className="label font-medium">Email</label>
               <input
-                type="email"
+                type=""
                 name="email"
                 placeholder="mail@site.com"
                 className={`input input-bordered w-full ${
@@ -309,7 +310,6 @@ const StudentsGalaPage = () => {
                 <option>Science</option>
                 <option>Commerce</option>
                 <option>Humanities</option>
-                <option>VHSE</option>
               </select>
               {errors.course && (
                 <p className="text-red-500 text-sm mt-1">{errors.course}</p>

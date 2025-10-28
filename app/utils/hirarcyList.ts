@@ -1,8 +1,15 @@
 // Define all group links
 export const groupLinks: Record<string, string> = {
+  KOZHIKODE: "https://chat.whatsapp.com/KkitiP3IL1m2RWyhw8QyVK?mode=ems_copy_t",
   FEROKE: "https://chat.whatsapp.com/EIVIhY4ZwJBFDek9EZUTXb?mode=wwt",
-  CALICUT: "https://chat.whatsapp.com/some-other-link",
-  MALAPPURAM: "https://chat.whatsapp.com/another-link"
+  KUNNAMANGALAM: "https://chat.whatsapp.com/I3R25rzWxAHEZ5LnUYTelT?mode=wwt",
+  MUKKAM: "https://chat.whatsapp.com/C3KPHrAV6tdDDjtGcdj3MY?mode=wwt",
+  NARIKKUNI: "https://chat.whatsapp.com/FP4vrXwoKor3VwcarGkNZP?mode=wwt",
+  OMASSERY: "https://chat.whatsapp.com/CzymjreVVxdIBeUobOqoPH?mode=wwt",
+  POONOOR: "https://chat.whatsapp.com/DvtQorbRluDCmwUdLivKTL",
+  MAVOOR: "",
+  KODUVALLY: "",
+  THAMARASSERY: "",
 };
 
 
