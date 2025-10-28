@@ -93,10 +93,10 @@ const Navbar: React.FC = () => {
           <Link href="#" onClick={() => setNavbarOpen(false)}>
             Home
           </Link>
-          <Link href="/studentsgala" onClick={() => setNavbarOpen(false)}>
+          <Link href="#"  onClick={() => setNavbarOpen(false)}>
             About
           </Link>
-          <Link href="#" onClick={() => setNavbarOpen(false)}>
+          <Link href="/studentsgala" onClick={() => setNavbarOpen(false)}>
             Students Gala
           </Link>
           <Link href="#" onClick={() => setNavbarOpen(false)}>

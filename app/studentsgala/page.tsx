@@ -5,12 +5,12 @@ import CountDown from "./CountDown";
 
 export default function StudentGalaLanding() {
   return (
-    <div className="min-h-screen  from-pink-50 md:mt-24 via-white to-blue-50">
+    <div className="min-h-screen  from-pink-50 via-white to-blue-50">
       {/* Header */}
       
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br    from-blue-50 via-white to-blue-100 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
+      <section className="bg-gradient-to-br md:pt-24    from-blue-50 via-white to-blue-100 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
         {/* Left Content */}
         <div className="pl-7 md:pl-24"> 
          
