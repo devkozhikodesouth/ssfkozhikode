@@ -207,7 +207,8 @@ const StudentsGalaPage = () => {
   };
 
   return (
-<main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-10 mt-16 px-4 md:px-10">      <div className="max-w-2xl mx-auto bg-base-100 shadow-md rounded-xl p-8">
+<main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-10 pt-30 px-4 md:px-10">  
+      <div className="max-w-2xl mx-auto bg-base-100 shadow-md  rounded-xl p-8">
         <h1 className="text-3xl font-bold text-center text-blue-900 mb-8">
           Students Gala Registration
         </h1>
