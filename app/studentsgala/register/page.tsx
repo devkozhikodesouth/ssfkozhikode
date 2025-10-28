@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { kozhikodeSchools } from "../../utils/schoolsData";
 import { groupLinks, sectors, sectorUnits } from "../../utils/hirarcyList";
 import Swal from "sweetalert2";
@@ -11,6 +11,17 @@ const StudentsGalaPage = () => {
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
+  const refs = {
+    name: useRef<HTMLInputElement>(null),
+    mobile: useRef<HTMLInputElement>(null),
+    email: useRef<HTMLInputElement>(null),
+    school: useRef<HTMLInputElement>(null),
+    course: useRef<HTMLSelectElement>(null),
+    year: useRef<HTMLSelectElement>(null),
+    division: useRef<HTMLSelectElement>(null),
+    sector: useRef<HTMLSelectElement>(null),
+    unit: useRef<HTMLSelectElement>(null),
+  };
   // fetch divisions from server on mount (route supports GET). fall back to local keys
   useEffect(() => {
     let mounted = true;
@@ -140,8 +151,16 @@ const StudentsGalaPage = () => {
     setErrors(newErrors);
 
     // 🚫 Stop if there are any errors
-    if (Object.keys(newErrors).length > 0) return;
+    const firstErrorKey = Object.keys(newErrors)[0];
 
+    if (firstErrorKey && refs[firstErrorKey as keyof typeof refs]?.current) {
+      refs[firstErrorKey as keyof typeof refs].current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      refs[firstErrorKey as keyof typeof refs].current?.focus();
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -207,7 +226,7 @@ const StudentsGalaPage = () => {
   };
 
   return (
-<main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-10 pt-30 px-4 md:px-10">  
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-10 pt-30 px-4 md:px-10">
       <div className="max-w-2xl mx-auto bg-base-100 shadow-md  rounded-xl p-8">
         <h1 className="text-3xl font-bold text-center text-blue-900 mb-8">
           Students Gala Registration
@@ -218,6 +237,7 @@ const StudentsGalaPage = () => {
           <div>
             <label className="label font-medium">Name</label>
             <input
+              ref={refs.name}
               type="text"
               name="name"
               placeholder="Enter your name"
@@ -237,6 +257,7 @@ const StudentsGalaPage = () => {
             <div>
               <label className="label font-medium">Mobile</label>
               <input
+                ref={refs.mobile}
                 type="tel"
                 name="mobile"
                 placeholder="10-digit mobile number"
@@ -256,6 +277,7 @@ const StudentsGalaPage = () => {
             <div>
               <label className="label font-medium">Email</label>
               <input
+                ref={refs.email}
                 type=""
                 name="email"
                 placeholder="mail@site.com"
@@ -275,6 +297,7 @@ const StudentsGalaPage = () => {
           <div>
             <label className="label font-medium">School</label>
             <input
+              ref={refs.school}
               type="text"
               name="school"
               className={`input input-bordered w-full ${
@@ -300,7 +323,9 @@ const StudentsGalaPage = () => {
             <div>
               <label className="label font-medium">Course</label>
               <select
+                ref={refs.course}
                 name="course"
+
                 className={`select select-bordered w-full ${
                   errors.course ? "border-red-500" : ""
                 }`}
@@ -320,13 +345,17 @@ const StudentsGalaPage = () => {
             <div>
               <label className="label font-medium">Year</label>
               <select
+                ref={refs.year}
                 name="year"
+
                 className={`select select-bordered w-full ${
                   errors.year ? "border-red-500" : ""
                 }`}
                 value={formData.year}
                 onChange={handleChange}
               >
+                {" "}
+                
                 <option value="">Select Year</option>
                 <option>Plus One</option>
                 <option>Plus Two</option>
@@ -342,6 +371,7 @@ const StudentsGalaPage = () => {
             <div>
               <label className="label font-medium">Division</label>
               <select
+                ref={refs.division}
                 name="division"
                 className={`select select-bordered w-full ${
                   errors.division ? "border-red-500" : ""
@@ -365,6 +395,7 @@ const StudentsGalaPage = () => {
             <div>
               <label className="label font-medium">Sector</label>
               <select
+              ref={refs.sector}
                 name="sector"
                 className={`select select-bordered w-full ${
                   errors.sector ? "border-red-500" : ""
@@ -373,7 +404,9 @@ const StudentsGalaPage = () => {
                 onChange={handleChange}
                 disabled={!formData.division}
               >
-                <option value="">Choose your sector</option>
+                <option value="" >
+                  Choose your sector
+                </option>
                 {formData.division &&
                   (availableSectors.length > 0
                     ? availableSectors
@@ -394,6 +427,7 @@ const StudentsGalaPage = () => {
             <label className="label font-medium">Unit</label>
             <select
               name="unit"
+              ref={refs.unit}
               className={`select select-bordered w-full ${
                 errors.unit ? "border-red-500" : ""
               }`}
@@ -418,24 +452,24 @@ const StudentsGalaPage = () => {
           </div>
 
           {/* Submit */}
-  <div className="pt-4 text-center">
-  <button
-    type="submit"
-    disabled={isSubmitting}
-    className={` w-full btn bg-blue-900 text-white hover:bg-blue-700 text-lg px-8 py-3 rounded-xl transition-all ${
-      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-    }`}
-  >
-    {isSubmitting ? (
-      <>
-        <span className="loading loading-spinner loading-md"></span>
-        Submitting...
-      </>
-    ) : (
-      "Submit"
-    )}
-  </button>
-</div>
+          <div className="pt-4 text-center">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={` w-full btn bg-blue-900 text-white hover:bg-blue-700 text-lg px-8 py-3 rounded-xl transition-all ${
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="loading loading-spinner loading-md"></span>
+                  Submitting...
+                </>
+              ) : (
+                "Submit"
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </main>
