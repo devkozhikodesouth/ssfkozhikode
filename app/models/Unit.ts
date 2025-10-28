@@ -23,7 +23,6 @@ const UnitSchema: Schema = new Schema(
     unitName: {
       type: String,
       required: true,
-      trim: true,
     },
   },
   { timestamps: true }

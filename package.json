@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@iconify/react": "^6.0.2",
     "daisyui": "^5.3.9",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.548.0",

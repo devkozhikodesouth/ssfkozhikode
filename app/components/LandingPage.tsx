@@ -2,83 +2,76 @@
 import React from "react";
 import { motion } from "framer-motion";
 import LogoSlider from "./LogoSlider";
+import Link from "next/link";
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
-      {/* Navbar */}
-
+    <div className="min-h-screen bg-white text-gray-800">
       {/* Hero Section */}
-      <section className="flex flex-col-reverse md:flex-row items-center justify-between px-8 py-20">
+      <section
+        className="relative flex flex-col items-center justify-center text-center px-6 md:px-16 min-h-screen"
+        style={{
+          backgroundImage: "url('/bafddsnner.jpg')", // replace with uploaded image path
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-100"></div>
+
         <motion.div
-          className="md:w-1/2"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
+          className="relative z-10 max-w-3xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Empowering the Next Generation
+          <h1 className="text-4xl md:text-6xl font-bold text-black mb-6">
+            Energizing a <span className="text-green-400">Green Future</span>
           </h1>
-          <p className="text-lg mb-6 text-gray-600 dark:text-gray-300">
-            Join us in building a better future through education, innovation, and community service.
+          <p className="text-lg md:text-xl text-gray-900 mb-8 leading-relaxed">
+            Our commitment to green energy is paving the way for a cleaner,
+            healthier planet. Join us on a journey towards a future where clean,
+            renewable energy sources transform the way we power our lives.
           </p>
-          <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
-            Join Us
+          <Link href="/studentsgala">   
+          <button className="bg-green-400 hover:bg-green-500 text-gray-900 font-medium px-8 py-3 rounded-full shadow-md transition">
+            Students Gala
           </button>
-        </motion.div>
-
-        <motion.div
-          className="md:w-1/2 flex justify-center"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <img 
-            src="/logo.png"
-            alt="Organization"
-            className="w-60 md:w-[300px]"
-          />
+          </Link>
         </motion.div>
       </section>
 
-       <LogoSlider />
-
-      {/* About Section */}
-      <section id="about" className="px-8 py-16 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-semibold mb-6">About Us</h2>
-          <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Our organization is dedicated to empowering individuals and communities through
-            innovative programs, leadership development, and social initiatives.
-          </p>
-        </div>
-      </section>
-
-      {/* Programs Section */}
-      <section id="programs" className="px-8 py-16">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-semibold mb-10">Our Programs</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { title: "Education", desc: "Workshops, seminars, and training." },
-              { title: "Community", desc: "Volunteer-driven outreach initiatives." },
-              { title: "Innovation", desc: "Encouraging creativity and technology." },
-            ].map((program, index) => (
-              <motion.div
-                key={index}
-                whileHover={{ scale: 1.05 }}
-                className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md"
-              >
-                <h3 className="text-xl font-semibold mb-3 text-green-600">{program.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300">{program.desc}</p>
-              </motion.div>
-            ))}
+      {/* Stats Section */}
+      <section className="bg-white py-16 text-center">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
+          <div>
+            <h3 className="text-2xl font-semibold text-gray-900">550+</h3>
+            <p className="text-gray-500 text-sm mt-2">
+              Units
+            </p>
+          </div>
+          <div>
+            <h3 className="text-2xl font-semibold text-gray-900">70+</h3>
+            <p className="text-gray-500 text-sm mt-2">
+              Sectors
+            </p>
+          </div>
+          <div>
+            <h3 className="text-2xl font-semibold text-gray-900">10</h3>
+            <p className="text-gray-500 text-sm mt-2">
+              Divisions
+            </p>
+          </div>
+          <div>
+            <h3 className="text-2xl font-semibold text-gray-900">100000+</h3>
+            <p className="text-gray-500 text-sm mt-2">
+              Memberships
+            </p>
           </div>
         </div>
       </section>
 
-
-     
+      {/* Logo Slider */}
+      <LogoSlider />
     </div>
   );
 };
