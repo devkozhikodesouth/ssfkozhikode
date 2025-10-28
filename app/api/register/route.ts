@@ -8,25 +8,39 @@ import { data } from "framer-motion/client";
 export async function POST(req: Request) {
   try {
     await connectDB();
-    const body = await req.json();
-    const isUnit= await Unit.findOne({unitName:body.unit});
 
-    if(!isUnit){
-       console.log('not available the unit')
+    const body = await req.json();
+
+    // ✅ Check if unit exists
+    const isUnit = await Unit.findOne({ unitName: body.unit });
+    if (!isUnit) {
+      console.log("Invalid unit:", body.unit);
       return NextResponse.json(
         { success: false, message: "Invalid Unit Selected" },
         { status: 400 }
       );
-    } 
+    }
+
+    // ✅ Check for existing student (by mobile)
+    const existingStudent = await Student.findOne({ mobile: body.mobile });
+    if (existingStudent) {
+      return NextResponse.json(
+        { success: false, message: "Mobile number already registered" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Create new student
     const studentData = {
-  name: body.name,
-  mobile: body.mobile,
-  email: body.email,
-  school: body.school,
-  course: body.course,
-  year: body.year,
-  unitId: isUnit._id, // ✅ assign ObjectId properly
-};
+      name: body.name?.trim(),
+      mobile: body.mobile?.trim(),
+      email: body.email?.trim(),
+      school: body.school?.trim(),
+      course: body.course?.trim(),
+      year: body.year?.trim(),
+      unitId: isUnit._id, // ✅ assign ObjectId properly
+    };
+
     const newStudent = await Student.create(studentData);
 
     return NextResponse.json({
@@ -35,7 +49,7 @@ export async function POST(req: Request) {
       data: newStudent,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error while registering student:", error);
     return NextResponse.json(
       { success: false, message: "Error while registering student" },
       { status: 500 }
