@@ -11,7 +11,7 @@ export default function StudentGalaLanding() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br md:pt-24    from-blue-50 via-white to-blue-100 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
         {/* Left Content */}
-        <div className="pl-7 md:pl-24">
+        <div className=" md:pl-24 ">
           <img
             className="-mt-40 md:mt-10"
             src="Students-Gala.png"
@@ -33,6 +33,10 @@ export default function StudentGalaLanding() {
               ▶ Watch Intro
             </a> */}
           </div>
+          <div className="mt-5 flex justify-start text-left">
+  <CountDown />
+</div>
+
           <div className="my-10 grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-gray-700">
             {/* 🗺️ Location Card */}
             <div className="flex items-center gap-4 bg-gradient-to-r from-white to-indigo-50 p-6 rounded-3xl shadow-md hover:shadow-lg border border-gray-100 transition-all duration-300 group">
@@ -43,7 +47,7 @@ export default function StudentGalaLanding() {
                 <h4 className="text-lg font-semibold text-gray-900">
                   Kadalundi
                 </h4>
-                <p className="text-gray-600">123 Civic Avenue, City</p>
+                <p className="text-gray-600">AVOKI CENTRO ARENA</p>
               </div>
             </div>
 
@@ -59,10 +63,6 @@ export default function StudentGalaLanding() {
 
               {/* Right Content */}
               <div className="flex flex-col">
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
-                  Student Gathering 2025
-                </h3>
-
                 <p className="text-sm sm:text-base text-indigo-700 font-medium flex items-center gap-2">
                   <Calendar size={18} className="text-indigo-600" />
                   Saturday, November 29{" "}
@@ -91,9 +91,10 @@ export default function StudentGalaLanding() {
       </section>
 
       {/* Awards Section */}
-      <section id="awards" className="max-w-7xl mx-auto text-center py-20 px-6">
-        <CountDown />
-      </section>
+      <section
+        id="awards"
+        className="max-w-7xl mx-auto text-center py-20 px-6"
+      ></section>
     </div>
   );
 }

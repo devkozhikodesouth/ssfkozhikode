@@ -44,7 +44,7 @@ const CountDown = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-lg rounded-3xl shadow-md border border-white/20 max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-lg rounded-3xl shadow-md border border-white/20 max-w-md ">
     
 
       <div className="grid grid-cols-4 gap-3 w-full">

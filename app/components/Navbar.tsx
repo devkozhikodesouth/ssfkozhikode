@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { usePathname } from "next/navigation";
 
 const Navbar: React.FC = () => {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   // Sticky Navbar
   useEffect(() => {
@@ -31,6 +33,13 @@ const Navbar: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [navbarOpen]);
 
+  const navItems = [
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Students Gala", href: "/studentsgala" },
+    { name: "Contact", href: "/contact" },
+  ];
+
   return (
     <header
       className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
@@ -48,10 +57,19 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Menu */}
         <nav className="hidden lg:flex items-center gap-8 me-5 font-medium text-black">
-          <Link href="/">Home</Link>
-          <Link href="#">About</Link>
-          <Link href="/studentsgala">Students Gala</Link>
-          <Link href="#">Contact</Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`transition ${
+                pathname === item.href
+                  ? "text-green-700 font-semibold border-b-2 border-green-700 pb-1"
+                  : "hover:text-green-700"
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
         </nav>
 
         {/* Buttons */}
@@ -90,18 +108,20 @@ const Navbar: React.FC = () => {
         </div>
 
         <nav className="flex flex-col items-start p-4 space-y-4 text-black text-lg">
-          <Link href="#" onClick={() => setNavbarOpen(false)}>
-            Home
-          </Link>
-          <Link href="#"  onClick={() => setNavbarOpen(false)}>
-            About
-          </Link>
-          <Link href="/studentsgala" onClick={() => setNavbarOpen(false)}>
-            Students Gala
-          </Link>
-          <Link href="#" onClick={() => setNavbarOpen(false)}>
-            Contact
-          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setNavbarOpen(false)}
+              className={`w-full transition ${
+                pathname === item.href
+                  ? "text-green-700 font-semibold border-l-4 border-green-700 pl-3"
+                  : "hover:text-green-700"
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
 
           <button
             onClick={() => alert("Button Clicked!")}
@@ -112,7 +132,7 @@ const Navbar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Overlay when menu is open */}
+      {/* Overlay */}
       {navbarOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-40"
