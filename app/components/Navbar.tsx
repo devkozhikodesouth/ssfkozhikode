@@ -33,12 +33,13 @@ const Navbar: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [navbarOpen]);
 
-  const navItems = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Students Gala", href: "/studentsgala" },
-    { name: "Contact", href: "/contact" },
-  ];
+const navItems = [
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Students Gala", href: "/studentsgala" },
+  { name: "Sahityotsav", href: "https://sahityotsav.ssfkozhikodesouth.in/" },
+];
+
 
   return (
     <header
