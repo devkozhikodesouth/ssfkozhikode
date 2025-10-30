@@ -63,16 +63,15 @@ export default function StudentGalaLanding() {
 
               {/* Right Content */}
               <div className="flex flex-col">
-                <p className="text-sm sm:text-base text-indigo-700 font-medium flex items-center gap-2">
-                  <Calendar size={18} className="text-indigo-600" />
+                <p className="text-xl sm:text-md text-indigo-700 font-medium flex items-start gap-1 ">
+                  
                   Saturday, November 29{" "}
-                  <span className="text-gray-600">· 09:00 AM</span>
-                </p>
-
+                     </p>
+                <span className="text-gray-600">09:00 AM</span>
                 <p className="text-sm text-gray-500 mt-1">
                   Organized by{" "}
                   <span className="font-medium text-gray-800">
-                    Student Council
+                    Organized by SSF Kozhikode South District Committee
                   </span>
                 </p>
               </div>
