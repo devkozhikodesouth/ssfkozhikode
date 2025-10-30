@@ -183,7 +183,8 @@ const StudentsGalaPage = () => {
         });
 
         // ✅ Open WhatsApp group
-        const groupLink = groupLinks[formData.division.toUpperCase()];
+
+          const groupLink = groupLinks[formData.division.toUpperCase()];
 
         if (groupLink) {
           console.log("Opening link:", groupLink);
@@ -191,6 +192,7 @@ const StudentsGalaPage = () => {
         } else {
           console.warn("No group link found for:", formData.division);
         }
+
         // ✅ Reset the form
         setFormData({
           name: "",
@@ -293,78 +295,9 @@ const StudentsGalaPage = () => {
             </div>
           </div>
 
-          {/* School */}
-          <div>
-            <label className="label font-medium">School</label>
-            <input
-              ref={refs.school}
-              type="text"
-              name="school"
-              className={`input input-bordered w-full ${
-                errors.school ? "border-red-500" : ""
-              }`}
-              placeholder="Select your school"
-              list="schools"
-              value={formData.school}
-              onChange={handleChange}
-            />
-            <datalist id="schools">
-              {kozhikodeSchools.map((school) => (
-                <option key={school} value={school} />
-              ))}
-            </datalist>
-            {errors.school && (
-              <p className="text-red-500 text-sm mt-1">{errors.school}</p>
-            )}
-          </div>
+          
 
-          {/* Course + Year */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="label font-medium">Course</label>
-              <select
-                ref={refs.course}
-                name="course"
-
-                className={`select select-bordered w-full ${
-                  errors.course ? "border-red-500" : ""
-                }`}
-                value={formData.course}
-                onChange={handleChange}
-              >
-                <option value="">Select Course</option>
-                <option>Science</option>
-                <option>Commerce</option>
-                <option>Humanities</option>
-              </select>
-              {errors.course && (
-                <p className="text-red-500 text-sm mt-1">{errors.course}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="label font-medium">Year</label>
-              <select
-                ref={refs.year}
-                name="year"
-
-                className={`select select-bordered w-full ${
-                  errors.year ? "border-red-500" : ""
-                }`}
-                value={formData.year}
-                onChange={handleChange}
-              >
-                {" "}
-                
-                <option value="">Select Year</option>
-                <option>Plus One</option>
-                <option>Plus Two</option>
-              </select>
-              {errors.year && (
-                <p className="text-red-500 text-sm mt-1">{errors.year}</p>
-              )}
-            </div>
-          </div>
+         
 
           {/* Division, Sector, Unit */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -448,6 +381,77 @@ const StudentsGalaPage = () => {
             </select>
             {errors.unit && (
               <p className="text-red-500 text-sm mt-1">{errors.unit}</p>
+            )}
+          </div>
+           {/* Course + Year */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="label font-medium">Course</label>
+              <select
+                ref={refs.course}
+                name="course"
+
+                className={`select select-bordered w-full ${
+                  errors.course ? "border-red-500" : ""
+                }`}
+                value={formData.course}
+                onChange={handleChange}
+              >
+                <option value="">Select Course</option>
+                <option>Science</option>
+                <option>Commerce</option>
+                <option>Humanities</option>
+              </select>
+              {errors.course && (
+                <p className="text-red-500 text-sm mt-1">{errors.course}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="label font-medium">Year</label>
+              <select
+                ref={refs.year}
+                name="year"
+
+                className={`select select-bordered w-full ${
+                  errors.year ? "border-red-500" : ""
+                }`}
+                value={formData.year}
+                onChange={handleChange}
+              >
+                {" "}
+                
+                <option value="">Select Year</option>
+                <option>Plus One</option>
+                <option>Plus Two</option>
+              </select>
+              {errors.year && (
+                <p className="text-red-500 text-sm mt-1">{errors.year}</p>
+              )}
+            </div>
+          </div>
+          {/* School */}
+          <div>
+            <label className="label font-medium">School</label>
+            <input
+              ref={refs.school}
+              type="text"
+              name="school"
+              className={`input input-bordered w-full ${
+                errors.school ? "border-red-500" : ""
+              }`}
+              placeholder="Select your school"
+              list="schools"
+              value={formData.school}
+              onChange={handleChange}
+            />
+            <datalist id="schools">
+              {kozhikodeSchools.map((school) => (
+                <option key={school} value={school} />
+              ))}
+            </datalist>
+            {errors.school && (
+              <p className="text-red-500 text-sm mt-1">{errors.school}</p>
             )}
           </div>
 

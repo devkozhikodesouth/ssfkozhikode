@@ -7,9 +7,9 @@ export const groupLinks: Record<string, string> = {
   NARIKKUNI: "https://chat.whatsapp.com/FP4vrXwoKor3VwcarGkNZP?mode=wwt",
   OMASSERY: "https://chat.whatsapp.com/CzymjreVVxdIBeUobOqoPH?mode=wwt",
   POONOOR: "https://chat.whatsapp.com/DvtQorbRluDCmwUdLivKTL",
-  MAVOOR: "",
-  KODUVALLY: "",
-  THAMARASSERY: "",
+  MAVOOR: "https://chat.whatsapp.com/GtSrG3bQqkFIyJgcTaDTIy?mode=wwt",
+  KODUVALLY: "https://chat.whatsapp.com/C5zANUQD2unGFO7Lf6LWyl?mode=wwt",
+  THAMARASSERY: "https://chat.whatsapp.com/FlAdBn28w221VZejAbAvxo?mode=wwt",
 };
 
 
