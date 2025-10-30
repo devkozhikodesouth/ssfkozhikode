@@ -40,7 +40,7 @@ const LandingPage = () => {
         </motion.div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section
       <section className="bg-white py-16 text-center">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
           <div>
@@ -68,7 +68,7 @@ const LandingPage = () => {
             </p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Logo Slider */}
       <LogoSlider />

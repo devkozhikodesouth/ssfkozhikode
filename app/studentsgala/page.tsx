@@ -72,7 +72,7 @@ export default function StudentGalaLanding() {
                 <p className="text-sm text-gray-500 mt-1">
                   Organized by{" "}
                   <span className="font-medium text-gray-800">
-                    Organized by SSF Kozhikode South District Committee
+                    SSF Kozhikode South District Committee
                   </span>
                 </p>
               </div>
