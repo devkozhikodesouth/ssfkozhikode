@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Calendar, MapPin, Users } from "lucide-react";
 import CountDown from "./CountDown";
+import StudentsGalaInfo from "./StudentsGalaInfo";
 
 export default function StudentGalaLanding() {
   return (
@@ -93,7 +94,9 @@ export default function StudentGalaLanding() {
       <section
         id="awards"
         className="max-w-7xl mx-auto text-center py-20 px-6"
-      ></section>
+      >
+        <StudentsGalaInfo />
+      </section>
     </div>
   );
 }
