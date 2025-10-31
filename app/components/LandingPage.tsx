@@ -11,12 +11,13 @@ const LandingPage = () => {
       <section
         className="relative flex flex-col items-center justify-center text-center px-6 md:px-16 min-h-screen"
         style={{
-          backgroundImage: "url('/bafddsnner.jpg')", // replace with uploaded image path
+          backgroundImage: "url('/3.jpg')", // replace with uploaded image path
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-100"></div>
+        
+  <div className="absolute inset-0 bg-linear-to-br from-white-50 via-black to-white-100 opacity-70"></div>
 
         <motion.div
           className="relative z-10 max-w-3xl mx-auto"
@@ -32,11 +33,20 @@ const LandingPage = () => {
             healthier planet. Join us on a journey towards a future where clean,
             renewable energy sources transform the way we power our lives.
           </p>
-          <Link href="/studentsgala">   
-          <button className="bg-green-400 hover:bg-green-500 text-gray-900 font-medium px-8 py-3 rounded-full shadow-md transition">
-            Students Gala
-          </button>
-          </Link>
+ <div className="flex justify-center gap-4 mt-6">
+  <Link href="/studentsgala">
+    <button className="px-8 py-3 rounded-full bg-gradient-to-r from-green-400 to-green-500 text-gray-900 font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300">
+      Students Gala
+    </button>
+  </Link>
+
+  <Link href="https://sahityotsav.ssfkozhikodesouth.in/">
+    <button className="px-8 py-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 text-gray-900 font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300">
+      Sahityotsav
+    </button>
+  </Link>
+</div>
+
         </motion.div>
       </section>
 

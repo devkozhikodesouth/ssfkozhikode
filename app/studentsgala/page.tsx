@@ -10,7 +10,7 @@ export default function StudentGalaLanding() {
       {/* Header */}
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br md:pt-24    from-blue-50 via-white to-blue-100 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
+  <section className="bg-linear-to-br md:pt-24    from-blue-50 via-white to-blue-100 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
         {/* Left Content */}
         <div className=" md:pl-24 ">
           <img
@@ -40,7 +40,7 @@ export default function StudentGalaLanding() {
 
           <div className="my-10 grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-gray-700">
             {/* 🗺️ Location Card */}
-            <div className="flex items-center gap-4 bg-gradient-to-r from-white to-indigo-50 p-6 rounded-3xl shadow-md hover:shadow-lg border border-gray-100 transition-all duration-300 group">
+            <div className="flex items-center gap-4 bg-linear-to-r from-white to-indigo-50 p-6 rounded-3xl shadow-md hover:shadow-lg border border-gray-100 transition-all duration-300 group">
               <div className="flex items-center justify-center w-14  rounded-2xl bg-indigo-100 group-hover:bg-indigo-200 transition">
                 <MapPin size={26} className="text-indigo-600" />
               </div>
@@ -53,7 +53,7 @@ export default function StudentGalaLanding() {
             </div>
 
             {/* 🎓 Event Info Card */}
-            <div className="relative flex items-center gap-6 bg-gradient-to-r from-white to-indigo-50 p-6 rounded-3xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group">
+            <div className="relative flex items-center gap-6 bg-linear-to-r from-white to-indigo-50 p-6 rounded-3xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group">
               {/* Decorative Accent */}
               <div className="absolute left-0 top-0 h-full w-1 bg-indigo-500 rounded-l-3xl group-hover:w-1.5 transition-all duration-300"></div>
 

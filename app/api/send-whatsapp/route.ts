@@ -1,72 +1,133 @@
-// const sendMessage=await fetch("/api/send-whatsapp", {
-//   method: "POST",
-//   headers: { "Content-Type": "application/json" },
-//   body: JSON.stringify({
-//     phone: formData.mobile,
-//     message: `Hello ${formData.name},
+import type { NextRequest } from "next/server";
+import QRCode from "qrcode";
+import FormData from "form-data";
+import fs from "fs";
+import path from "path";
+import fetch from "node-fetch"; // ✅ crucial for multipart upload support
 
-// Your registration for the Students’ Gala has been successfully completed! 🎉
-
-// We’re excited to invite you to join us for this inspiring event, happening on November 29 at Kadalundi.
-// Get ready to experience a day filled with learning, creativity, and togetherness!
-
-// Warm regards,  
-// SSF Kozhikode South District Committee`,
-//   }),
-// });
-
-
-import { NextResponse } from "next/server";
-import axios from "axios";
-
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
-  const phone = body?.phone?.toString?.();
-  const message = body?.message?.toString?.();
-
-  // Basic input validation
-  if (!phone || !phone.trim()) {
-    return NextResponse.json({ success: false, error: "'phone' is required" }, { status: 400 });
-  }
-  if (!message || !message.trim()) {
-    return NextResponse.json({ success: false, error: "'message' is required" }, { status: 400 });
+export async function POST(req: NextRequest) {
+  // 1️⃣ Check environment variables
+  if (!process.env.PHONE_NUMBER_ID || !process.env.META_ACCESS_TOKEN) {
+    console.error("Missing environment variables: PHONE_NUMBER_ID or META_ACCESS_TOKEN");
+    return new Response(
+      JSON.stringify({ error: "Server configuration error." }),
+      { status: 500 }
+    );
   }
 
-  // Ensure environment variables are present
-  const phoneNumberId = process.env.PHONE_NUMBER_ID;
-  const accessToken = process.env.META_ACCESS_TOKEN;
-  console.log(phoneNumberId,accessToken)
-  if (!phoneNumberId || !accessToken) {
-    console.error("Missing Meta/WhatsApp environment variables.", { phoneNumberId, hasToken: !!accessToken });
-    return NextResponse.json({ success: false, error: "Server misconfiguration" }, { status: 500 });
-  }
+  let filePath: string | null = null;
 
-    try {
-    const res = await axios.post(
-      `https://graph.facebook.com/v24.0/${process.env.PHONE_NUMBER_ID}/messages`,
+  try {
+    const { mobile, name, event } = await req.json();
+
+    // 2️⃣ Generate QR Code and save it temporarily
+    const fileName = `QR_${mobile}.png`;
+    filePath = path.join("/tmp", fileName); // safe for Vercel/Node serverless
+    await QRCode.toFile(filePath, `Mobile: ${mobile}\nName: ${name}\nEvent: ${event}`);
+
+    // 3️⃣ Prepare multipart/form-data (order matters!)
+    const formData = new FormData();
+    formData.append("messaging_product", "whatsapp"); // must be first
+    formData.append("type", "image/png");
+    formData.append("file", fs.createReadStream(filePath));
+
+    // 4️⃣ Upload QR image to Meta’s /media endpoint
+    const mediaRes = await fetch(
+      `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/media`,
       {
-        messaging_product: "whatsapp",
-        recipient_type: "individual",
-        to: phone.startsWith("+") ? phone : `+91${phone}`, // add country code if missing
-        type: "text",
-        text: {
-          preview_url: true,
-          body: message,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
+          ...formData.getHeaders(), // includes correct multipart boundary
         },
+        body: formData as any,
+      }
+    );
+
+    const mediaData :any= await mediaRes.json();
+    console.log("Media response:", mediaData);
+
+    if (!mediaRes.ok || !mediaData.id) {
+      console.error("Error uploading media:", mediaData);
+      return new Response(JSON.stringify({ error: mediaData }), { status: 500 });
+    }
+
+    const mediaId = mediaData.id;
+
+    // 5️⃣ Send WhatsApp message using the uploaded media ID
+    const messagePayload = {
+      messaging_product: "whatsapp",
+      to: `91${mobile}`,
+      type: "template",
+      template: {
+        name: "gala_registered_succes_message",
+        language: { code: "en" },
+        components: [
+          {
+            type: "header",
+            parameters: [
+              {
+                type: "image",
+                image: { id: mediaId },
+              },
+            ],
+          },
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: name },
+            ],
+          },
+        ],
       },
+    };
+
+
+    const messageRes = await fetch(
+      `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`,
       {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(messagePayload),
       }
     );
-console.log(res.data)
-    return NextResponse.json({ success: true, data: res.data });
-  }catch (err: any) {
-    // Axios error objects often contain useful debugging info
-    const details = err?.response?.data || err?.message || String(err);
-    console.error("Failed sending WhatsApp message:", details);
-    return NextResponse.json({ success: false, error: "Failed to send message", details }, { status: 502 });
+
+    const messageData = await messageRes.json();
+console.log(mediaData)
+    if (!messageRes.ok) {
+      console.error("Error sending message:", messageData);
+      return new Response(JSON.stringify({ error: messageData }), { status: 500 });
+    }
+
+    // 6️⃣ Cleanup temporary file
+    if (filePath && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      filePath = null;
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        mediaId,
+
+      }),
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Server error:", error);
+
+    // Cleanup on failure
+    if (filePath && fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (cleanupError) {
+        console.error("Failed to clean up temporary file:", cleanupError);
+      }
+    }
+
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
