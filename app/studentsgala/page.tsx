@@ -15,7 +15,7 @@ export default function StudentGalaLanding() {
         <div className=" md:pl-24 ">
           <img
             className="-mt-40 md:mt-10"
-            src="Students-Gala.png"
+            src="/Students-Gala.png"
             width={"70%"}
             alt="Students Gala"
           />

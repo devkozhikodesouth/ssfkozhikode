@@ -5,13 +5,20 @@ import { groupLinks, sectors, sectorUnits } from "../../utils/hirarcyList";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { sendWhatsApp } from "@/app/lib/sendmessage";
+import { set } from "mongoose";
+import WhatsAppCard from "@/app/components/WhatsAppCard";
 
 const StudentsGalaPage = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [divisions, setDivisions] = useState<string[]>([]);
   const [availableSectors, setAvailableSectors] = useState<string[]>([]);
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
+const [imageFile, setImageFile] = useState<File | null>(null);
+  const handleImageGenerated = async (file: File) => {
+    setImageFile(file);
+  }
   const refs = {
     name: useRef<HTMLInputElement>(null),
     mobile: useRef<HTMLInputElement>(null),
@@ -57,7 +64,6 @@ const StudentsGalaPage = () => {
     sector: "",
     unit: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -182,10 +188,14 @@ const StudentsGalaPage = () => {
           showConfirmButton: false,
           timer: 2000,
         });
-sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
+
+        
+      await sendWhatsApp(formData.name, formData.mobile);
+       
+  
         // ✅ Open WhatsApp group
 
-          const groupLink = groupLinks[formData.division.toUpperCase()];
+        const groupLink = groupLinks[formData.division.toUpperCase()];
 
         if (groupLink) {
           console.log("Opening link:", groupLink);
@@ -229,7 +239,16 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
   };
 
   return (
-  <main className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100 py-10 pt-24 px-4 md:px-10">
+    <main className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100 py-10 pt-24 px-4 md:px-10">
+      {isSubmitting && (
+  <div className="hidden">
+    <WhatsAppCard
+      name={formData.name}
+      mobile={formData.mobile}
+      handleImage={(file) => handleImageGenerated(file)}
+    />
+  </div>
+)}
       <div className="max-w-2xl mx-auto bg-base-100 shadow-md  rounded-xl p-8">
         <h1 className="text-3xl font-bold text-center text-blue-900 mb-8">
           Students Gala Registration
@@ -296,10 +315,6 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
             </div>
           </div>
 
-          
-
-         
-
           {/* Division, Sector, Unit */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -329,7 +344,7 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
             <div>
               <label className="label font-medium">Sector</label>
               <select
-              ref={refs.sector}
+                ref={refs.sector}
                 name="sector"
                 className={`select select-bordered w-full ${
                   errors.sector ? "border-red-500" : ""
@@ -338,9 +353,7 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
                 onChange={handleChange}
                 disabled={!formData.division}
               >
-                <option value="" >
-                  Choose your sector
-                </option>
+                <option value="">Choose your sector</option>
                 {formData.division &&
                   (availableSectors.length > 0
                     ? availableSectors
@@ -384,14 +397,13 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
               <p className="text-red-500 text-sm mt-1">{errors.unit}</p>
             )}
           </div>
-           {/* Course + Year */}
+          {/* Course + Year */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="label font-medium">Course</label>
               <select
                 ref={refs.course}
                 name="course"
-
                 className={`select select-bordered w-full ${
                   errors.course ? "border-red-500" : ""
                 }`}
@@ -413,7 +425,6 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
               <select
                 ref={refs.year}
                 name="year"
-
                 className={`select select-bordered w-full ${
                   errors.year ? "border-red-500" : ""
                 }`}
@@ -421,7 +432,6 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
                 onChange={handleChange}
               >
                 {" "}
-                
                 <option value="">Select Year</option>
                 <option>Plus One</option>
                 <option>Plus Two</option>
@@ -477,6 +487,7 @@ sendWhatsApp(formData.mobile, formData.name, "Students Gala 2025");
           </div>
         </form>
       </div>
+
     </main>
   );
 };

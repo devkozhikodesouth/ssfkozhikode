@@ -5,15 +5,16 @@ type SendWhatsAppResponse = {
 };
 
 export async function sendWhatsApp(
-  mobile: string,
   name: string,
-  event: string
+  mobile: string
 ): Promise<SendWhatsAppResponse> {
   try {
     const res = await fetch("/api/send-whatsapp", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mobile, name, event }),
+      headers: {
+        "Content-Type": "application/json", // ✅ Important
+      },
+      body: JSON.stringify({ mobile, name }), // ✅ Must stringify
     });
 
     const data = await res.json();

@@ -1,27 +1,18 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import LayoutClient from "./components/LayoutClient";
 
 export const metadata: Metadata = {
   title: "SSF Kozhikode South",
   description: "Official website of SSF Kozhikode South",
-  icons: {
-    icon: "/logo.png", // or "/favicon.png" or "/favicon.svg"
-  },
+  icons: { icon: "/logo.png" },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="light">
       <body>
-        <Navbar />
-        {children}
-        <Footer />
+        <LayoutClient>{children}</LayoutClient>
       </body>
     </html>
   );

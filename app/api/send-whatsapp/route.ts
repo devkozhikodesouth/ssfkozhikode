@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       to: `91${mobile}`,
       type: "template",
       template: {
-        name: "gala_registered_succes_message",
+        name: "success_gala_register_utility",
         language: { code: "en" },
         components: [
           {
