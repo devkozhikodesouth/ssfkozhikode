@@ -7,67 +7,96 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const res = await fetch("/api/login/admin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (res.ok) {
-      router.push("/admin/dashboard");
-    } else {
-      let message = "Login failed";
-      try {
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          const data = await res.json();
-          message = (data && (data.message || data.error)) || message;
-        } else {
-          const text = await res.text();
-          if (text) message = text;
-        }
-      } catch (_) {
-        // noop: fallback to default message
+    setLoading(true);
+  
+    console.log("🟢 Sending login request...");
+  
+    try {
+      const res = await fetch("/api/login/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        redirect: "manual", // 👈 prevent fetch from auto-following redirects
+        body: JSON.stringify({ email, password }),
+      });
+  
+      console.log("📥 Response status:", res.status);
+  
+      // 🟡 When backend sends a redirect, fetch does not follow it automatically
+      if (res.type === "opaqueredirect" || res.status === 0) {
+        console.log("🔁 Redirect detected (opaqueredirect) — manually navigating...");
+        window.location.href = "/admin/dashboard";
+        return;
       }
-      setError(message);
+  
+      if (res.redirected) {
+        console.log("🔁 Redirect detected:", res.url);
+        window.location.href = res.url;
+        return;
+      }
+  
+      if (res.ok) {
+        console.log("✅ Login success, redirecting manually...");
+        window.location.href = "/admin/dashboard";
+      } else {
+        const data = await res.json().catch(() => ({}));
+        console.error("❌ Login failed:", data);
+        setError(data.message || "Invalid credentials");
+      }
+    } catch (err) {
+      console.error("🔥 Login request error:", err);
+      setError("Unable to connect to server.");
+    } finally {
+      setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-8 rounded shadow-md w-full max-w-sm"
+        className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm"
       >
-        <h2 className="text-2xl font-semibold text-center mb-6">Admin Login</h2>
-        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+        <h2 className="text-2xl font-semibold text-center mb-6 text-gray-700">
+          Admin Login
+        </h2>
+
+        {error && (
+          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+        )}
 
         <input
           type="email"
           placeholder="Email"
-          className="w-full border p-2 mb-4 rounded"
+          className="w-full border border-gray-300 p-2 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
 
         <input
           type="password"
           placeholder="Password"
-          className="w-full border p-2 mb-4 rounded"
+          className="w-full border border-gray-300 p-2 mb-6 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          disabled={loading}
+          className={`w-full ${
+            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+          } text-white py-2 rounded-lg transition-colors duration-200`}
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

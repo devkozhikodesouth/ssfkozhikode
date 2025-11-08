@@ -12,7 +12,7 @@ export default function DivisionStudentTable({ darkMode }: { darkMode?: boolean 
   const [data, setData] = useState<DivisionCount[]>([]);
 
   useEffect(() => {
-    fetch("/api/dashboard")
+    fetch("/api/dashboard", { credentials: "include" })
       .then((res) => res.json())
       .then(setData)
       .catch(console.error);

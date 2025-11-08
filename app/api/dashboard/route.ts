@@ -4,7 +4,6 @@ import Student from "../../models/Students";
 import { connectDB } from "@/app/lib/mongodb";
 
 export async function GET() {
-
   try {
     await connectDB();
     const result = await Student.aggregate([

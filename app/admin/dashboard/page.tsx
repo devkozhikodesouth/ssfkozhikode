@@ -1,64 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Moon, Sun, Search, ChevronDown, Menu, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DivisionStudentTable from "@/app/components/DivisionStudentTable";
 
 export default function DashboardLayout() {
+   console.log('dashboard')
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [openMenu, setOpenMenu] = useState("Tables");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  useEffect(() => {
-    // Verify authentication via API call
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/login/admin", { method: "GET" });
-        if (res.ok) {
-          setIsAuthenticated(true);
-        } else {
-          router.push("/admin/login");
-        }
-      } catch (error) {
-        router.push("/admin/login");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  
 
   const toggleMenu = (label: string) => {
     setOpenMenu(openMenu === label ? "" : label);
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout", { method: "POST" });
-      router.push("/admin/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      router.push("/admin/login");
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await fetch("/api/logout", { method: "POST", credentials: "include" });
+  //     router.push("/admin/login");
+  //   } catch (error) {
+  //     console.error("Logout error:", error);
+  //     router.push("/admin/login");
+  //   }
+  // };
 
   return (
     <div className={`flex min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
@@ -146,7 +114,6 @@ export default function DashboardLayout() {
               <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
               <span className="text-sm font-medium">Admin</span>
               <button
-                onClick={handleLogout}
                 className="ml-2 px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
               >
                 Logout
