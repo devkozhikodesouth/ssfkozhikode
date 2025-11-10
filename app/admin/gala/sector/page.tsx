@@ -6,24 +6,26 @@ import DivisionTable from "@/app/gala/division/[divisionName]/DivisionTable";
 export default function SectorPage() {
   const [divisions, setDivisions] = useState<string[]>([]);
   const [divisionName, setDivisionName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Fetch division list
     const fetchDivisions = async () => {
       try {
         const res = await fetch("/api/register");
         const data = await res.json();
 
-        if (data?.success && Array.isArray(data.data) && data.data.length > 0) {
-          const names = data.data.map((d: any) => d.divisionName || String(d));
+        if (res.ok && data?.success && Array.isArray(data.data)) {
+          const names = data.data
+            .map((d: any) => d.divisionName)
+            .filter(Boolean); // remove empty/null
           setDivisions(names);
         } else {
-          console.warn("No divisions found");
-          setDivisions([]);
+          console.warn("No valid divisions found:", data);
         }
       } catch (err) {
         console.error("Error fetching divisions:", err);
-        setDivisions([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -33,34 +35,40 @@ export default function SectorPage() {
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Page Header */}
+        {/* Header */}
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Students Gala — Division Wise Data
         </h1>
 
-        {/* Dropdown */}
+        {/* Division Selector */}
         <div className="flex justify-center mb-8">
-          <select
-            value={divisionName}
-            onChange={(e) => setDivisionName(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select a Division</option>
-            {divisions.map((division, index) => (
-              <option key={index} value={division}>
-                {division}
-              </option>
-            ))}
-          </select>
+          {loading ? (
+            <p className="text-gray-600 animate-pulse">Loading divisions...</p>
+          ) : (
+            <select
+              value={divisionName}
+              onChange={(e) => setDivisionName(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select a Division</option>
+              {divisions.map((division) => (
+                <option key={division} value={division}>
+                  {division}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
-        {/* Conditional Render */}
+        {/* Data Section */}
         {divisionName ? (
           <DivisionTable divisionName={divisionName} />
         ) : (
-          <p className="text-center text-gray-600">
-            Please select a division to view its data.
-          </p>
+          !loading && (
+            <p className="text-center text-gray-600">
+              Please select a division to view its data.
+            </p>
+          )
         )}
       </div>
     </main>
