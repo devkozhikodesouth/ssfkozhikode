@@ -5,30 +5,33 @@ import Sector from "@/app/models/Sector";
 import Unit from "@/app/models/Unit";
 import Student from "@/app/models/Students";
 
+// ✅ The `context` type is relaxed to support both Promise and object forms
 export async function GET(
   req: NextRequest,
-  { params }: { params: { divisionName: string } }
+  context: { params: { divisionName: string } } | { params: Promise<{ divisionName: string }> }
 ) {
   try {
     await connectDB();
 
-    // ✅ No need for await — params is a plain object
-    const { divisionName } = params;
+    // ✅ Safely handle both cases (Promise vs object)
+    const params =
+      typeof (context.params as any)?.then === "function"
+        ? await (context.params as Promise<{ divisionName: string }>)
+        : (context.params as { divisionName: string });
 
-    console.log("Resolved Division:", divisionName);
+    const { divisionName } = params;
 
     if (!divisionName) {
       return NextResponse.json(
-        { error: `Invalid division name '${divisionName}'` },
+        { error: "Invalid division name" },
         { status: 400 }
       );
     }
 
-    // ✅ Decode and escape incoming param, then do case-insensitive lookup
-    const rawName = String(decodeURIComponent(divisionName || "")).trim();
+    const rawName = decodeURIComponent(divisionName.trim());
 
-    // Escape regex special characters to avoid injection or invalid regex
-    const escapeForRegex = (s: string) => s.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
+    const escapeForRegex = (s: string) =>
+      s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const safeRegex = new RegExp(`^${escapeForRegex(rawName)}$`, "i");
 
     const division = await Division.findOne({
@@ -37,15 +40,13 @@ export async function GET(
 
     if (!division) {
       return NextResponse.json(
-        { error: `Division '${divisionName}' not found` },
+        { error: `Division '${rawName}' not found` },
         { status: 404 }
       );
     }
 
-    // ✅ Get all sectors in this division
     const sectors = await Sector.find({ divisionId: division._id });
 
-    // ✅ For each sector, count students
     const sectorData = await Promise.all(
       sectors.map(async (sector) => {
         const units = await Unit.find({ sectorId: sector._id });
@@ -67,7 +68,6 @@ export async function GET(
       0
     );
 
-    // ✅ Return clean JSON response
     return NextResponse.json({
       divisionName: division.divisionName,
       totalStudents,

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
 import Division from "@/app/models/Division";
 import Sector from "@/app/models/Sector";
@@ -6,46 +6,43 @@ import Unit from "@/app/models/Unit";
 import Student from "@/app/models/Students";
 
 export async function GET(
-  req: NextRequest,
-  context: { params: { divisionName: string } } | { params: Promise<{ divisionName: string }> }
-): Promise<NextResponse> {
+  req: Request,
+  { params }: { params: Promise<{ divisionName: string }> }
+) {
   try {
     await connectDB();
 
-    // ✅ Works for both Next 14 (object) and Next 15 (Promise)
-    const params =
-      typeof (context.params as any).then === "function"
-        ? await (context.params as Promise<{ divisionName: string }>)
-        : (context.params as { divisionName: string });
+    // ✅ Await params before using
+    const { divisionName: rawDivisionName } = await params;
 
-    const { divisionName } = params;
+    // 1️⃣ Normalize and validate divisionName
+    const divisionName = decodeURIComponent(String(rawDivisionName ?? "")).trim();
+
+    console.log("Requested Division:", divisionName); // ✅ moved here
 
     if (!divisionName) {
       return NextResponse.json(
-        { error: "Missing division name parameter" },
+        { error: "Invalid division name" },
         { status: 400 }
       );
     }
 
-    // ✅ Decode safely and sanitize
-    const rawName = decodeURIComponent(divisionName.trim());
-    const escapeForRegex = (s: string) =>
-      s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const safeRegex = new RegExp(`^${escapeForRegex(rawName)}$`, "i");
-
+    // 2️⃣ Find Division (case-insensitive match)
     const division = await Division.findOne({
-      divisionName: { $regex: safeRegex },
+      divisionName: { $regex: new RegExp(`^${divisionName}$`, "i") },
     });
 
     if (!division) {
       return NextResponse.json(
-        { error: `Division '${rawName}' not found` },
+        { error: `Division '${divisionName}' not found` },
         { status: 404 }
       );
     }
 
+    // 3️⃣ Find all sectors under the division
     const sectors = await Sector.find({ divisionId: division._id });
 
+    // 4️⃣ For each sector, find all units and count students
     const sectorData = await Promise.all(
       sectors.map(async (sector) => {
         const units = await Unit.find({ sectorId: sector._id });
@@ -62,11 +59,13 @@ export async function GET(
       })
     );
 
+    // 5️⃣ Calculate total students in division
     const totalStudents = sectorData.reduce(
       (sum, s) => sum + s.studentCount,
       0
     );
 
+    // ✅ Return response
     return NextResponse.json({
       divisionName: division.divisionName,
       totalStudents,
