@@ -2,8 +2,24 @@
 
 import { useEffect, useState } from "react";
 
+interface Sector {
+  sectorName: string;
+  studentCount: number;
+}
+
+interface DivisionData {
+  divisionName: string;
+  totalStudents: number;
+  sectors: Sector[];
+}
+
+interface ApiError {
+  error: string;
+}
+
 export default function DivisionTable({ divisionName }: { divisionName: string }) {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<DivisionData | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,12 +39,21 @@ export default function DivisionTable({ divisionName }: { divisionName: string }
           }
         );
 
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
         const result = await res.json();
-        setData(result);
+        
+        if (!res.ok) {
+          const apiError = result as ApiError;
+          setError(apiError.error || `HTTP error! status: ${res.status}`);
+          setData(null);
+          return;
+        }
+
+        setData(result as DivisionData);
+        setError(null);
       } catch (error) {
         console.error("Error fetching division data:", error);
+        setError("Failed to fetch division data. Please try again later.");
+        setData(null);
       } finally {
         setLoading(false);
       }
@@ -45,14 +70,23 @@ export default function DivisionTable({ divisionName }: { divisionName: string }
       </p>
     );
 
-  // ❌ No Data or invalid divisionName
+  // ❌ Error State
+  if (error) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  // ❌ No Data
   if (!data) {
     const name = String(divisionName ?? "").trim();
     return (
       <p className="text-center py-10 text-red-500">
         {name
           ? `No data found for "${name}"`
-          : "Invalid or missing division name in the URL."}
+          : "Please provide a valid division name in the URL."}
       </p>
     );
   }

@@ -7,45 +7,24 @@ import Student from "@/app/models/Students";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ divisionName: string }> }
+  { params }: { params: { divisionName: string } }
 ) {
   try {
     await connectDB();
 
-    // ✅ Await params before using
-    const { divisionName: rawDivisionCode } = await params;
+    // ✅ Unwrap params
+    const { divisionName } = await params;
 
-    // ✅ Mapping of divisions and their unique codes
-    const divisions: Record<string, string> = {
-      Feroke: "fer-a3f9",
-      Koduvally: "kod-b7x2",
-      Kozhikode: "koz-c8m4",
-      Kunnamangalam: "kun-d6r1",
-      Mavoor: "mav-e2k9",
-      Mukkam: "muk-f5n7",
-      Narikkuni: "nar-g3q8",
-      Omassery: "oma-h9t6",
-      Poonoor: "poo-j1v4",
-      Thamarassery: "tha-k8p2",
-    };
-
-    // ✅ Reverse lookup to get actual division name
-    const code = decodeURIComponent(String(rawDivisionCode ?? "")).trim();
-    const divisionName = Object.keys(divisions).find(
-      (key) => divisions[key] === code
-    );
-
-    console.log("Requested Code:", code);
     console.log("Resolved Division:", divisionName);
 
     if (!divisionName) {
       return NextResponse.json(
-        { error: `Invalid division code '${code}'` },
+        { error: `Invalid division name '${divisionName}'` },
         { status: 400 }
       );
     }
 
-    // ✅ Find Division (case-insensitive match)
+    // ✅ Find Division (case-insensitive)
     const division = await Division.findOne({
       divisionName: { $regex: new RegExp(`^${divisionName}$`, "i") },
     });
@@ -57,7 +36,7 @@ export async function GET(
       );
     }
 
-    // ✅ Get all sectors under division
+    // ✅ Get all sectors in this division
     const sectors = await Sector.find({ divisionId: division._id });
 
     // ✅ For each sector, count students
@@ -82,10 +61,9 @@ export async function GET(
       0
     );
 
-    // ✅ Return clean JSON response
+    // ✅ Return clean response
     return NextResponse.json({
-      divisionName,
-      code,
+      divisionName: division.divisionName, // if exists in schema
       totalStudents,
       sectors: sectorData,
     });

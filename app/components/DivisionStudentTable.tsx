@@ -10,15 +10,19 @@ type DivisionCount = {
 
 export default function DivisionStudentTable({ darkMode }: { darkMode?: boolean }) {
   const [data, setData] = useState<DivisionCount[]>([]);
+  const [total, setTotal] = useState<number>(0);
 
   useEffect(() => {
     fetch("/api/dashboard", { credentials: "include" })
       .then((res) => res.json())
-      .then(setData)
+      .then((result) => {
+        setData(result.divisions);
+        setTotal(result.totalStudents);
+      })
       .catch(console.error);
   }, []);
 
-  return (  
+  return (
     <section className="p-6">
       <h2 className="text-xl font-semibold mb-4">Tables</h2>
 
@@ -27,7 +31,16 @@ export default function DivisionStudentTable({ darkMode }: { darkMode?: boolean 
           darkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-800"
         }`}
       >
-        <h3 className="font-semibold text-lg mb-3">Division Student Count</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold text-lg">Division Student Count</h3>
+          <span
+            className={`text-sm font-medium px-3 py-1 rounded-full ${
+              darkMode ? "bg-gray-700 text-gray-200" : "bg-gray-100 text-gray-700"
+            }`}
+          >
+            Total Students: {total}
+          </span>
+        </div>
 
         <table className="w-full text-left border-collapse">
           <thead>
