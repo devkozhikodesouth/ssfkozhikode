@@ -1,14 +1,18 @@
 import DivisionTable from "./DivisionTable";
 
-export default async function DivisionPage({
-  params,
-}: {
-  params: Promise<{ divisionName: string }>;
-}) {
-  // ✅ Await params to unwrap the promise
-  const { divisionName } = await params;
+export default async function DivisionPage(
+  context: { params: { divisionName: string } } | { params: Promise<{ divisionName: string }> }
+) {
+  // ✅ Handle both object and Promise cases
+  const params =
+    typeof (context.params as any).then === "function"
+      ? await (context.params as Promise<{ divisionName: string }>)
+      : (context.params as { divisionName: string });
 
-  // Division name → code mapping
+  const rawParam = params?.divisionName;
+  const divisionName = rawParam ? decodeURIComponent(String(rawParam)).trim() : "";
+
+  // ✅ Division code → human-readable mapping
   const divisions: Record<string, string> = {
     Feroke: "fer-a3f9",
     Koduvally: "kod-b7x2",
@@ -22,25 +26,30 @@ export default async function DivisionPage({
     Thamarassery: "tha-k8p2",
   };
 
-  // ✅ Reverse lookup: find the division name that matches the given code
-  const matchedDivisionName = Object.keys(divisions).find(
-    (key) => divisions[key].toLowerCase() === divisionName.toLowerCase()
-  );
+  // ✅ Reverse lookup (find key whose value matches route code)
+  const matchedDivisionName = divisionName
+    ? Object.keys(divisions).find(
+        (key) => divisions[key].toLowerCase() === divisionName.toLowerCase()
+      )
+    : undefined;
 
   console.log("Matched Division:", matchedDivisionName || "No match found");
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10 px-4">
+    <main className="min-h-screen bg-gray-50 py-10 px-4 flex justify-center">
       {matchedDivisionName ? (
-        // ✅ Pass the division name to DivisionTable
-        <DivisionTable divisionName={matchedDivisionName} />
+        <div className="w-full max-w-5xl">
+          <DivisionTable divisionName={matchedDivisionName} />
+        </div>
       ) : (
-        // ❌ Fallback for invalid or unmatched division code
-        <div className="text-center mt-20 text-gray-700">
+        <div className="text-center mt-20 text-gray-700 dark:text-gray-300">
           <h1 className="text-2xl font-bold mb-2">Invalid Division</h1>
           <p>
             The division code{" "}
-            <span className="font-semibold">{divisionName}</span> was not found.
+            <span className="font-semibold text-red-500">
+              {divisionName || "(empty)"}
+            </span>{" "}
+            was not found.
           </p>
         </div>
       )}

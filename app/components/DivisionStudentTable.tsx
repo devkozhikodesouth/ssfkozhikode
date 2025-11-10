@@ -13,7 +13,7 @@ export default function DivisionStudentTable({ darkMode }: { darkMode?: boolean 
   const [total, setTotal] = useState<number>(0);
 
   useEffect(() => {
-    fetch("/api/dashboard", { credentials: "include" })
+    fetch("/api/admin/divisiondata", { credentials: "include" })
       .then((res) => res.json())
       .then((result) => {
         setData(result.divisions);

@@ -7,30 +7,28 @@ import Student from "@/app/models/Students";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { divisionName: string } } | { params: Promise<{ divisionName: string }> }
-): Promise<NextResponse> {
+  { params }: { params: { divisionName: string } }
+) {
   try {
     await connectDB();
 
-    // ✅ Works for both Next 14 (object) and Next 15 (Promise)
-    const params =
-      typeof (context.params as any).then === "function"
-        ? await (context.params as Promise<{ divisionName: string }>)
-        : (context.params as { divisionName: string });
-
+    // ✅ No need for await — params is a plain object
     const { divisionName } = params;
+
+    console.log("Resolved Division:", divisionName);
 
     if (!divisionName) {
       return NextResponse.json(
-        { error: "Missing division name parameter" },
+        { error: `Invalid division name '${divisionName}'` },
         { status: 400 }
       );
     }
 
-    // ✅ Decode safely and sanitize
-    const rawName = decodeURIComponent(divisionName.trim());
-    const escapeForRegex = (s: string) =>
-      s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // ✅ Decode and escape incoming param, then do case-insensitive lookup
+    const rawName = String(decodeURIComponent(divisionName || "")).trim();
+
+    // Escape regex special characters to avoid injection or invalid regex
+    const escapeForRegex = (s: string) => s.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
     const safeRegex = new RegExp(`^${escapeForRegex(rawName)}$`, "i");
 
     const division = await Division.findOne({
@@ -39,13 +37,15 @@ export async function GET(
 
     if (!division) {
       return NextResponse.json(
-        { error: `Division '${rawName}' not found` },
+        { error: `Division '${divisionName}' not found` },
         { status: 404 }
       );
     }
 
+    // ✅ Get all sectors in this division
     const sectors = await Sector.find({ divisionId: division._id });
 
+    // ✅ For each sector, count students
     const sectorData = await Promise.all(
       sectors.map(async (sector) => {
         const units = await Unit.find({ sectorId: sector._id });
@@ -67,6 +67,7 @@ export async function GET(
       0
     );
 
+    // ✅ Return clean JSON response
     return NextResponse.json({
       divisionName: division.divisionName,
       totalStudents,

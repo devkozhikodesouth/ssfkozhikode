@@ -27,7 +27,7 @@ export default function DivisionTable({ divisionName }: { divisionName: string }
       setLoading(false);
       return;
     }
-
+console.log(divisionName)
     const fetchData = async () => {
       try {
         const res = await fetch(
