@@ -17,7 +17,11 @@ interface ApiError {
   error: string;
 }
 
-export default function DivisionTable({ divisionName }: { divisionName: string }) {
+export default function DivisionTable({
+  divisionName,
+}: {
+  divisionName: string;
+}) {
   const [data, setData] = useState<DivisionData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +31,7 @@ export default function DivisionTable({ divisionName }: { divisionName: string }
       setLoading(false);
       return;
     }
-console.log(divisionName)
+    console.log(divisionName);
     const fetchData = async () => {
       try {
         const res = await fetch(
@@ -40,7 +44,7 @@ console.log(divisionName)
         );
 
         const result = await res.json();
-        
+
         if (!res.ok) {
           const apiError = result as ApiError;
           setError(apiError.error || `HTTP error! status: ${res.status}`);
@@ -94,27 +98,22 @@ console.log(divisionName)
   // ✅ Render Table
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-10 border border-gray-200">
-{/* Header */}
-<div className="text-center mb-8">
-  <h1 className="text-xl font-semibold text-blue-700">
-    Students Gala
-  </h1>
-  <p className="text-gray-600 text-bold text-xl mb-2">
-    Sector Wise Registration Status
-  </p>
-  
-  <h2 className="text-4xl font-extrabold text-gray-800 mt-4">
-    {data.divisionName}
-  </h2>
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-xl font-semibold text-blue-700">Students Gala</h1>
+        <p className="text-gray-600 text-bold text-xl mb-2">
+          Sector Wise Registration Status
+        </p>
 
-  <p className="text-gray-700 mt-3 text-lg">
-    Total Students:{" "}
-    <span className="font-bold text-blue-600">
-      {data.totalStudents}
-    </span>
-  </p>
-</div>
+        <h2 className="text-4xl font-extrabold text-gray-800 mt-4">
+          {data.divisionName}
+        </h2>
 
+        <p className="text-gray-700 mt-3 text-lg">
+          Total Students:{" "}
+          <span className="font-bold text-blue-600">{data.totalStudents}</span>
+        </p>
+      </div>
 
       {/* Sector Table */}
       <div className="overflow-x-auto">
@@ -135,9 +134,7 @@ console.log(divisionName)
                 key={sector.sectorName ?? idx}
                 className="border-t border-gray-200 hover:bg-blue-50 transition"
               >
-                <td className="px-4 py-3 text-gray-800">
-                  {sector.sectorName}
-                </td>
+                <td className="px-4 py-3 text-gray-800">{sector.sectorName}</td>
                 <td className="px-4 py-3 text-right font-medium text-blue-600">
                   {sector.studentCount}
                 </td>
