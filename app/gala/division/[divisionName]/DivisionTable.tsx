@@ -60,18 +60,27 @@ export default function DivisionTable({ divisionName }: { divisionName: string }
   // ✅ Render Table
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-10 border border-gray-200">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">
-          {data.divisionName}
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Total Students:{" "}
-          <span className="font-semibold text-blue-600">
-            {data.totalStudents}
-          </span>
-        </p>
-      </div>
+{/* Header */}
+<div className="text-center mb-8">
+  <h1 className="text-xl font-semibold text-blue-700">
+    Students Gala
+  </h1>
+  <p className="text-gray-600 text-bold text-xl mb-2">
+    Sector Wise Registration Status
+  </p>
+  
+  <h2 className="text-4xl font-extrabold text-gray-800 mt-4">
+    {data.divisionName}
+  </h2>
+
+  <p className="text-gray-700 mt-3 text-lg">
+    Total Students:{" "}
+    <span className="font-bold text-blue-600">
+      {data.totalStudents}
+    </span>
+  </p>
+</div>
+
 
       {/* Sector Table */}
       <div className="overflow-x-auto">
