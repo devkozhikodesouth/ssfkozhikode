@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  ArrowDownWideNarrow,
+  ArrowUpNarrowWide,
+  ArrowUpDown,
+} from "lucide-react";
 
 interface Sector {
   sectorName: string;
@@ -25,13 +30,14 @@ export default function DivisionTable({
   const [data, setData] = useState<DivisionData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     if (!divisionName) {
       setLoading(false);
       return;
     }
-    console.log(divisionName);
+
     const fetchData = async () => {
       try {
         const res = await fetch(
@@ -95,13 +101,25 @@ export default function DivisionTable({
     );
   }
 
+  // 🧭 Handle Sort
+  const handleSort = () => {
+    if (!data) return;
+    const sortedSectors = [...data.sectors].sort((a, b) =>
+      sortOrder === "asc"
+        ? a.studentCount - b.studentCount
+        : b.studentCount - a.studentCount
+    );
+    setData({ ...data, sectors: sortedSectors });
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
   // ✅ Render Table
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-10 border border-gray-200">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-xl font-semibold text-blue-700">Students Gala</h1>
-        <p className="text-gray-600 text-bold text-xl mb-2">
+        <p className="text-gray-600 font-semibold text-lg mb-2">
           Sector Wise Registration Status
         </p>
 
@@ -113,6 +131,7 @@ export default function DivisionTable({
           Total Students:{" "}
           <span className="font-bold text-blue-600">{data.totalStudents}</span>
         </p>
+
       </div>
 
       {/* Sector Table */}
@@ -123,13 +142,17 @@ export default function DivisionTable({
               <th className="text-left px-4 py-3 text-gray-700 font-semibold">
                 Sector Name
               </th>
-              <th className="text-right px-4 py-3 text-gray-700 font-semibold">
+              <th
+                onClick={handleSort}
+                className="text-right px-4 py-3 text-gray-700 font-semibold cursor-pointer select-none hover:text-blue-600 transition flex items-center justify-end gap-1"
+              >
                 Student Count
+                <ArrowUpDown className="w-4 h-4 text-gray-500" />
               </th>
             </tr>
           </thead>
           <tbody>
-            {(data.sectors ?? []).map((sector: any, idx: number) => (
+            {(data.sectors ?? []).map((sector, idx) => (
               <tr
                 key={sector.sectorName ?? idx}
                 className="border-t border-gray-200 hover:bg-blue-50 transition"

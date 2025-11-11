@@ -77,6 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             items={[
               { name: "Division Wise Data", path: "/admin/gala/division" },
               { name: "Sector Wise Data", path: "/admin/gala/sector" },
+              { name: "Unit Wise Data", path: "/admin/gala/unit" },
             ]}
             open={openMenu === "Students Gala"}
             onToggle={() => toggleMenu("Students Gala")}
