@@ -13,7 +13,7 @@ export default function StudentGalaLanding() {
       <img
         src="/left-decor.png"
         alt="decor-left"
-        className="absolute bottom-72 -z-50 -left-40 md:left-0 min-w-44 md:w-80 pointer-events-none select-none opacity-80"
+        className="absolute top-[540px] -z-50 -left-40 md:left-0 min-w-44 md:w-80 pointer-events-none select-none opacity-80"
       />
 
       {/* Decorative Right Top Corner PNG */}
@@ -85,6 +85,9 @@ export default function StudentGalaLanding() {
       <section className="mt-20 mb-16 px-6 md:px-12">
         <ProgramTimeline />
       </section>
+      <section className="mb-20 px-6 md:px-12">
+        <StudentsGalaInfo />
+      </section>  
     </div>
   );
 }

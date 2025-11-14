@@ -1,162 +1,130 @@
+"use client";
 import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 
 const StudentsGalaInfo = () => {
-  return (
-    <section className="bg-gray-50 text-gray-800 py-20 px-6 md:px-12">
-      <div className="max-w-6xl mx-auto space-y-24">
-        {/* Title */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-indigo-700">
-            Students Gala
-          </h1>
-          <p className="text-xl text-gray-600 font-medium">
-            No Cap, It’s Tomorrow
+  const slides = [
+    {
+      title: "About SSF",
+      image: "/swipe1.jpeg",
+      content: (
+        <>
+          <p className="leading-relaxed text-gray-700">
+            The <strong>Sunni Students’ Federation (SSF)</strong> is a national
+            student organization committed to nurturing the intellectual,
+            moral, and social development of students across India.
           </p>
-        </div>
+          <p className="leading-relaxed text-gray-700 mt-3">
+            Through its diverse educational, cultural, and leadership programs,
+            SSF empowers young people to become <em>informed thinkers</em>,
+            <em> responsible citizens</em>, and
+            <em> compassionate leaders</em>.
+          </p>
+        </>
+      ),
+    },
+    {
+      title: "About the Event",
+      image: "/gala.jpeg",
+      content: (
+        <>
+          <p className="leading-relaxed text-gray-700 mb-3">
+            <strong>Students Gala</strong> is an exciting gathering for higher
+            secondary students, organized by
+            <strong> SSF Kozhikode South District</strong>. The event takes
+            place on <strong>November 29 at Kadalundi, Feroke</strong>.
+          </p>
+          <p className="leading-relaxed text-gray-700">
+            It’s more than an event — it’s a <strong>platform for growth</strong>,
+            enabling young minds to learn, share, collaborate, and explore.
+          </p>
+        </>
+      ),
+    },
+    {
+      title: "Program Highlights",
+      image: "/swipe2.jpeg",
+      content: (
+        <ul className="list-disc list-inside text-gray-700 leading-relaxed space-y-1">
+          <li><strong>Inspiring talks</strong> from scholars and experts.</li>
+          <li><strong>Panel discussions</strong> on innovation & technology.</li>
+          <li><strong>Interactive workshops</strong> for creativity & skills.</li>
+          <li>Sessions linking <strong>academics & real-world experience</strong>.</li>
+        </ul>
+      ),
+    },
+    {
+      title: "Theme — “No Cap, It’s Tomorrow”",
+      image: "/sproute.jpeg",
+      content: (
+        <>
+          <p className="leading-relaxed text-gray-700 mb-3">
+            The theme represents fearless optimism and authentic youth voices —
+            calling students to <strong>be real, be bold, and believe</strong>
+            in shaping the future.
+          </p>
+          <p className="leading-relaxed text-gray-700">
+            Tomorrow isn’t something that arrives by itself —
+            <strong> it is built through unity, knowledge, and action.</strong>
+          </p>
+        </>
+      ),
+    },
+    {
+      title: "The Spirit of Students Gala",
+      image: "/swipe3.jpeg",
+      content: (
+        <>
+          <p className="leading-relaxed text-gray-700 mb-3">
+            Students Gala inspires youth to <strong>dream big, act boldly,
+            and move forward with purpose</strong>.
+          </p>
+          <p className="font-semibold text-indigo-700 text-lg">
+            Together we create change — <em>No Cap.</em>
+          </p>
+        </>
+      ),
+    },
+  ];
 
-        {/* About SSF */}
-        <div className="grid md:grid-cols-2 items-center gap-10">
-          <div className="flex justify-center">
-            <img
-              src="/gala.jpeg"
-              alt="About SSF"
-              className="w-3/4 md:w-2/3 rounded-2xl shadow-md object-cover"
-            />
-          </div>
-          <div>
-            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
-              About SSF
-            </h2>
-            <p className="leading-relaxed text-gray-700">
-              The <strong>Sunni Students’ Federation (SSF)</strong> is a national
-              student organization committed to nurturing the intellectual,
-              moral, and social development of students across India. Through
-              its diverse educational, cultural, and leadership programs, SSF
-              empowers young people to become{" "}
-              <em>informed thinkers</em>, <em>responsible citizens</em>, and{" "}
-              <em>compassionate leaders</em> dedicated to building a better
-              society.
-            </p>
-          </div>
-        </div>
+  return (
+    <section className="bg-gray-50 text-gray-800 py-14 px-4 md:px-12">
+      <h1 className="text-3xl md:text-4xl font-bold text-center text-indigo-700 mb-12">
+        Students Gala Info
+      </h1>
 
-        {/* About the Event */}
-        <div className="grid md:grid-cols-2 items-center gap-10">
-          <div className="order-2 md:order-1">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
-              About the Event
-            </h2>
-            <p className="leading-relaxed text-gray-700 mb-3">
-              <strong>Students Gala</strong> is an exciting and empowering
-              gathering designed exclusively for higher secondary students.
-              Organized by <strong>SSF Kozhikode South District</strong>, the
-              event will take place on{" "}
-              <strong>November 29 at Kadalundi, Feroke</strong> — a vibrant
-              celebration of youth, learning, and the power of tomorrow.
-            </p>
-            <p className="leading-relaxed text-gray-700">
-              More than just an event, Students Gala is a{" "}
-              <strong>platform for growth and connection</strong>. It brings
-              together young minds to <strong>learn, share, and explore</strong>{" "}
-              their potential through meaningful dialogue, collaboration, and
-              creativity.
-            </p>
-          </div>
-          <div className="order-1 md:order-2 flex justify-center">
-            <img
-              src="/sproute.jpeg"
-              alt="About Event"
-              className="w-3/4 md:w-2/3 rounded-2xl shadow-md object-cover"
-            />
-          </div>
-        </div>
-
-        {/* Program Highlights */}
-        <div className="grid md:grid-cols-2 items-center gap-10">
-          <div className="flex justify-center">
-            <img
-              src="/gala.jpeg"
-              alt="Program Highlights"
-              className="w-3/4 md:w-2/3 rounded-2xl shadow-md object-cover"
-            />
-          </div>
-          <div>
-            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
-              Program Highlights
-            </h2>
-            <ul className="list-disc list-inside space-y-2 text-gray-700 leading-relaxed">
-              <li>
-                <strong>Inspiring talks</strong> by renowned scholars focusing on
-                education, values, and purposeful living.
-              </li>
-              <li>
-                <strong>Panel discussions</strong> with industry experts offering
-                insights into innovation, technology, and the future.
-              </li>
-              <li>
-                <strong>Interactive workshops</strong> to boost creativity,
-                confidence, and leadership skills.
-              </li>
-              <li>
-                Sessions that <strong>bridge academics and real-world
-                experience</strong>, inspiring tomorrow’s changemakers.
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Theme Section */}
-        <div className="grid md:grid-cols-2 items-center gap-10">
-          <div className="order-2 md:order-1">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
-              Theme: “No Cap, It’s Tomorrow”
-            </h2>
-            <p className="leading-relaxed text-gray-700 mb-3">
-              The theme <strong>“No Cap, It’s Tomorrow”</strong> reflects the
-              fearless optimism and authenticity of today’s youth. It calls on
-              students to <strong>be real, be bold, and believe</strong> in
-              their ability to shape the future.
-            </p>
-            <p className="leading-relaxed text-gray-700">
-              Tomorrow isn’t something that simply arrives — it’s something we{" "}
-              <strong>create through choices, learning, and unity</strong>.
-              Every participant holds the <strong>power to define the
-              future</strong>.
-            </p>
-          </div>
-          <div className="order-1 md:order-2 flex justify-center">
-            <img
-              src="/sproute.jpeg"
-              alt="Theme Illustration"
-              className="w-3/4 md:w-2/3 rounded-2xl shadow-md object-cover"
-            />
-          </div>
-        </div>
-
-        {/* Spirit of the Event */}
-        <div className="grid md:grid-cols-2 items-center gap-10">
-          <div className="flex justify-center">
-            <img
-              src="/gala.jpeg"
-              alt="Spirit of Students Gala"
-              className="w-3/4 md:w-2/3 rounded-2xl shadow-md object-cover"
-            />
-          </div>
-          <div>
-            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
-              The Spirit of Students Gala
-            </h2>
-            <p className="leading-relaxed text-gray-700 mb-3">
-              Students Gala is an <strong>invitation to dream big, act boldly,
-              and move forward with purpose</strong>. It celebrates youthful
-              energy, shared ideas, and a collective vision for a brighter
-              tomorrow.
-            </p>
-            <p className="font-medium text-indigo-700 text-lg">
-              Together, we create change — <em>No Cap.</em>
-            </p>
-          </div>
-        </div>
+      <div className="relative max-w-4xl mx-auto">
+        <Swiper
+          modules={[Pagination, Navigation]}
+          pagination={{ clickable: true }}
+          navigation
+          spaceBetween={25}
+          slidesPerView={1}
+          className="gala-swiper"
+        >
+          {slides.map((slide, index) => (
+            <SwiperSlide key={index}>
+              <div className="bg-white rounded-3xl shadow-xl p-6 md:p-12 flex flex-col md:flex-row items-center gap-6 transition-all duration-300 hover:shadow-2xl">
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="w-full md:w-1/2 rounded-2xl object-cover shadow-sm"
+                />
+                <div className="md:w-1/2 space-y-3">
+                  <h2 className="text-2xl md:text-3xl font-semibold">
+                    {slide.title}
+                  </h2>
+                  {slide.content}
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );

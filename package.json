@@ -29,7 +29,8 @@
     "qrcode": "^1.5.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "sweetalert2": "^11.26.3"
+    "sweetalert2": "^11.26.3",
+    "swiper": "^12.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.16",
@@ -37,6 +38,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/swiper": "^5.4.3",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
