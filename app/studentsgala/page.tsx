@@ -1,101 +1,89 @@
 import React from "react";
 import Link from "next/link";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { MapPin, Users } from "lucide-react";
 import CountDown from "./CountDown";
 import StudentsGalaInfo from "./StudentsGalaInfo";
+import { Colors } from "../constants/colors";
+import ProgramTimeline from "../components/ProgramTimeline";
 
 export default function StudentGalaLanding() {
   return (
-    <div className="min-h-screen  from-pink-50 via-white to-blue-50">
-      {/* Header */}
+    <div className="relative min-h-screen bg-gradient-to-br from-[#FDE047] via-[#FACC15] to-[#EAB308] bg-[url('/bg-texture.png')] bg-cover bg-center bg-no-repeat overflow-hidden">
+      {/* Decorative Left Top Corner PNG */}
+      <img
+        src="/left-decor.png"
+        alt="decor-left"
+        className="absolute bottom-72 -z-50 -left-40 md:left-0 min-w-44 md:w-80 pointer-events-none select-none opacity-80"
+      />
 
-      {/* Hero Section */}
-  <section className="bg-linear-to-br md:pt-24    from-blue-50 via-white to-blue-100 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
-        {/* Left Content */}
-        <div className=" md:pl-24 ">
-          <img
-            className="-mt-40 md:mt-10"
-            src="/Students-Gala.png"
-            width={"70%"}
-            alt="Students Gala"
-          />
+      {/* Decorative Right Top Corner PNG */}
+      <img
+        src="/right-decor.png"
+        alt="decor-right"
+        className="absolute top-0 -right-40 md:right-0 min-w-44 md:w-80 pointer-events-none select-none opacity-80"
+      />
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Link
-              href="/studentsgala/register"
-              className="bg-indigo-600 text-white px-6 py-3 rounded-md font-semibold shadow-md hover:bg-indigo-700 transition-all"
-            >
-              Register Now
-            </Link>
-            {/* <a
-              href="#intro"
-              className="flex items-center gap-2 text-indigo-600 hover:underline font-medium"
-            >
-              ▶ Watch Intro
-            </a> */}
-          </div>
-          <div className="mt-5 flex justify-start text-left">
-  <CountDown />
+      <section className="md:pt-24 mx-auto grid grid-cols-1 justify-center text-c md:grid-cols-2 gap-10 items-center px-6 md:px-12">
+ {/* Left Content */}
+<div className="md:pl-24 flex flex-col items-center justify-center text-center">
+  <img
+    className="md:mt-10 mx-auto"
+    src="/Students-Gala.png"
+    width={"70%"}
+    alt="Students Gala"
+  />
+
+  <div className="mt-8 flex flex-wrap justify-center items-center gap-4 w-full">
+    <Link
+      href="/studentsgala/register"
+      style={{ backgroundColor: Colors.accent }}
+      className="w-full sm:w-3/4 text-white px-6 text-center py-3 rounded-md font-semibold shadow-md hover:brightness-90 transition-all"
+    >
+      Register Now
+    </Link>
+  </div>
+
+  <div className="mt-8 flex justify-center w-full">
+    <CountDown />
+  </div>
 </div>
 
-          <div className="my-10 grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-gray-700">
-            {/* 🗺️ Location Card */}
-            <div className="flex items-center gap-4 bg-linear-to-r from-white to-indigo-50 p-6 rounded-3xl shadow-md hover:shadow-lg border border-gray-100 transition-all duration-300 group">
-              <div className="flex items-center justify-center w-14  rounded-2xl bg-indigo-100 group-hover:bg-indigo-200 transition">
-                <MapPin size={26} className="text-indigo-600" />
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-gray-900">
-                  Kadalundi
-                </h4>
-                <p className="text-gray-600">AVOKI CENTRO ARENA</p>
-              </div>
-            </div>
-
-            {/* 🎓 Event Info Card */}
-            <div className="relative flex items-center gap-6 bg-linear-to-r from-white to-indigo-50 p-6 rounded-3xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group">
-              {/* Decorative Accent */}
-              <div className="absolute left-0 top-0 h-full w-1 bg-indigo-500 rounded-l-3xl group-hover:w-1.5 transition-all duration-300"></div>
-
-              {/* Left Icon */}
-              <div className="flex items-center justify-center w-14 rounded-2xl bg-indigo-100 group-hover:bg-indigo-200 transition">
-                <Users size={26} className="text-indigo-600" />
-              </div>
-
-              {/* Right Content */}
-              <div className="flex flex-col">
-                <p className="text-xl sm:text-md text-indigo-700 font-medium flex items-start gap-1 ">
-                  
-                  Saturday, November 29{" "}
-                     </p>
-                <span className="text-gray-600">09:00 AM</span>
-                <p className="text-sm text-gray-500 mt-1">
-                  Organized by{" "}
-                  <span className="font-medium text-gray-800">
-                    SSF Kozhikode South District Committee
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side (Mockup Card) */}
-        <div className="order-first md:order-last mt-10 md:mt-0 flex justify-center">
+        {/* Right Section */}
+        <div className="order-first md:order-last relative mt-32 md:mt-0 flex flex-col items-center text-center px-4 md:px-0 max-w-xl mx-auto">
+          {/* Top-left icon */}
           <img
-            src="/galamain.png"
-            alt="Event Preview"
-            className="w-full max-w-md  md:max-w-lg object-cover"
+            src="/left-top-icon.png"
+            alt=""
+            className="absolute -top-14 -left-10 w-20 md:w-28"
+          />
+
+          {/* Heading Image */}
+          <img
+            src="/no-cap.png"
+            alt="Students Gala"
+            className="w-64 md:w-80 object-contain mb-6"
+          />
+
+          {/* Body text */}
+          <p className="text-base md:text-lg leading-relaxed font-medium text-gray-700">
+            Students' Gala, a district-level celebration of knowledge,
+            creativity, and innovation! Bringing together thousands of higher
+            secondary students, Students Gala 2025 features inspiring sessions
+            on higher education, entrepreneurship, AI, and emerging
+            technologies, along with vibrant arts competitions and team
+            activities.
+          </p>
+
+          {/* Bottom-right icon */}
+          <img
+            src="/bottom-right-icon.png"
+            alt=""
+            className="absolute -bottom-14 md:-bottom-30 -right-10 w-20 md:w-28"
           />
         </div>
       </section>
-
-      {/* Awards Section */}
-      <section
-        id="awards"
-        className="max-w-7xl mx-auto text-center py-20 px-6"
-      >
-        <StudentsGalaInfo />
+      <section className="mt-20 mb-16 px-6 md:px-12">
+        <ProgramTimeline />
       </section>
     </div>
   );

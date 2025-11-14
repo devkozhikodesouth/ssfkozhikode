@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {
   ArrowDownWideNarrow,
   ArrowUpNarrowWide,
-  ArrowUpDown,
 } from "lucide-react";
 
 interface UnitData {
@@ -28,9 +27,7 @@ export default function UnitPage() {
         const res = await fetch("/api/register");
         const data = await res.json();
         if (res.ok && data?.success && Array.isArray(data.data)) {
-          const names = data.data
-            .map((d: any) => d.divisionName)
-            .filter(Boolean);
+          const names = data.data.map((d: any) => d.divisionName).filter(Boolean);
           setDivisions(names);
         }
       } catch (err) {
@@ -42,7 +39,7 @@ export default function UnitPage() {
     fetchDivisions();
   }, []);
 
-  // 🟣 Fetch Units for Selected Division
+  // 🟣 Fetch Units
   useEffect(() => {
     if (!divisionName) return;
 
@@ -96,22 +93,24 @@ export default function UnitPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10 px-4">
+    <main className="min-h-screen bg-gray-50 py-6 px-3 sm:px-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">
           Students Gala — Unit Wise Data
         </h1>
 
         {/* Division Selector */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6">
           {loadingDivisions ? (
-            <p className="text-gray-600 animate-pulse">Loading divisions...</p>
+            <p className="text-gray-600 animate-pulse text-sm sm:text-base">
+              Loading divisions...
+            </p>
           ) : (
             <select
               value={divisionName}
               onChange={(e) => setDivisionName(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full sm:w-72 shadow-sm text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select a Division</option>
               {divisions.map((division) => (
@@ -125,23 +124,26 @@ export default function UnitPage() {
 
         {/* Data Section */}
         {divisionName && (
-          <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl shadow-xl p-8 border border-gray-200 transition-all">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-gray-800 text-center sm:text-left">
+          <div className="bg-white rounded-xl shadow-md p-4 sm:p-8 border border-gray-200 transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 text-center sm:text-left">
                 {divisionName} —{" "}
                 <span className="text-blue-600">Unit Wise Student Count</span>
               </h2>
 
               {totalStudents > 0 && (
-                <div className="mt-3 sm:mt-0 text-center sm:text-right">
-                  <p className="text-sm text-gray-500">Total Students</p>
-                  <p className="text-3xl font-bold text-blue-700">
+                <div className="text-center sm:text-right">
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    Total Students
+                  </p>
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-700">
                     {totalStudents}
                   </p>
                 </div>
               )}
             </div>
 
+            {/* Loading */}
             {loadingUnits ? (
               <div className="flex justify-center py-10">
                 <div className="flex items-center gap-2 text-gray-600 animate-pulse">
@@ -169,40 +171,43 @@ export default function UnitPage() {
                 </div>
               </div>
             ) : units.length > 0 ? (
-              <div className="overflow-x-auto rounded-xl border border-gray-200">
-                <table className="min-w-full border-collapse text-sm">
-                  <thead className="bg-gray-100 border-b border-gray-200">
+              <div className="overflow-x-auto rounded-lg border border-gray-200">
+                <table className="min-w-full border-collapse text-sm sm:text-base">
+                  <thead className="bg-gray-100 border-b border-gray-200 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-left font-semibold text-gray-700">
+                      <th className="px-3 sm:px-6 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">
                         #
                       </th>
-                      <th className="px-6 py-3 text-left font-semibold text-gray-700">
+                      <th className="px-3 sm:px-6 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">
                         Unit Name
                       </th>
                       <th
                         onClick={handleSort}
-                        className="px-6 py-3 text-right font-semibold text-gray-700 flex items-center justify-end gap-1 cursor-pointer select-none hover:text-blue-600 transition"
+                        className="px-3 sm:px-6 py-3 text-right font-semibold text-gray-700 flex items-center justify-end gap-1 cursor-pointer select-none hover:text-blue-600 transition whitespace-nowrap"
                       >
                         Student Count
                         {sortOrder === "asc" ? (
-                          <ArrowUpNarrowWide className="w-4 h-4 text-blue-600 transition-transform" />
+                          <ArrowUpNarrowWide className="w-4 h-4 text-blue-600" />
                         ) : (
-                          <ArrowDownWideNarrow className="w-4 h-4 text-blue-600 transition-transform" />
+                          <ArrowDownWideNarrow className="w-4 h-4 text-blue-600" />
                         )}
                       </th>
                     </tr>
                   </thead>
+
                   <tbody className="divide-y divide-gray-100">
                     {units.map((unit, index) => (
                       <tr
                         key={index}
-                        className="hover:bg-blue-50/40 transition-all duration-200"
+                        className="hover:bg-blue-50 transition-all duration-200 text-gray-800"
                       >
-                        <td className="px-6 py-3 text-gray-600">{index + 1}</td>
-                        <td className="px-6 py-3 font-medium text-gray-800">
+                        <td className="px-3 sm:px-6 py-3 text-gray-600 text-center sm:text-left">
+                          {index + 1}
+                        </td>
+                        <td className="px-3 sm:px-6 py-3 font-medium">
                           {unit.unitName}
                         </td>
-                        <td className="px-6 py-3 text-right font-semibold text-blue-600">
+                        <td className="px-3 sm:px-6 py-3 text-right font-semibold text-blue-600">
                           {unit.studentCount}
                         </td>
                       </tr>
@@ -212,10 +217,10 @@ export default function UnitPage() {
               </div>
             ) : (
               <div className="text-center py-10 text-gray-500">
-                <p className="text-lg font-medium">
+                <p className="text-base sm:text-lg font-medium">
                   No units found for this division.
                 </p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-xs sm:text-sm text-gray-400 mt-1">
                   Try selecting another division.
                 </p>
               </div>
@@ -224,7 +229,7 @@ export default function UnitPage() {
         )}
 
         {!divisionName && !loadingDivisions && (
-          <p className="text-center text-gray-600">
+          <p className="text-center text-gray-600 text-sm sm:text-base">
             Please select a division to view unit data.
           </p>
         )}
