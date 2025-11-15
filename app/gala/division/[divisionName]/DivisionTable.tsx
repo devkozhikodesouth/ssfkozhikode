@@ -118,7 +118,7 @@ export default function DivisionTable({
     <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-10 border border-gray-200">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-xl font-semibold text-blue-700">Students Gala</h1>
+        <h1 className="text-xl font-semibold">Students Gala</h1>
         <p className="text-gray-600 font-semibold text-lg mb-2">
           Sector Wise Registration Status
         </p>
