@@ -120,15 +120,16 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
       {selectedSector && (
         <div className="w-full mt-4">
           {/* Search */}
-          <div className="flex justify-end mb-4 pr-4">
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="px-4 py-2 border rounded-lg w-60 shadow-sm focus:ring-blue-500 focus:ring-2 outline-none"
-            />
-          </div>
+<div className="flex justify-center md:justify-end mb-4">
+  <input
+    type="text"
+    placeholder="Search students..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="px-4 py-2 border rounded-lg w-full shadow-sm focus:ring-blue-500 focus:ring-2 outline-none"
+  />
+</div>
+
 
           <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-6 mt-4 border border-gray-200">
             <div className="text-center mb-6">
