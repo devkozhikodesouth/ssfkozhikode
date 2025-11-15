@@ -193,7 +193,7 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
     background: "white",
     position: "absolute",
     left: "-9999px",
-      
+
   }}
 >
   {/* Header Row */}
@@ -219,7 +219,7 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
           color: "#E81B41",
         }}
       >
-        {selectedSector} – Sector
+        {selectedSector} Sector
       </h1>
       <p
         style={{
