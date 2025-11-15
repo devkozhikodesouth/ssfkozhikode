@@ -1,4 +1,5 @@
-import DivisionTable from "./DivisionTable";
+import DivisionTabs from "./DivisionTabs";
+
 
 export default async function DivisionPage(
   context: { params: { divisionName: string } } | { params: Promise<{ divisionName: string }> }
@@ -38,8 +39,8 @@ export default async function DivisionPage(
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-4 flex justify-center">
       {matchedDivisionName ? (
-        <div className="w-full max-w-5xl">
-          <DivisionTable divisionName={matchedDivisionName} />
+        <div className="w-full max-w-5xl mt-14 md:mt-10">
+          <DivisionTabs divisionName={matchedDivisionName} />
         </div>
       ) : (
         <div className="text-center mt-20 text-gray-700 dark:text-gray-300">
