@@ -20,6 +20,7 @@
     "html2canvas": "^1.4.1",
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.3",
     "lucide-react": "^0.548.0",
     "mongoose": "^8.19.2",
     "next": "16.0.0",
@@ -33,6 +34,7 @@
     "swiper": "^12.0.3"
   },
   "devDependencies": {
+    "@csstools/postcss-oklab-function": "^4.0.12",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/jimp": "^0.2.1",
     "@types/node": "^20",

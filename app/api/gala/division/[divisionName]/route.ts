@@ -12,13 +12,9 @@ export async function GET(
   try {
     await connectDB();
 
-    // ✅ Await params before using
+    // Extract and validate params
     const { divisionName: rawDivisionName } = await params;
-
-    // 1️⃣ Normalize and validate divisionName
     const divisionName = decodeURIComponent(String(rawDivisionName ?? "")).trim();
-
-    console.log("Requested Division:", divisionName); // ✅ moved here
 
     if (!divisionName) {
       return NextResponse.json(
@@ -27,7 +23,7 @@ export async function GET(
       );
     }
 
-    // 2️⃣ Find Division (case-insensitive match)
+    // Find division (case-insensitive)
     const division = await Division.findOne({
       divisionName: { $regex: new RegExp(`^${divisionName}$`, "i") },
     });
@@ -39,33 +35,46 @@ export async function GET(
       );
     }
 
-    // 3️⃣ Find all sectors under the division
+    // Find Sectors in the division
     const sectors = await Sector.find({ divisionId: division._id });
 
-    // 4️⃣ For each sector, find all units and count students
+    // Create sector response with units and student counts
     const sectorData = await Promise.all(
       sectors.map(async (sector) => {
         const units = await Unit.find({ sectorId: sector._id });
-        const unitIds = units.map((u) => u._id);
 
-        const studentCount = await Student.countDocuments({
-          unitId: { $in: unitIds },
-        });
+        // For each unit, count students
+        const unitDetails = await Promise.all(
+          units.map(async (unit) => {
+            const unitCount = await Student.countDocuments({ unitId: unit._id });
+            return {
+              unitName: unit.unitName,
+              unitCount,
+            };
+          })
+        );
+
+        // Calculate total sector students
+        const studentCount = unitDetails.reduce(
+          (sum, unit) => sum + unit.unitCount,
+          0
+        );
 
         return {
           sectorName: sector.sectorName,
           studentCount,
+          units: unitDetails, // include unit list
         };
       })
     );
 
-    // 5️⃣ Calculate total students in division
+    // Total division student count
     const totalStudents = sectorData.reduce(
       (sum, s) => sum + s.studentCount,
       0
     );
 
-    // ✅ Return response
+    // Final API response
     return NextResponse.json({
       divisionName: division.divisionName,
       totalStudents,
