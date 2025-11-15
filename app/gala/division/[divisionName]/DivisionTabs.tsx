@@ -11,7 +11,7 @@ export default function DivisionTabs({ divisionName }: { divisionName: string })
   const tabs = [
     { id: "sector", label: "Sector Wise" },
     { id: "unit", label: "Unit Wise" },
-    { id: "students", label: "Studenets Data" },
+    { id: "students", label: "Students Data" },
   ] as const;
 
   return (
@@ -23,7 +23,7 @@ export default function DivisionTabs({ divisionName }: { divisionName: string })
             key={tab.id}
             type="button"
             onClick={() => setActive(tab.id)}
-            className={`py-3 rounded-xl font-semibold border transition duration-200
+            className={`py-3  rounded-xl font-semibold border transition duration-200
               ${active === tab.id
                 ? "bg-blue-600 text-white shadow-md border-blue-600"
                 : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}
