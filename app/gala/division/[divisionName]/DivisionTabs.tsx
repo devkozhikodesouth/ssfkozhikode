@@ -17,21 +17,22 @@ export default function DivisionTabs({ divisionName }: { divisionName: string })
   return (
     <div className="relative z-20 pointer-events-auto">
       {/* Tile Style Tabs */}
-      <div className="grid grid-cols-3 gap-3 max-w-md mx-auto mb-6">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActive(tab.id)}
-            className={`py-3  rounded-xl font-semibold border transition duration-200
-              ${active === tab.id
-                ? "bg-blue-600 text-white shadow-md border-blue-600"
-                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+<div className="flex max-w-md mx-auto mb-6 bg-gray-100 rounded-2xl p-1">
+  {tabs.map((tab) => (
+    <button
+      key={tab.id}
+      type="button"
+      onClick={() => setActive(tab.id)}
+      className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all
+        ${active === tab.id
+          ? "bg-white shadow text-blue-600"
+          : "text-gray-600"
+        }`}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
 
       {/* Content */}
       <div>
