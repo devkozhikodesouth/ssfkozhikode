@@ -47,7 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex items-center justify-between p-4 border-b border-gray-700/30">
           <div className="flex items-center gap-2 overflow-hidden">
             <div className="w-8 h-8 rounded-full bg-indigo-500" />
-            {sidebarOpen && <span className="font-bold text-lg">NextAdmin</span>}
+            {sidebarOpen && <span className="font-bold text-lg">SSF Admin</span>}
           </div>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -76,8 +76,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             icon="🎓"
             items={[
               { name: "Division Wise Data", path: "/admin/gala/division" },
-              { name: "Sector Wise Data", path: "/admin/gala/sector" },
-              { name: "Unit Wise Data", path: "/admin/gala/unit" },
+              { name: "Div Sector Wise Data", path: "/admin/gala/sector" },
+              { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
+              { name: "Sector Wise Data", path: "/admin/gala/sectorwise" },
             ]}
             open={openMenu === "Students Gala"}
             onToggle={() => toggleMenu("Students Gala")}
@@ -152,7 +153,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   icon="🎓"
                   items={[
                     { name: "Division Wise Data", path: "/admin/gala/division" },
-                    { name: "Sector Wise Data", path: "/admin/gala/sector" },
+                    { name: "Div Sector Wise Data", path: "/admin/gala/sector" },
+                    { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
+                    { name: "Sector Wise Data", path: "/admin/gala/sectorwise" },
                   ]}
                   open={openMenu === "Students Gala"}
                   onToggle={() => toggleMenu("Students Gala")}
