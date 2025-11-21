@@ -34,13 +34,13 @@ export default function StudentGalaLanding() {
           <div className="md:pl-24 flex flex-col items-center justify-center text-center">
             <img
               className="md:mt-10 mx-auto"
-              src="/Students-Gala.png"
+              src="/galaHeading.png"
               width={"70%"}
               alt="Students Gala"
             />
 
             {/* Action Buttons */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full justify-center items-center">
+            <div className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-4 w-full justify-center items-center">
               <Link
                 href="/studentsgala/register"
                 className="w-full sm:w-auto text-white px-6 py-3 text-center rounded-md font-semibold shadow-md hover:brightness-90 transition-all"
@@ -52,21 +52,22 @@ export default function StudentGalaLanding() {
               <button
                 onClick={() => setOpen(true)}
                 className="w-full sm:w-auto text-white px-6 py-3 text-center rounded-md font-semibold shadow-md hover:brightness-90 transition-all"
-                style={{ backgroundColor: Colors.primary }}
+                style={{ backgroundColor: Colors.secondary }}
               >
                 Get Your Tickets
               </button>
             </div>
 
             {/* Countdown */}
-            <div className="mt-8 flex justify-center w-full">
+            <div className="mt-4 md:mt-8 flex justify-center w-full">
               <CountDown />
             </div>
           </div>
 
           {/* Right Half */}
-          <div className="order-first md:order-last relative mt-32 md:mt-0 flex flex-col items-center text-center px-4 md:px-0 max-w-xl mx-auto">
-            <img src="/left-top-icon.png" alt="" className="absolute -top-14 -left-10 w-20 md:w-28" />
+          <div className="order-first md:order-last relative mt-20 md:mt-0 flex flex-col items-center text-center px-4 md:px-0 max-w-xl mx-auto">
+            <img src="/left-top-icon.png" alt="" className="absolute top-6
+              md:-top-14 -left-14 w-20 md:w-28" />
 
             <img src="/no-cap.png" alt="Students Gala" className="w-64 md:w-80 object-contain mb-6" />
 
@@ -79,7 +80,7 @@ export default function StudentGalaLanding() {
               activities.
             </p>
 
-            <img src="/bottom-right-icon.png" alt="" className="absolute -bottom-14 md:-bottom-30 -right-10 w-20 md:w-28" />
+            <img src="/bottom-right-icon.png" alt="" className="absolute -bottom-14 md:-bottom-30 -right-14 w-20 md:w-28" />
           </div>
 
         </section>
