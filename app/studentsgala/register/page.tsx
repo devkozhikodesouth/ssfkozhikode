@@ -190,7 +190,7 @@ const [imageFile, setImageFile] = useState<File | null>(null);
         });
 
         
-      await sendWhatsApp(formData.name, formData.mobile);
+      await sendWhatsApp(formData.name, formData.mobile,data?.data?.ticket);
        
   
         // ✅ Open WhatsApp group

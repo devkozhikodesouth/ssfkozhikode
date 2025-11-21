@@ -62,7 +62,6 @@ export async function POST(req: Request) {
       sectorId: sectorDoc._id,
       unitId: unitDoc._id,
     });
-
     return NextResponse.json({
       success: true,
       message: "Student Registered Successfully",

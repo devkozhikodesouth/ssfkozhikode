@@ -1,60 +1,62 @@
 import type { NextRequest } from "next/server";
-import QRCode from "qrcode";
 import FormData from "form-data";
 import fs from "fs";
 import path from "path";
-import fetch from "node-fetch"; // ✅ crucial for multipart upload support
+import fetch from "node-fetch";
 
 export async function POST(req: NextRequest) {
-  // 1️⃣ Check environment variables
   if (!process.env.PHONE_NUMBER_ID || !process.env.META_ACCESS_TOKEN) {
     console.error("Missing environment variables: PHONE_NUMBER_ID or META_ACCESS_TOKEN");
-    return new Response(
-      JSON.stringify({ error: "Server configuration error." }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Server configuration error." }), {
+      status: 500,
+    });
   }
 
   let filePath: string | null = null;
 
   try {
-    const { mobile, name, event } = await req.json();
+    const { mobile, name, ticket } = await req.json();
+    console.log(ticket)
 
-    // 2️⃣ Generate QR Code and save it temporarily
-    const fileName = `QR_${mobile}.png`;
-    filePath = path.join("/tmp", fileName); // safe for Vercel/Node serverless
-    await QRCode.toFile(filePath, `Mobile: ${mobile}\nName: ${name}\nEvent: ${event}`);
+const sendName = name
+  .toLowerCase()
+  .replace(/\b\w/g, (char: string) => char.toUpperCase());
 
-    // 3️⃣ Prepare multipart/form-data (order matters!)
-    const formData = new FormData();
-    formData.append("messaging_product", "whatsapp"); // must be first
-    formData.append("type", "image/png");
-    formData.append("file", fs.createReadStream(filePath));
 
-    // 4️⃣ Upload QR image to Meta’s /media endpoint
-    const mediaRes = await fetch(
-      `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/media`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
-          ...formData.getHeaders(), // includes correct multipart boundary
-        },
-        body: formData as any,
-      }
-    );
+    // // Static image path
+    // filePath = path.join(process.cwd(), "public", "success.png");
 
-    const mediaData :any= await mediaRes.json();
-    console.log("Media response:", mediaData);
+    // // Multipart for media upload
+    // const formData = new FormData();
+    // formData.append("messaging_product", "whatsapp");
+    // formData.append("type", "image/png");
+    // formData.append("file", fs.createReadStream(filePath));
 
-    if (!mediaRes.ok || !mediaData.id) {
-      console.error("Error uploading media:", mediaData);
-      return new Response(JSON.stringify({ error: mediaData }), { status: 500 });
-    }
+    // // Upload image to WhatsApp Cloud media API
+    // const mediaRes = await fetch(
+    //   `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/media`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
+    //       ...formData.getHeaders(),
+    //     },
+    //     body: formData as any,
+    //   }
+    // );
 
-    const mediaId = mediaData.id;
+    // const mediaData: any = await mediaRes.json();
+    // console.log("Media upload response:", mediaData);
 
-    // 5️⃣ Send WhatsApp message using the uploaded media ID
+    // if (!mediaRes.ok || !mediaData.id) {
+    //   console.error("Media upload failed:", mediaData);
+    //   return new Response(JSON.stringify({ error: mediaData }), { status: 500 });
+    // }
+
+    // const mediaId = mediaData.id;
+    const mediaId = '2289585044841032'
+
+    // WhatsApp template message
     const messagePayload = {
       messaging_product: "whatsapp",
       to: `91${mobile}`,
@@ -75,13 +77,13 @@ export async function POST(req: NextRequest) {
           {
             type: "body",
             parameters: [
-              { type: "text", text: name },
+              { type: "text", text: sendName },
+              { type: "text", text: ticket||"KS100" },
             ],
           },
         ],
       },
     };
-
 
     const messageRes = await fetch(
       `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`,
@@ -96,38 +98,23 @@ export async function POST(req: NextRequest) {
     );
 
     const messageData = await messageRes.json();
-console.log(mediaData)
-    if (!messageRes.ok) {
-      console.error("Error sending message:", messageData);
-      return new Response(JSON.stringify({ error: messageData }), { status: 500 });
-    }
+    console.log("Message response:", messageData);
 
-    // 6️⃣ Cleanup temporary file
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      filePath = null;
+    if (!messageRes.ok) {
+      console.error("Message send failed:", messageData);
+      return new Response(JSON.stringify({ error: messageData }), { status: 500 });
     }
 
     return new Response(
       JSON.stringify({
         success: true,
         mediaId,
-
+        message: "Message sent successfully",
       }),
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("Server error:", error);
-
-    // Cleanup on failure
-    if (filePath && fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-      } catch (cleanupError) {
-        console.error("Failed to clean up temporary file:", cleanupError);
-      }
-    }
-
+    console.error("Server Error:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }

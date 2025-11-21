@@ -1,3 +1,4 @@
+
 type SendWhatsAppResponse = {
   success: boolean;
   data?: any;
@@ -6,7 +7,8 @@ type SendWhatsAppResponse = {
 
 export async function sendWhatsApp(
   name: string,
-  mobile: string
+  mobile: string,
+  ticket: string
 ): Promise<SendWhatsAppResponse> {
   try {
     const res = await fetch("/api/send-whatsapp", {
@@ -14,7 +16,7 @@ export async function sendWhatsApp(
       headers: {
         "Content-Type": "application/json", // ✅ Important
       },
-      body: JSON.stringify({ mobile, name }), // ✅ Must stringify
+      body: JSON.stringify({ mobile, name ,ticket}), // ✅ Must stringify
     });
 
     const data = await res.json();
