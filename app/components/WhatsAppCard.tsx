@@ -7,7 +7,7 @@ import { Colors } from "../constants/colors";
 type WhatsAppCardProps = {
   name: string;
   mobile: string | number;
-  ticket: string;
+  ticket?: string;
   handleImage: (file: File) => void;
 };
 

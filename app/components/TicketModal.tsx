@@ -78,7 +78,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ open, onClose }) => {
                 <WhatsAppCard
                   name={foundUser.name}
                   mobile={foundUser.mobile}
-                  ticket={foundUser.ticket}
+                  ticket={foundUser.ticket||""}
                   handleImage={() => {}}
                 />
               </div>
