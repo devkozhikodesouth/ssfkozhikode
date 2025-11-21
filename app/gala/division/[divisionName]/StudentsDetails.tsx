@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-
+import autoTable from "jspdf-autotable";
 interface Sector {
   _id: string;
   name: string;
@@ -16,6 +15,7 @@ interface Student {
   unitName: string;
   email?: string;
   school?: string;
+  ticket: string;
 }
 
 interface StudentsDetailsProps {
@@ -33,20 +33,45 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
   const [error, setError] = useState("");
   const [studentsError, setStudentsError] = useState("");
 
-  const exportPDF = async () => {
-    const element: any = document.getElementById("pdf-content");
-    if (!element) return;
 
-    const canvas = await html2canvas(element, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("p", "mm", "a4");
-    const width = pdf.internal.pageSize.getWidth();
-    const height = (canvas.height * width) / canvas.width;
+const exportPDF = () => {
+  const doc = new jsPDF("p", "mm", "a4");
+  doc.addImage("/galaHeading.png", "PNG", 15, 5, 50,30,'MEDIUM'); // (image path, type, x, y, width, height)
 
-    pdf.addImage(imgData, "PNG", 0, 0, width, height);
-    pdf.save(`${selectedSector}-students.pdf`);
-  };
+  // Title with color
+  doc.setFontSize(30);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(232, 27, 65); // Red color
+  doc.text(`${selectedSector} Sector`, 80, 18);
+
+  doc.setFontSize(13);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Registered Students Report`, 80, 26);
+
+  doc.setFontSize(12);
+  doc.setTextColor(13, 110, 253); // Blue
+  doc.text(`Total Students: ${filteredStudents.length}`, 80, 34);
+
+  const tableData = filteredStudents.map((stu, index) => [
+    index + 1,
+    stu.name,
+    stu.phone,
+    stu.ticket,
+    stu.unitName
+  ]);
+
+  autoTable(doc, {
+    startY: 40,
+    head: [["#", "Name", "Phone", "Ticket","Unit"]],
+    body: tableData,
+    styles: { fontSize: 10 },
+    theme: "grid", 
+   });
+
+  doc.save(`${selectedSector}-students.pdf`);
+};
+
 
   useEffect(() => {
     const fetchSectors = async () => {
@@ -152,6 +177,7 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
                       <th className="px-4 py-3 text-left font-semibold text-gray-700 w-12">#</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-700 w-2/5">Name</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">Phone</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">Ticket</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">Unit</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-700 hidden md:table-cell w-52">
                         Email / School
@@ -167,6 +193,7 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
                         <td className="px-4 py-3 font-semibold text-gray-800">{index + 1}</td>
                         <td className="px-4 py-3 font-bold text-gray-900">{stu.name}</td>
                         <td className="px-4 py-3 text-gray-700">{stu.phone}</td>
+                        <td className="px-4 py-3 text-gray-700">{stu.ticket}</td>
                         <td className="px-4 py-3 text-gray-700">{stu.unitName}</td>
                         <td className="px-4 py-3 text-gray-700 hidden md:table-cell">
                           {stu.email

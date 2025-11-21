@@ -77,6 +77,7 @@ export async function GET(
       unitName: student.unitId?.unitName || "Unknown Unit",
       email: student.email,
       school: student.school,
+      ticket: student.ticket,
     }));
 
     // ✅ Return response
