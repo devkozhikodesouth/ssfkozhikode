@@ -1,5 +1,5 @@
 import mongoose, { Schema, models } from "mongoose";
-
+import Counter from "./Counter";
 const studentSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -8,17 +8,35 @@ const studentSchema = new Schema(
     school: { type: String, required: true },
     course: { type: String },
     year: { type: String },
-
-    // Changed from String to ObjectId
     unitId: {
       type: Schema.Types.ObjectId,
-      ref: "Unit", // 👈 reference to the Unit collection
-      required: true, // make true if every student must belong to a unit
+      ref: "Unit",
+      required: true,
+    },
+    attendance: { type: Boolean, default: false },
+
+    ticket: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
   },
   { timestamps: true }
 );
 
-const Student = models.Student || mongoose.model("Student", studentSchema);
+// Auto ticket generation
+studentSchema.pre("save", async function (next) {
+  if (this.ticket && this.ticket !== "") return next();  // skip if provided
 
+  const counter = await Counter.findOneAndUpdate(
+    { name: "ticket" },
+    { $inc: { value: 1 } },
+    { new: true, upsert: true }
+  );
+
+  this.ticket = `KS${String(counter.value).padStart(3, "0")}`;
+  next();
+});
+
+const Student = models.Student || mongoose.model("Student", studentSchema);
 export default Student;

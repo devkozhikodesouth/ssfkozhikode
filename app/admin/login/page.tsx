@@ -55,7 +55,16 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-  
+  const addTickets = async () => {
+  try {
+    const res = await fetch("/api/migrate", { method: "PATCH" });
+    const data = await res.json();
+    alert(data.message || "Done");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -66,6 +75,13 @@ export default function LoginPage() {
         <h2 className="text-2xl font-semibold text-center mb-6 text-gray-700">
           Admin Login
         </h2>
+        
+<button
+  onClick={addTickets}
+  className="bg-green-600 text-white px-4 py-2 rounded"
+>
+  Add Ticket Numbers
+</button>
 
         {error && (
           <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
