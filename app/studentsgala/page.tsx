@@ -49,13 +49,13 @@ export default function StudentGalaLanding() {
                 Register Now
               </Link>
 
-              {/* <button
+              <button
                 onClick={() => setOpen(true)}
                 className="w-full sm:w-auto text-white px-6 py-3 text-center rounded-md font-semibold shadow-md hover:brightness-90 transition-all"
                 style={{ backgroundColor: Colors.secondary }}
               >
                 Get Your Tickets
-              </button> */}
+              </button>
             </div>
 
             {/* Countdown */}
