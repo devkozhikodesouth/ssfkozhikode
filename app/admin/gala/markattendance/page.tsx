@@ -1,13 +1,14 @@
-"use client";
-import React, { useState } from "react";
-import { Html5QrcodeScanner } from "html5-qrcode";
+'use client';
+import React, { useState, useRef } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 
 export default function Page() {
   const [showScanner, setShowScanner] = useState(false);
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [scannedCode, setScannedCode] = useState("");
   const [toast, setToast] = useState({ show: false, type: "", message: "" });
+
+  const scannerRef = useRef<any>(null);
 
   const showToast = (type: string, message: string) => {
     setToast({ show: true, type, message });
@@ -15,50 +16,59 @@ export default function Page() {
   };
 
   const startScanner = () => {
-    const scanner = new Html5QrcodeScanner(
-      "reader",
-      { fps: 10, qrbox: 250 },
-      false
-    );
-    scanner.render(onScanSuccess, onScanError);
+    const html5QrCode = new Html5Qrcode("reader");
+    scannerRef.current = html5QrCode;
+
+    html5QrCode
+      .start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        (decodedText) => onScanSuccess(decodedText),
+        (errorMessage) => {}
+      )
+      .catch((err) => console.log(err));
   };
-const onScanSuccess = async (decodedText: string) => {
-  setScannedCode(decodedText);
-  setShowScanner(false);
-  setLoading(true);
-  setStudent(null);
 
-  // Validate QR format example: KS001, KS123 etc.
-  const isValidFormat = /^KS\d{2,}$/i.test(decodedText);
-
-  if (!isValidFormat) {
-    showToast("error", "Invalid QR Code");
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const res = await fetch(`/api/admin/attendance?code=${decodedText}`);
-    const data = await res.json();
-
-    if (!data?.success) {
-      showToast("error", data?.message || "Student not found");
-    } else {
-      setStudent(data.data);
-
-      if (data?.already) {
-        showToast("warning", "Attendance already marked!");
-      } else {
-        showToast("success", "Student found!");
-      }
+  const stopScanner = async () => {
+    if (scannerRef.current) {
+      await scannerRef.current.stop();
+      await scannerRef.current.clear();
+      scannerRef.current = null;
     }
-  } catch (err) {
-    showToast("error", "Server error fetching student");
-  }
+  };
 
-  setLoading(false);
-};
+  const onScanSuccess = async (decodedText: string) => {
+    await stopScanner();  // ← important! stop scanning immediately
 
+    setShowScanner(false);
+    setLoading(true);
+    setStudent(null);
+
+    const isValidFormat = /^KS\d{2,}$/i.test(decodedText);
+    if (!isValidFormat) {
+      showToast("error", "Invalid QR Code");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/attendance?code=${decodedText}`);
+      const data = await res.json();
+
+      if (!data?.success) {
+        showToast("error", data?.message || "Student not found");
+      } else {
+        setStudent(data.data);
+
+        if (data?.already) showToast("warning", "Attendance already marked!");
+        else showToast("success", "Student found!");
+      }
+    } catch (err) {
+      showToast("error", "Server error fetching student");
+    }
+
+    setLoading(false);
+  };
 
   const onScanError = (err: any) => {};
 
@@ -73,7 +83,6 @@ const onScanSuccess = async (decodedText: string) => {
     showToast("success", "Attendance recorded successfully");
 
     setStudent(null);
-    setScannedCode("");
   };
 
   return (
@@ -105,20 +114,19 @@ const onScanSuccess = async (decodedText: string) => {
       </button>
 
       {/* Scanner popup */}
-      {showScanner && (
-        <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-[350px] text-center">
-            <h2 className="text-lg font-semibold mb-3">Scan QR Code</h2>
-            <div id="reader" style={{ width: "300px" }} />
-            <button
-              onClick={() => setShowScanner(false)}
-              className="mt-4 w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+{showScanner && (
+  <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
+    <div className="bg-white p-6 rounded-lg shadow-xl w-[350px] text-center">
+      <h2 className="text-lg font-semibold mb-3">Scan QR Code</h2>
+      <div id="reader" style={{ width: "300px" }} />
+      <button onClick={async () => { await stopScanner(); setShowScanner(false); }}
+        className="mt-4 w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition">
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* Student card */}
       {student && (
@@ -151,7 +159,7 @@ const onScanSuccess = async (decodedText: string) => {
           )}
 
           <button
-            onClick={() => { setStudent(null); setScannedCode(""); }}
+            onClick={() => { setStudent(null); ; }}
             className="mt-2 w-full bg-gray-300 hover:bg-gray-400 text-black py-2 rounded-md transition"
           >
             Close
