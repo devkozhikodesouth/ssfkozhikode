@@ -79,6 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               { name: "Div Sector Wise Data", path: "/admin/gala/sector" },
               { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
               { name: "Sector Wise Data", path: "/admin/gala/sectorwise" },
+              { name: "Mark attendance", path: "/admin/gala/markattendance" },
             ]}
             open={openMenu === "Students Gala"}
             onToggle={() => toggleMenu("Students Gala")}
@@ -156,6 +157,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     { name: "Div Sector Wise Data", path: "/admin/gala/sector" },
                     { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
                     { name: "Sector Wise Data", path: "/admin/gala/sectorwise" },
+                                  { name: "Mark attendance", path: "/admin/gala/markattendance" },
+
                   ]}
                   open={openMenu === "Students Gala"}
                   onToggle={() => toggleMenu("Students Gala")}
