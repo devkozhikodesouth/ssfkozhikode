@@ -1,0 +1,281 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+interface Student {
+  _id: string;
+  name: string;
+  phone: string;
+  unitName: string;
+  sector: string; // <-- Added sector field
+  email?: string;
+  school?: string;
+  ticket: string;
+  divisionName: string;
+}
+
+export default function StudentsDetails() {
+  const [divisions, setDivisions] = useState<string[]>([]);
+  const [divisionName, setDivisionName] = useState("");
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [studentsError, setStudentsError] = useState("");
+
+  const filteredStudents = students.filter((s) =>
+    s.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // ===== Fetch Divisions =====
+  useEffect(() => {
+    const fetchDivisions = async () => {
+      try {
+        const res = await fetch("/api/register");
+        const data = await res.json();
+
+        if (res.ok && data?.success && Array.isArray(data.data)) {
+          const names = data.data
+            .map((d: any) => d.divisionName)
+            .filter(Boolean); // remove empty/null
+          setDivisions(names);
+        } else {
+          console.warn("No valid divisions found:", data);
+        }
+      } catch (err) {
+        console.error("Error fetching divisions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDivisions();
+  }, []);
+  // Fetch Students by Division =====
+  useEffect(() => {
+    if (!divisionName) {
+      setStudents([]);
+      return;
+    }
+
+    const fetchStudents = async () => {
+      setStudentsLoading(true);
+      try {
+        const res = await fetch(
+          `/api/admin/studentsdata?division=${divisionName}`
+        );
+        const data = await res.json();
+        if (res.ok && data?.success && Array.isArray(data.data)) {
+          setStudents(data.data);
+        } else {
+          setStudentsError(data?.message || "Failed to fetch students");
+          setStudents([]);
+        }
+      } catch (err) {
+        console.error("Error fetching students:", err);
+      } finally {
+        setStudentsLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, [divisionName]);
+
+  // ===== Export PDF =====
+  const exportPDF = () => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+      putOnlyUsedFonts: true,
+      compress: true,
+    });
+    doc.addImage("/galaHeading.png", "PNG", 15, 5, 45, 28);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(232, 27, 65);
+    doc.text(`Division: ${divisionName}`, 80, 15);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Total Students: ${filteredStudents.length}`, 80, 25);
+
+    autoTable(doc, {
+      startY: 40,
+      head: [["#", "Name", "Phone", "Ticket", "Unit", "Sector"]],
+      body: filteredStudents.map((stu, index) => [
+        index + 1,
+        stu.name,
+        stu.phone,
+        stu.ticket,
+        stu.unitName,
+        stu.sector,
+      ]),
+      theme: "grid",
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [33, 150, 243] },
+      didDrawPage: () => {
+        doc.setFontSize(10);
+        doc.text(`Page ${doc.getNumberOfPages()}`, 190, 290, {
+          align: "right",
+        });
+      },
+    });
+
+    doc.save(`${divisionName}-students.pdf`);
+  };
+
+  // ===== Export CSV =====
+  const exportCSV = () => {
+    const rows = [
+      ["#", "Name", "Phone", "Ticket", "Unit", "Sector"],
+      ...filteredStudents.map((stu, i) => [
+        i + 1,
+        stu.name,
+        stu.phone,
+        stu.ticket,
+        stu.unitName,
+        stu.sector,
+      ]),
+    ];
+
+    const csv = rows.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${divisionName}-students.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="w-full px-4 md:px-10 py-6">
+      <h1 className="text-center text-3xl font-bold text-blue-700 mb-6">
+        Students Gala Registration
+      </h1>
+
+      {/* Division Selector */}
+      <div className="flex justify-center mb-8 ">
+        {loading ? (
+          <p>Loading divisions...</p>
+        ) : (
+          <select
+            value={divisionName}
+            onChange={(e) => setDivisionName(e.target.value)}
+            className="border border-gray-300  rounded-lg px-4 py-2 w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select a Division</option>
+            {divisions.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Students Table */}
+      {divisionName && (
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+          <div className="flex justify-between items-center mb-4 ">
+            <input
+              type="text"
+              placeholder="Search students..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border px-4 py-2 rounded-lg"
+            />
+
+            <div className="flex items-center gap-5">
+              <div className="font-bold text-gray-800">
+                Total Count: {filteredStudents.length}
+              </div>
+
+              <button
+                onClick={exportPDF}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+              >
+                PDF
+              </button>
+              <button
+                onClick={exportCSV}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg"
+              >
+                CSV
+              </button>
+            </div>
+          </div>
+
+          {studentsLoading ? (
+            <p className="text-center text-gray-600 animate-pulse">
+              Loading students...
+            </p>
+          ) : studentsError ? (
+            <p className="text-center text-red-600">{studentsError}</p>
+          ) : filteredStudents.length === 0 ? (
+            <p className="text-center text-gray-600">No students found.</p>
+          ) : (
+            <div className="overflow-x-auto ">
+              <table className="min-w-full border  border-gray-200 rounded-lg">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-12">
+                      #
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-2/5">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
+                      Phone
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
+                      Ticket
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
+                      Unit
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
+                      Sector
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700 hidden md:table-cell w-52">
+                      School / Email
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredStudents.map((stu, index) => (
+                    <tr
+                      key={stu._id}
+                      className="border-t border-gray-300/40 hover:bg-blue-50 transition"
+                    >
+                      <td className="px-4 py-3 font-semibold text-gray-800">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-gray-900">
+                        {stu.name}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{stu.phone}</td>
+                      <td className="px-4 py-3 text-gray-700">{stu.ticket}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {stu.unitName}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{stu.sector}</td>
+                      <td className="px-4 py-3 text-gray-700 hidden md:table-cell">
+                        {stu.school ?? stu.email ?? (
+                          <span className="text-gray-400 italic">N/A</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

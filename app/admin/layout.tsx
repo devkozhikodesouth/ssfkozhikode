@@ -2,10 +2,22 @@
 
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Moon, Sun, Search, Menu, ChevronRight, LogOut, ChevronLeft } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  Search,
+  Menu,
+  ChevronRight,
+  LogOut,
+  ChevronLeft,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -47,7 +59,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex items-center justify-between p-4 border-b border-gray-700/30">
           <div className="flex items-center gap-2 overflow-hidden">
             <div className="w-8 h-8 rounded-full bg-indigo-500" />
-            {sidebarOpen && <span className="font-bold text-lg">SSF Admin</span>}
+            {sidebarOpen && (
+              <span className="font-bold text-lg">SSF Admin</span>
+            )}
           </div>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -79,6 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               { name: "Div Sector Wise Data", path: "/admin/gala/sector" },
               { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
               { name: "Sector Wise Data", path: "/admin/gala/sectorwise" },
+              { name: "Students data", path: "/admin/gala/studentsdata" },
               { name: "Mark attendance", path: "/admin/gala/markattendance" },
             ]}
             open={openMenu === "Students Gala"}
@@ -153,12 +168,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   label="Students Gala"
                   icon="🎓"
                   items={[
-                    { name: "Division Wise Data", path: "/admin/gala/division" },
-                    { name: "Div Sector Wise Data", path: "/admin/gala/sector" },
+                    {
+                      name: "Division Wise Data",
+                      path: "/admin/gala/division",
+                    },
+                    {
+                      name: "Div Sector Wise Data",
+                      path: "/admin/gala/sector",
+                    },
                     { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
-                    { name: "Sector Wise Data", path: "/admin/gala/sectorwise" },
-                                  { name: "Mark attendance", path: "/admin/gala/markattendance" },
-
+                    {
+                      name: "Sector Wise Data",
+                      path: "/admin/gala/sectorwise",
+                    },
+                    {
+                      name: "Mark attendance",
+                      path: "/admin/gala/markattendance",
+                    },
+                    {
+                      name: "Mark attendance",
+                      path: "/admin/gala/markattendance",
+                    },
                   ]}
                   open={openMenu === "Students Gala"}
                   onToggle={() => toggleMenu("Students Gala")}
@@ -344,7 +374,10 @@ function NavGroup({
           {expanded && <span>{label}</span>}
         </div>
         {expanded && (
-          <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }}>
+          <motion.div
+            animate={{ rotate: open ? 90 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
             <ChevronRight className="w-4 h-4" />
           </motion.div>
         )}
