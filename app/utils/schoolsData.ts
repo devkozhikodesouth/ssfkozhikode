@@ -179,3 +179,14 @@ export const kozhikodeSchools  = [
   "SANTHINIKETHAN HSS, THIRUVALLUR, KOZHIKKODE 10198",
   "Hi-Tech Higher Secondary School, Vattoli, Kunnummal, Kozhikkode 10301"
 ];
+export const residentialSchools = [
+  "Aise Green School, Pantheerankavu",
+  "Caliph Life School",
+  "Dihils World School",
+  "Face World Leadership School",
+  "Mems Karanthoor",
+  "IFER Madavoor",
+  "Alif Global School",
+  "Hillsinai Centre for Excellence",
+  "I Shore Karanthoor"
+];

@@ -54,13 +54,13 @@ export default function SectorTable() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-6 px-3 sm:px-6">
+    <main className="min-h-screen  bg-gray-50 py-6 px-3 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">
-          🟩 Students Gala — All Sector Wise Data
+          Students Gala — All Sector Wise Data
         </h1>
 
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-8 border border-gray-200">
+        <div className="bg-white rounded-xl   shadow-md p-4 sm:p-8 border border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
               All Sectors — <span className="text-blue-600">Register Count</span>
@@ -74,14 +74,14 @@ export default function SectorTable() {
             )}
           </div>
 
-          {loadingSectors ? (
-            <div className="flex justify-center py-10">
-              <span className="animate-pulse text-gray-600">Loading...</span>
-            </div>
-          ) : sectors.length > 0 ? (
-            <div className="overflow-x-auto border rounded-lg">
-              <table className="min-w-full text-sm sm:text-base">
-                <thead className="bg-gray-100">
+{loadingSectors ? (
+  <div className="flex justify-center py-10">
+    <span className="animate-pulse text-gray-600">Loading...</span>
+  </div>
+) : sectors.length > 0 ? (
+  <div className=" overflow-y-hidden border rounded-lg">
+    <table className="min-w-[600px] w-full text-sm sm:text-base">
+      <thead className="bg-gray-100">
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">#</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Division</th>

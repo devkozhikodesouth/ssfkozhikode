@@ -1,3 +1,12 @@
 
 @import "tailwindcss";
 @plugin "daisyui";  
+
+/* global.css */
+::-webkit-scrollbar {
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #bfbfbf;
+  border-radius: 10px;
+}

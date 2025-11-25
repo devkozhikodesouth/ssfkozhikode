@@ -9,7 +9,7 @@ interface Student {
   name: string;
   phone: string;
   unitName: string;
-  sector: string; // <-- Added sector field
+  sector: string;
   email?: string;
   school?: string;
   ticket: string;
@@ -37,9 +37,7 @@ export default function StudentsDetails() {
         const data = await res.json();
 
         if (res.ok && data?.success && Array.isArray(data.data)) {
-          const names = data.data
-            .map((d: any) => d.divisionName)
-            .filter(Boolean); // remove empty/null
+          const names = data.data.map((d: any) => d.divisionName).filter(Boolean);
           setDivisions(names);
         } else {
           console.warn("No valid divisions found:", data);
@@ -53,7 +51,8 @@ export default function StudentsDetails() {
 
     fetchDivisions();
   }, []);
-  // Fetch Students by Division =====
+
+  // ===== Fetch Students by Division =====
   useEffect(() => {
     if (!divisionName) {
       setStudents([]);
@@ -63,10 +62,9 @@ export default function StudentsDetails() {
     const fetchStudents = async () => {
       setStudentsLoading(true);
       try {
-        const res = await fetch(
-          `/api/admin/studentsdata?division=${divisionName}`
-        );
+        const res = await fetch(`/api/admin/studentsdata?division=${divisionName}`);
         const data = await res.json();
+
         if (res.ok && data?.success && Array.isArray(data.data)) {
           setStudents(data.data);
         } else {
@@ -92,6 +90,7 @@ export default function StudentsDetails() {
       putOnlyUsedFonts: true,
       compress: true,
     });
+
     doc.addImage("/galaHeading.png", "PNG", 15, 5, 45, 28);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
@@ -116,9 +115,7 @@ export default function StudentsDetails() {
       headStyles: { fillColor: [33, 150, 243] },
       didDrawPage: () => {
         doc.setFontSize(10);
-        doc.text(`Page ${doc.getNumberOfPages()}`, 190, 290, {
-          align: "right",
-        });
+        doc.text(`Page ${doc.getNumberOfPages()}`, 190, 290, { align: "right" });
       },
     });
 
@@ -151,131 +148,103 @@ export default function StudentsDetails() {
   };
 
   return (
-    <div className="w-full px-4 md:px-10 py-6">
-      <h1 className="text-center text-3xl font-bold text-blue-700 mb-6">
-        Students Gala Registration
-      </h1>
+    <main className="min-h-screen bg-gray-50 py-10 px-4 overflow-scroll">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-10 py-6">
+        <h1 className="text-center text-2xl md:text-3xl font-bold text-blue-700 mb-6">
+          Students Gala Registration
+        </h1>
 
-      {/* Division Selector */}
-      <div className="flex justify-center mb-8 ">
-        {loading ? (
-          <p>Loading divisions...</p>
-        ) : (
-          <select
-            value={divisionName}
-            onChange={(e) => setDivisionName(e.target.value)}
-            className="border border-gray-300  rounded-lg px-4 py-2 w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select a Division</option>
-            {divisions.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-
-      {/* Students Table */}
-      {divisionName && (
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-          <div className="flex justify-between items-center mb-4 ">
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border px-4 py-2 rounded-lg"
-            />
-
-            <div className="flex items-center gap-5">
-              <div className="font-bold text-gray-800">
-                Total Count: {filteredStudents.length}
-              </div>
-
-              <button
-                onClick={exportPDF}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg"
-              >
-                PDF
-              </button>
-              <button
-                onClick={exportCSV}
-                className="bg-green-600 text-white px-6 py-2 rounded-lg"
-              >
-                CSV
-              </button>
-            </div>
-          </div>
-
-          {studentsLoading ? (
-            <p className="text-center text-gray-600 animate-pulse">
-              Loading students...
-            </p>
-          ) : studentsError ? (
-            <p className="text-center text-red-600">{studentsError}</p>
-          ) : filteredStudents.length === 0 ? (
-            <p className="text-center text-gray-600">No students found.</p>
+        {/* Division Selector */}
+        <div className="flex justify-center mb-8 w-full">
+          {loading ? (
+            <p>Loading divisions...</p>
           ) : (
-            <div className="overflow-x-auto ">
-              <table className="min-w-full border  border-gray-200 rounded-lg">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-12">
-                      #
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-2/5">
-                      Name
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
-                      Phone
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
-                      Ticket
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
-                      Unit
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700 w-32">
-                      Sector
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700 hidden md:table-cell w-52">
-                      School / Email
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {filteredStudents.map((stu, index) => (
-                    <tr
-                      key={stu._id}
-                      className="border-t border-gray-300/40 hover:bg-blue-50 transition"
-                    >
-                      <td className="px-4 py-3 font-semibold text-gray-800">
-                        {index + 1}
-                      </td>
-                      <td className="px-4 py-3 font-bold text-gray-900">
-                        {stu.name}
-                      </td>
-                      <td className="px-4 py-3 text-gray-700">{stu.phone}</td>
-                      <td className="px-4 py-3 text-gray-700">{stu.ticket}</td>
-                      <td className="px-4 py-3 text-gray-700">
-                        {stu.unitName}
-                      </td>
-                      <td className="px-4 py-3 text-gray-700">{stu.sector}</td>
-                      <td className="px-4 py-3 text-gray-700 hidden md:table-cell">
-                        {stu.school ?? stu.email ?? (
-                          <span className="text-gray-400 italic">N/A</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <select
+              value={divisionName}
+              onChange={(e) => setDivisionName(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 w-full sm:w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select a Division</option>
+              {divisions.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
           )}
         </div>
-      )}
-    </div>
+
+        {/* Table Container */}
+        {divisionName && (
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow-md border border-gray-200 w-full">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="border px-4 py-2 rounded-lg w-full sm:w-64"
+              />
+
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="font-bold text-gray-800">
+                  Total Count: {filteredStudents.length}
+                </div>
+
+                <button onClick={exportPDF} className="bg-blue-600 text-white px-6 py-2 rounded-lg">PDF</button>
+                <button onClick={exportCSV} className="bg-green-600 text-white px-6 py-2 rounded-lg">CSV</button>
+              </div>
+            </div>
+
+            {studentsLoading ? (
+              <p className="text-center text-gray-600 animate-pulse">Loading students...</p>
+            ) : studentsError ? (
+              <p className="text-center text-red-600">{studentsError}</p>
+            ) : filteredStudents.length === 0 ? (
+              <p className="text-center text-gray-600">No students found.</p>
+            ) : (
+              <div className="w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-400 rounded-lg">
+                <table className="w-full border border-gray-200 rounded-lg">
+                  <thead className="bg-gray-100 text-sm md:text-base">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-semibold">#</th>
+                      <th className="px-4 py-3 text-left font-semibold">Name</th>
+                      <th className="px-4 py-3 text-left font-semibold">Phone</th>
+                      <th className="px-4 py-3 text-left font-semibold">Ticket</th>
+                      <th className="px-4 py-3 text-left font-semibold">Unit</th>
+                      <th className="px-4 py-3 text-left font-semibold">Sector</th>
+                      <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">
+                        School / Email
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="text-sm md:text-base">
+                    {filteredStudents.map((stu, index) => (
+                      <tr
+                        key={stu._id}
+                        className="border-t border-gray-300/40 hover:bg-blue-50 transition"
+                      >
+                        <td className="px-4 py-3 font-semibold">{index + 1}</td>
+                        <td className="px-4 py-3">{stu.name}</td>
+                        <td className="px-4 py-3">{stu.phone}</td>
+                        <td className="px-4 py-3">{stu.ticket}</td>
+                        <td className="px-4 py-3">{stu.unitName}</td>
+                        <td className="px-4 py-3">{stu.sector}</td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          {stu.school ?? stu.email ?? (
+                            <span className="text-gray-400 italic">N/A</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
