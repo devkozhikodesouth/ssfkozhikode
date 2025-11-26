@@ -81,6 +81,13 @@ const StudentsGalaPage = () => {
       const data = await res.json();
 
       if (data.success) {
+            setFormData({
+        name: "",
+        mobile: "",
+        course: "",
+        year: "",
+        school: "",
+      });
         setFoundUser(data.user);
         Swal.fire({
           icon: "success",
