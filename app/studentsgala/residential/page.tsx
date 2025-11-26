@@ -19,6 +19,7 @@ export default function StudentGalaLanding() {
 
   return (
     <>
+      {/* Hero Background Section */}
       <div className="relative min-h-screen bg-gradient-to-br from-[#FDE047] via-[#FACC15] to-[#EAB308] bg-[url('/bg-texture.png')] bg-cover bg-center bg-no-repeat overflow-hidden">
 
         {/* Decorative Images */}
@@ -33,10 +34,10 @@ export default function StudentGalaLanding() {
           className="absolute top-0 -right-40 md:right-0 min-w-44 md:w-80 opacity-80 pointer-events-none select-none"
         />
 
-        {/* Main Hero Section */}
+        {/* HERO SECTION */}
         <section className="md:pt-24 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
-
-          {/* Left Half */}
+          
+          {/* LEFT SIDE */}
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -53,31 +54,24 @@ export default function StudentGalaLanding() {
               alt="Students Gala"
             />
 
-            {/* Action Buttons */}
+            {/* REGISTER BUTTON */}
             <motion.div
-              initial={{ opacity: 0, y: 80 }}
+              initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
-              className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-4 w-full justify-center items-center"
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              className="mt-6 md:mt-8 w-full flex justify-center"
             >
               <button
                 onClick={scrollToForm}
-                className="w-full sm:w-auto text-white px-6 py-3 text-center rounded-md font-semibold shadow-md hover:brightness-90 transition-all"
-                style={{ backgroundColor: Colors.accent }}
+                className="w-full md:w-2/3 text-white px-8 py-4 rounded-2xl font-semibold shadow-xl 
+                bg-gradient-to-r from-red-500 to-blue-500 backdrop-blur-xl
+                hover:opacity-90 active:scale-95 transition-all duration-300"
               >
                 Register Now
               </button>
-
-              <button
-                onClick={() => setOpen(true)}
-                className="w-full sm:w-auto text-white px-6 py-3 text-center rounded-md font-semibold shadow-md hover:brightness-90 transition-all"
-                style={{ backgroundColor: Colors.secondary }}
-              >
-                Get Your Tickets
-              </button>
             </motion.div>
 
-            {/* Countdown */}
+            {/* COUNTDOWN TIMER */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -88,7 +82,7 @@ export default function StudentGalaLanding() {
             </motion.div>
           </motion.div>
 
-          {/* Right Half */}
+          {/* RIGHT SIDE */}
           <motion.div
             initial={{ opacity: 0, y: -60 }}
             animate={{ opacity: 1, y: 0 }}
@@ -123,31 +117,14 @@ export default function StudentGalaLanding() {
             />
           </motion.div>
         </section>
-
-        {/* Bottom Sections */}
-        <motion.section
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="mt-20 mb-16 px-6 md:px-12"
-        ></motion.section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-20 px-6 md:px-12"
-        ></motion.section>
       </div>
 
-      {/* FORM AREA */}
-      <div ref={formRef} className="mt-24 mb-20 px-6 md:px-12">
+      {/* FORM SECTION */}
+      <section ref={formRef} className="mt-24 mb-20 px-6 md:px-12 scroll-mt-24">
         <RegistrationForm />
-      </div>
+      </section>
 
-      {/* Modal Component */}
+      {/* MODAL */}
       <TicketModal open={open} onClose={() => setOpen(false)} />
     </>
   );
