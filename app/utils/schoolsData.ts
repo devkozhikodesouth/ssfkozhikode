@@ -182,7 +182,7 @@ export const kozhikodeSchools  = [
 export const residentialSchools = [
   "Aise Green School, Pantheerankavu",
   "Caliph Life School",
-  "Dihils World School",
+  "Dihliz World School",
   "Face World Leadership School",
   "Mems Karanthoor",
   "IFER Madavoor",
