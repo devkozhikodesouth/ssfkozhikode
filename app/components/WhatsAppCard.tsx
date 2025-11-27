@@ -99,7 +99,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
           style={{
             width: "600px",
             height: "1200px",
-            transform: isCapturing ? "none" : "scale(0.5)",
+            transform: "scale(0.5)",
             transformOrigin: "top left",
             backgroundImage: "url('/template.png')",
             backgroundSize: "cover",
@@ -151,7 +151,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
       </div>
 
       {/* BUTTONS */}
-      {generatedFile && (
+     
         <div className="flex gap-4">
           <button
             onClick={downloadImage}
@@ -171,7 +171,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
             Share
           </button>
         </div>
-      )}
+   
     </div>
   );
 };

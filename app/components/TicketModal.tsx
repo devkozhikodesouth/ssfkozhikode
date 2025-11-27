@@ -61,10 +61,10 @@ const TicketModal: React.FC<TicketModalProps> = ({ open, onClose }) => {
         setImageLoading(true);
 
         // ✨ TIMEOUT LOADING (SHOW AFTER DELAY)
-        setTimeout(() => {
+        
           setShowCard(true);
           setImageLoading(false);
-        }, 2000); // Change delay if needed (ms)
+       // Change delay if needed (ms)
       } else {
         setError("❌ Mobile not registered");
       }
