@@ -15,12 +15,14 @@ export async function GET(req: Request) {
         { status: 400 }
       );
     }
+    const countStudents = await Student.countDocuments({ unitId:"68720d1fa666f978f59b05dc" });
 
     const students = await Student.find({ school }).sort({ name: 1 });
 
     return NextResponse.json({
       success: true,
       data: students,
+      totalCount:countStudents,
       count: students.length,
     });
   } catch (error) {

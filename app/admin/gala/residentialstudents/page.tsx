@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { residentialSchools } from "@/app/utils/schoolsData";
+import { data, s } from "framer-motion/client";
 
 interface Student {
   _id: string;
@@ -23,6 +24,7 @@ export default function StudentsDetails() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
+    const [totalCount, setTotalCount] = useState(0);
 
   const filteredStudents = students.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -45,6 +47,7 @@ export default function StudentsDetails() {
 
         if (res.ok && data?.success && Array.isArray(data.data)) {
           setStudents(data.data);
+          setTotalCount(data.totalCount || 0);
         } else {
           setError(data?.message || "Failed to fetch students");
           setStudents([]);
@@ -127,9 +130,14 @@ doc.text(`School: ${schoolShort}`, 80, 15);
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-4 overflow-scroll">
       <div className="w-full max-w-[1600px] mx-auto px-4 md:px-10 py-6">
-        <h1 className="text-center text-2xl md:text-3xl font-bold text-blue-700 mb-6">
-          Residential Students Registration
-        </h1>
+<h1 className="text-center text-2xl md:text-3xl font-bold text-blue-700 mb-2">
+  Residential Students Registration
+</h1>
+
+<h2 className="text-center text-lg font-semibold text-gray-800 mb-6">
+  Total Residential Students: {totalCount}
+</h2>
+
 
         {/* School Selector */}
         <div className="flex justify-center mb-8 w-full">
