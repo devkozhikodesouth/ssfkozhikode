@@ -50,7 +50,11 @@ const StudentsGalaPage = () => {
     setFormData({ ...formData, mobile: "" });
     setErrors({});
   };
-
+const formatName = (name:string) => {
+  return name
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -111,15 +115,52 @@ const StudentsGalaPage = () => {
       <div className="max-w-3xl w-full mx-auto rounded-3xl p-6 md:p-10 border border-white/40 shadow-xl bg-white/60 backdrop-blur-xl">
 
         {/* HEADER */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-r from-red-500 to-blue-500 p-4 rounded-2xl shadow-lg">
-              <Ticket className="text-white w-6 h-6" />
-            </div>
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">Get Your Ticket</h2>
-          <p className="text-gray-600 mt-1">Let’s meet at the Gala!</p>
-        </div>
+<div className="text-center mb-4">
+  <div className="flex justify-center mb-3">
+    <div className="bg-blue-600 p-2 rounded-xl shadow-md">
+      <Ticket className="text-white w-5 h-5" />
+    </div>
+  </div>
+
+  <h2 className="text-xl font-bold text-gray-900">Get Your Ticket</h2>
+  <p className="text-gray-500 text-sm mt-1">Let’s meet at the Gala!</p>
+{foundUser && (
+<div className="bg-blue-50 border border-blue-200 rounded-2xl p-6  shadow-sm">
+  <div className="flex items-center justify-center gap-2 mb-2">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      className="w-6 h-6 text-blue-600"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+
+    <h2 className="text-xl font-bold text-blue-700">Already Registered!</h2>
+  </div>
+
+<p className="text-blue-700 font-semibold text-lg">
+  Hai, {formatName(foundUser.name)}
+</p>
+
+
+<p className=" text-sm md:text-base mb-2">
+  We found your registration details. You can view your ticket below.
+</p>
+
+  <button
+    type="button"
+    onClick={resetMobileCheck}
+    className="px-5 py-2 bg-white border border-gray-300 rounded-xl text-gray-800 font-medium shadow-sm hover:bg-gray-50 transition"
+  > 
+    Register/ Check 
+  </button>
+</div>)}
+
+</div>
+
 
         {foundUser ? (
           <div className="space-y-6">
@@ -129,14 +170,6 @@ const StudentsGalaPage = () => {
               ticket={foundUser.ticket}
               handleImage={() => {}}
             />
-
-            <button
-              type="button"
-              onClick={resetMobileCheck}
-              className="w-full bg-blue-500/70 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold"
-            >
-              Check Another Number
-            </button>
           </div>
         ) : (
           <form className="space-y-6" onSubmit={handleSubmit}>
