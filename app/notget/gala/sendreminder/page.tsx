@@ -17,30 +17,29 @@ export default function BulkSender() {
     fetchCount();
   }, []);
 
-  const sendBatch = async () => {
-    setSending(true);
-    setStatus(`Sending batch ${page}...`);
+const sendBatch = async () => {
+  setSending(true);
+  setStatus(`Sending batch ${page}...`);
 
-    const res = await fetch(`/api/admin/send-reminder?page=${page}`, { method: "POST" });
-    const data = await res.json();
+  const res = await fetch(`/api/admin/send-reminder?page=${page}`, { method: "POST" });
+  const data = await res.json();
 
-    if (data.finished) {
-      setStatus("🎉 All students have received the message");
-      setSending(false);
-      return;
-    }
-
-    if (data.success) {
-      const newSent = Math.min(page * 2, total);
-      setSentCount(newSent);
-      setStatus(`Batch ${page} sent successfully`);
-      setPage(page + 1);
-    } else {
-      setStatus("❌ Error sending messages");
-    }
-
+  if (data.finished) {
+    setStatus("🎉 All students have received the message");
     setSending(false);
-  };
+    return;
+  }
+
+  if (data.success) {
+    setSentCount((prev) => prev + data.successCount);
+    setStatus(`✔ Batch ${page} completed. Success: ${data.successCount}, Failed: ${data.failedCount}`);
+    setPage(page + 1);
+  } else {
+    setStatus("❌ Error sending messages");
+  }
+
+  setSending(false);
+};
 
   const remaining = total - sentCount;
   const progress = total > 0 ? Math.round((sentCount / total) * 100) : 0;

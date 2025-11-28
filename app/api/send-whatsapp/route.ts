@@ -23,39 +23,39 @@ const sendName = name
   .replace(/\b\w/g, (char: string) => char.toUpperCase());
 
 
-   // Static PDF path
-filePath = path.join(process.cwd(), "public", "pdf.pdf");
+//    // Static PDF path
+// filePath = path.join(process.cwd(), "public", "pdf.pdf");
 
-// Multipart for media upload
-const formData = new FormData();
-formData.append("messaging_product", "whatsapp");
-formData.append("type", "application/pdf");
-formData.append("file", fs.createReadStream(filePath));
+// // Multipart for media upload
+// const formData = new FormData();
+// formData.append("messaging_product", "whatsapp");
+// formData.append("type", "application/pdf");
+// formData.append("file", fs.createReadStream(filePath));
 
-// Upload to WhatsApp media API
-const mediaRes = await fetch(
-  `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/media`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
-      ...formData.getHeaders(),
-    },
-    body: formData as any,
-  }
-);
+// // Upload to WhatsApp media API
+// const mediaRes = await fetch(
+//   `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/media`,
+//   {
+//     method: "POST",
+//     headers: {
+//       Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
+//       ...formData.getHeaders(),
+//     },
+//     body: formData as any,
+//   }
+// );
 
-const mediaData: any = await mediaRes.json();
-console.log("Media upload response:", mediaData);
+// const mediaData: any = await mediaRes.json();
+// console.log("Media upload response:", mediaData);
 
-if (!mediaRes.ok || !mediaData.id) {
-  console.error("Media upload failed:", mediaData);
-  return new Response(JSON.stringify({ error: mediaData }), { status: 500 });
-}
+// if (!mediaRes.ok || !mediaData.id) {
+//   console.error("Media upload failed:", mediaData);
+//   return new Response(JSON.stringify({ error: mediaData }), { status: 500 });
+// }
 
-const mediaId = mediaData.id;
+// const mediaId = mediaData.id;
 
-    // const mediaId = '2289585044841032'
+    const mediaId = '2289585044841032'
 
     // WhatsApp template message
     const messagePayload = {
