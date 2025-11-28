@@ -7,7 +7,7 @@ import Footer from "./Footer";
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAdminRoute = pathname.startsWith("/admin");
+  const isAdminRoute = pathname.startsWith("/notget");
 
   return (
     <>

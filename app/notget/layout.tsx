@@ -67,14 +67,15 @@ export default function AdminLayout({
             label="Students Gala"
             icon="🎓"
             items={[
-              { name: "Division Wise Data", path: "/admin/gala/division" },
-              { name: "Div Sector Wise Data", path: "/admin/gala/sector" },
-              { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
-              { name: "Sector Wise Data", path: "/admin/gala/sectorwise" },
-              { name: "Students data", path: "/admin/gala/studentsdata" },
+              { name: "Division Wise Data", path: "/notget/gala/division" },
+              { name: "Div Sector Wise Data", path: "/notget/gala/sector" },
+              { name: "Div Unit Wise Data", path: "/notget/gala/unit" },
+              { name: "Sector Wise Data", path: "/notget/gala/sectorwise" },
+              { name: "Students data", path: "/notget/gala/studentsdata" },
+              { name: "Bult message", path: "/notget/gala/sendreminder" },
               {
                 name: "Residential students",
-                path: "/admin/gala/residentialstudents",
+                path: "/notget/gala/residentialstudents",
               },
               { name: "Mark attendance", path: "/admin/gala/markattendance" },
             ]}
@@ -87,7 +88,7 @@ export default function AdminLayout({
           <NavItem
             label="Calendar"
             icon="📅"
-            active={pathname === "/admin/calendar"}
+            active={pathname === "/notget/calendar"}
             onClick={() => router.push("/admin/calendar")}
             expanded={sidebarOpen}
           />
@@ -95,7 +96,7 @@ export default function AdminLayout({
           <NavItem
             label="Profile"
             icon="👤"
-            active={pathname === "/admin/profile"}
+            active={pathname === "/notget/profile"}
             onClick={() => router.push("/admin/profile")}
             expanded={sidebarOpen}
           />
@@ -144,26 +145,28 @@ export default function AdminLayout({
                   items={[
                     {
                       name: "Division Wise Data",
-                      path: "/admin/gala/division",
+                      path: "/notget/gala/division",
                     },
                     {
                       name: "Div Sector Wise Data",
-                      path: "/admin/gala/sector",
+                      path: "/notget/gala/sector",
                     },
                     { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
                     {
                       name: "Sector Wise Data",
-                      path: "/admin/gala/sectorwise",
+                      path: "/notget/gala/sectorwise",
                     },
-                    { name: "Students data", path: "/admin/gala/studentsdata" },
+                    { name: "Students data", path: "/notget/gala/studentsdata" },
+                    { name: "Bult message", path: "/notget/gala/sendreminder" },
+
                     {
                       name: "Residential students",
-                      path: "/admin/gala/residentialstudents",
+                      path: "/notget/gala/residentialstudents",
                     },
 
                     {
                       name: "Mark attendance",
-                      path: "/admin/gala/markattendance",
+                      path: "/notget/gala/markattendance",
                     },
                   ]}
                   open={openMenu === "Students Gala"}
