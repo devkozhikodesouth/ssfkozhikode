@@ -3,25 +3,26 @@ import { connectDB } from "@/app/lib/mongodb";
 import Sector from "@/app/models/Sector";
 import Unit from "@/app/models/Unit";
 import Student from "@/app/models/Students";
-import { caption } from "framer-motion/client";
 
 
 export async function GET() {
   try {
     await connectDB();
     const total = await Student.countDocuments();
-    return new Response(JSON.stringify({ total }), { status: 200 });
+     return NextResponse.json({ total }, { status: 200 });
+
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
+
 export async function POST(req: Request) {
   try {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const page = Number(searchParams.get("page")) || 1;
 
-    const limit = 30; // now 30 students
+    const limit = 10;
     const skip = (page - 1) * limit;
 
     const students = await Student.find({}, "name mobile").skip(skip).limit(limit).lean();
@@ -35,6 +36,11 @@ export async function POST(req: Request) {
 
     for (const student of students) {
       try {
+        if (!student.mobile || student.mobile.length < 10) {
+          failedCount++;
+          continue;
+        }
+
         const messagePayload = {
           messaging_product: "whatsapp",
           to: `91${student.mobile}`,
@@ -60,7 +66,7 @@ export async function POST(req: Request) {
                 parameters: [
                   {
                     type: "text",
-                    text: student.name.toLowerCase().replace(/\b\w/g, (char:string) => char.toUpperCase()),
+                    text: student.name.toLowerCase().replace(/\b\w/g, (char: string) => char.toUpperCase()),
                   },
                 ],
               },
@@ -82,23 +88,21 @@ export async function POST(req: Request) {
 
         const result = await res.json();
 
-        if (!res.ok) throw new Error(result.error?.message || "Failed Message");
+        if (!res.ok) {
+          console.log("WhatsApp Error:", result);
+          throw new Error(result.error?.details || result.error?.message || "Failed Message");
+        }
 
         successCount++;
       } catch (err) {
-        console.log("Failed Student:", student.mobile);
+        console.log("Failed:", student.mobile);
         failedCount++;
       }
 
       await new Promise((res) => setTimeout(res, 2000));
     }
 
-    return NextResponse.json({
-      success: true,
-      page,
-      successCount,
-      failedCount,
-    });
+    return NextResponse.json({ success: true, page, successCount, failedCount });
 
   } catch (error: any) {
     console.error(error);
