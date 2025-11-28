@@ -15,18 +15,34 @@ export async function GET(req: Request) {
         { status: 400 }
       );
     }
-    const countStudents = await Student.countDocuments({ unitId:"68720d1fa666f978f59b05dc" });
 
+    // TOTAL STUDENT COUNT FOR SELECTED SCHOOL
+    const totalStudents = await Student.countDocuments({unitId:"68720d1fa666f978f59b05dc"});
+
+    // COMPLETED ATTENDANCE COUNT
+    const completedAttendance = await Student.countDocuments({
+      school,
+      attendance: true,
+    });
+
+    // FETCH STUDENTS LIST
     const students = await Student.find({ school }).sort({ name: 1 });
+
+    // FORMAT RESPONSE: ADD STATUS FIELD
+    const formattedStudents = students.map((stu: any) => ({
+      ...stu.toObject(),
+      attendanceStatus: stu.attendance === true ? "completed" : "pending",
+    }));
 
     return NextResponse.json({
       success: true,
-      data: students,
-      totalCount:countStudents,
+      data: formattedStudents,
+      totalCount: totalStudents,
+      completedAttendance,
       count: students.length,
     });
   } catch (error) {
-    console.error("Error fetching residential students:", error);
+    console.error("Error fetching students:", error);
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 }

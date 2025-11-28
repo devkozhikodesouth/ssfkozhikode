@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connectDB();
 
-    // Step 1️⃣ — Aggregate division-wise counts
+    // Division wise + attendance counted
     const divisions = await Student.aggregate([
       {
         $lookup: {
@@ -31,20 +31,28 @@ export async function GET() {
           _id: "$divisionData._id",
           divisionName: { $first: "$divisionData.divisionName" },
           totalStudents: { $sum: 1 },
+          attendanceMarked: {
+            $sum: {
+              $cond: [{ $eq: ["$attendance", true] }, 1, 0]
+            }
+          }
         },
       },
       { $sort: { divisionName: 1 } },
     ]);
 
-    // Step 2️⃣ — Calculate grand total using aggregation
-    const totalResult = await Student.aggregate([
-      { $count: "totalStudents" },
-    ]);
-
+    // Total students count
+    const totalResult = await Student.aggregate([{ $count: "totalStudents" }]);
     const totalStudents = totalResult[0]?.totalStudents || 0;
 
-    // Step 3️⃣ — Return both
-    return NextResponse.json({ divisions, totalStudents });
+    // Total Attendance marked
+    const attendanceTotalResult = await Student.aggregate([
+      { $match: { attendance: true } },
+      { $count: "attendanceMarked" },
+    ]);
+    const attendanceTotal = attendanceTotalResult[0]?.attendanceMarked || 0;
+
+    return NextResponse.json({ divisions, totalStudents, attendanceTotal });
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });

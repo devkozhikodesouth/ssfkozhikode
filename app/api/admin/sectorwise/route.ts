@@ -17,16 +17,22 @@ export async function GET() {
         success: true,
         sectors: [],
         totalStudents: 0,
+        totalAttendance: 0,
       });
     }
 
     const sectorCounts = await Promise.all(
       sectors.map(async (sector) => {
-        const units = await Unit.find({ sectorId: sector._id }).select("_id")
+        const units = await Unit.find({ sectorId: sector._id }).select("_id");
         const unitIds = units.map((u) => u._id);
 
         const studentCount = await Student.countDocuments({
           unitId: { $in: unitIds },
+        });
+
+        const attendanceCount = await Student.countDocuments({
+          unitId: { $in: unitIds },
+          attendance: true,
         });
 
         const unitCount = units.length;
@@ -36,6 +42,7 @@ export async function GET() {
           sectorName: sector.sectorName,
           unitCount,
           studentCount,
+          attendanceCount,
         };
       })
     );
@@ -45,10 +52,16 @@ export async function GET() {
       0
     );
 
+    const totalAttendance = sectorCounts.reduce(
+      (sum, s) => sum + s.attendanceCount,
+      0
+    );
+
     return NextResponse.json({
       success: true,
       sectors: sectorCounts.sort((a, b) => b.studentCount - a.studentCount),
       totalStudents,
+      totalAttendance,
     });
   } catch (error) {
     console.error("Error fetching sector data:", error);
