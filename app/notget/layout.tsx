@@ -77,7 +77,8 @@ export default function AdminLayout({
                 name: "Residential students",
                 path: "/notget/gala/residentialstudents",
               },
-              { name: "Mark attendance", path: "/admin/gala/markattendance" },
+              { name: "Mark attendance", path: "/notget/gala/markattendance" },
+              { name: "Attendance list", path: "/notget/gala/attendancelist" },
             ]}
             open={openMenu === "Students Gala"}
             onToggle={() => toggleMenu("Students Gala")}
@@ -168,6 +169,8 @@ export default function AdminLayout({
                       name: "Mark attendance",
                       path: "/notget/gala/markattendance",
                     },
+                                  { name: "Attendance list", path: "/notget/gala/attendancelist" },
+
                   ]}
                   open={openMenu === "Students Gala"}
                   onToggle={() => toggleMenu("Students Gala")}
