@@ -24,7 +24,7 @@ export async function GET(req: Request) {
             );
         }
 
-        const user = await GrandConclave.findOne({ mobile })
+        const user: any = await GrandConclave.findOne({ mobile })
             .populate("divisionId", "divisionName")
             .populate("sectorId", "sectorName")
             .lean();
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
                 ticket: user.ticket,
                 division: user.divisionId?.divisionName ?? null,
                 sector: user.sectorId?.sectorName ?? null,
-            },
+            } as any,
         });
 
     } catch (error: any) {
