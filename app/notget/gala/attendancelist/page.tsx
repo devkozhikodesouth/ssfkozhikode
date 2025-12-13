@@ -8,9 +8,11 @@ interface Student {
   _id: string;
   name: string;
   phone: string;
+  course: string;
   unitName: string;
   sector: string;
   email?: string;
+  year: string;
   school: string;
   ticket: string;
   divisionName: string;
@@ -76,12 +78,13 @@ const fetchStudents = async () => {
 
     autoTable(doc, {
       startY: 40,
-      head: [["#", "Name", "Phone", "Ticket", "Unit", "Sector","Division","School"]],
+      head: [["#", "Name", "Phone","course","Class", "Unit", "Sector","Division","School"]],
       body: filteredStudents.map((stu, index) => [
         index + 1,
         stu.name,
         stu.phone,
-        stu.ticket,
+        stu.course,
+        stu.year,
         stu?.unitName,
         stu?.sector,
         stu?.divisionName,
@@ -107,12 +110,13 @@ const fetchStudents = async () => {
   };
 
   const rows = [
-    ["#", "Name", "Phone", "Ticket", "Unit", "Sector", "Division", "School"],
+    ["#", "Name", "Phone","course", "Year", "Unit", "Sector", "Division", "School"],
     ...filteredStudents.map((stu, i) => [
       i + 1,
       escapeCSV(stu.name),
       escapeCSV(stu.phone),
-      escapeCSV(stu.ticket),
+      escapeCSV(stu.course),
+      escapeCSV(stu.year),
       escapeCSV(stu?.unitName),
       escapeCSV(stu?.sector),
       escapeCSV(stu?.divisionName),
@@ -177,6 +181,8 @@ const fetchStudents = async () => {
                       <th className="px-4 py-3 text-left font-semibold">Name</th>
                       <th className="px-4 py-3 text-left font-semibold">Phone</th>
                       <th className="px-4 py-3 text-left font-semibold">Ticket</th>
+                      <th className="px-4 py-3 text-left font-semibold">Course</th>
+                      <th className="px-4 py-3 text-left font-semibold">Year</th>
                       <th className="px-4 py-3 text-left font-semibold">Unit</th>
                       <th className="px-4 py-3 text-left font-semibold">Sector</th>
                       <th className="px-4 py-3 text-left font-semibold">Division</th>
@@ -196,6 +202,8 @@ const fetchStudents = async () => {
                         <td className="px-4 py-3">{stu.name}</td>
                         <td className="px-4 py-3">{stu.phone}</td>
                         <td className="px-4 py-3">{stu.ticket}</td>
+                        <td className="px-4 py-3">{stu.course}</td>
+                        <td className="px-4 py-3">{stu.year}</td>
                         <td className="px-4 py-3">{stu?.unitName}</td>
                         <td className="px-4 py-3">{stu?.sector}</td>
                         <td className="px-4 py-3">{stu?.divisionName}</td>

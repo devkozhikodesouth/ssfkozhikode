@@ -69,7 +69,7 @@ const [imageFile, setImageFile] = useState<File | null>(null);
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target as HTMLInputElement;
-
+    
     if (errors[name]) {
       setErrors((prev) => {
         const updated = { ...prev };

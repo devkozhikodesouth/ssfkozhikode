@@ -86,3 +86,33 @@ export const sectorUnits:Record<string, string[]> = {
 };
 
 
+export const sectorDesignations = [
+  "President",
+  "G Secretary",
+  "Finance",
+  "Wefi Secretary",
+  "Smail Secretary",
+  "Smart core Secretary",
+  "Kalalayam Secretary",
+  "GD Secretary",
+  "QD Secretary",
+  "Secretariat member",
+];
+
+export const divisionDesignations = [
+  "President",
+  "G Secretary",
+  "Finance",
+  "Wefi Secretary",
+  "Smail Secretary",
+  "Smart core Secretary",
+  "Kalalayam Secretary",
+  "GD Secretary",
+  "QD Secretary",
+  "Secretariat member",
+  "HSS Secretary",
+  "Daawa Secretary",
+  "Campus Secretary",
+];
+
+
