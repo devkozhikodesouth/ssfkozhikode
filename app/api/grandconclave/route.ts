@@ -4,6 +4,7 @@ import { connectDB } from "@/app/lib/mongodb";
 import Division from "@/app/models/Division";
 import Sector from "@/app/models/Sector";
 import GrandConclave from "@/app/models/GrandConclave";
+import { CloudCog } from "lucide-react";
 
 
 /* ----------------------------------------------------
@@ -28,6 +29,7 @@ export async function GET(req: Request) {
             .populate("sectorId", "sectorName")
             .lean();
 
+        console.log(user);
         if (!user) {
             return NextResponse.json({ success: true, user: null });
         }
@@ -42,6 +44,7 @@ export async function GET(req: Request) {
                 sector: user.sectorId?.sectorName ?? null,
             },
         });
+
     } catch (error: any) {
         return NextResponse.json(
             { success: false, message: error.message },
