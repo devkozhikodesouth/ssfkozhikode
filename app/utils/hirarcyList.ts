@@ -13,7 +13,7 @@ export const groupLinks: Record<string, string> = {
 };
 
 
-export const sectors: Record<string, string[]>= {
+export const sectors: Record<string, string[]> = {
   KUNNAMANGALAM: [
     "KUNNAMANGALAM",
     "KUTTIKATTOOR",
@@ -26,7 +26,7 @@ export const sectors: Record<string, string[]>= {
 };
 
 
-export const sectorUnits:Record<string, string[]> = {
+export const sectorUnits: Record<string, string[]> = {
   KUNNAMANGALAM: [
     "ANAPPARA",
     "CHERINJAL",
@@ -91,7 +91,7 @@ export const sectorDesignations = [
   "G Secretary",
   "Finance",
   "Wefi Secretary",
-  "Smail Secretary",
+  "Smile Secretary",
   "Smart core Secretary",
   "Kalalayam Secretary",
   "GD Secretary",
@@ -104,15 +104,15 @@ export const divisionDesignations = [
   "G Secretary",
   "Finance",
   "Wefi Secretary",
-  "Smail Secretary",
+  "Smile Secretary",
   "Smart core Secretary",
   "Kalalayam Secretary",
   "GD Secretary",
   "QD Secretary",
-  "Secretariat member",
   "HSS Secretary",
   "Daawa Secretary",
   "Campus Secretary",
+  "Secretariat member",
 ];
 
 
