@@ -33,19 +33,18 @@ const Navbar: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [navbarOpen]);
 
-const navItems = [
-  { name: "Home", href: "/" },
-  { name: "About", href: "/about" },
-  { name: "Students Gala", href: "/studentsgala" },
-  { name: "Sahityotsav", href: "https://sahityotsav.ssfkozhikodesouth.in/" },
-];
+  const navItems = [
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Grand Conclave", href: "/grandconclave" },
+    { name: "Sahityotsav", href: "https://sahityotsav.ssfkozhikodesouth.in/" },
+  ];
 
 
   return (
     <header
-      className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
-        sticky ? "bg-white shadow-md py-3" : "bg-transparent py-5"
-      }`}
+      className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${sticky ? "bg-white shadow-md py-3" : "bg-transparent py-5"
+        }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6">
         {/* Logo */}
@@ -62,11 +61,10 @@ const navItems = [
             <Link
               key={item.name}
               href={item.href}
-              className={`transition ${
-                pathname === item.href
+              className={`transition ${pathname === item.href
                   ? "text-green-700 font-semibold border-b-2 border-green-700 pb-1"
                   : "hover:text-green-700"
-              }`}
+                }`}
             >
               {item.name}
             </Link>
@@ -93,9 +91,8 @@ const navItems = [
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
-        className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-white shadow-lg transform transition-transform duration-300 ${
-          navbarOpen ? "translate-x-0" : "translate-x-full"
-        } z-50 border-l border-gray-200`}
+        className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-white shadow-lg transform transition-transform duration-300 ${navbarOpen ? "translate-x-0" : "translate-x-full"
+          } z-50 border-l border-gray-200`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-lg font-bold text-black">SSF Kozhikode South</h2>
@@ -114,11 +111,10 @@ const navItems = [
               key={item.name}
               href={item.href}
               onClick={() => setNavbarOpen(false)}
-              className={`w-full transition ${
-                pathname === item.href
+              className={`w-full transition ${pathname === item.href
                   ? "text-green-700 font-semibold border-l-4 border-green-700 pl-3"
                   : "hover:text-green-700"
-              }`}
+                }`}
             >
               {item.name}
             </Link>
