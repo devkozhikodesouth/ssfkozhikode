@@ -101,7 +101,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
             height: "1200px",
             transform: "scale(0.5)",
             transformOrigin: "top left",
-            backgroundImage: "url('/template.png')",
+            backgroundImage: "url('/tiketgrand.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -151,27 +151,27 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
       </div>
 
       {/* BUTTONS */}
-     
-        <div className="flex gap-4">
-          <button
-            onClick={downloadImage}
-            style={{ backgroundColor: Colors.accent }}
-            className="flex items-center gap-2 text-white px-4 py-2 rounded-lg"
-          >
-            <Download size={18} />
-            Download
-          </button>
 
-          <button
-            onClick={shareImage}
-            style={{ backgroundColor: Colors.primaryDark }}
-            className="flex items-center gap-2 text-white px-4 py-2 rounded-lg"
-          >
-            <Share2 size={18} />
-            Share
-          </button>
-        </div>
-   
+      <div className="flex gap-4">
+        <button
+          onClick={downloadImage}
+          style={{ backgroundColor: Colors.accent }}
+          className="flex items-center gap-2 text-white px-4 py-2 rounded-lg"
+        >
+          <Download size={18} />
+          Download
+        </button>
+
+        <button
+          onClick={shareImage}
+          style={{ backgroundColor: Colors.primaryDark }}
+          className="flex items-center gap-2 text-white px-4 py-2 rounded-lg"
+        >
+          <Share2 size={18} />
+          Share
+        </button>
+      </div>
+
     </div>
   );
 };

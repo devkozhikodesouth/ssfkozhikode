@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Colors } from "../../constants/colors";
 
-import CountDown from ".././CountDown";
+import CountDown from "../CountDown";
 import TicketModal from "../../components/TicketModal";
 
 import { motion } from "framer-motion";
@@ -36,7 +36,7 @@ export default function StudentGalaLanding() {
 
         {/* HERO SECTION */}
         <section className="md:pt-24 mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-12">
-          
+
           {/* LEFT SIDE */}
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }}

@@ -185,7 +185,7 @@ const StudentsGalaPage = () => {
    * UI
    * -------------------------------------------------------- */
   return (
-    <main className="py-10 md:pt-24 md:px-6 bg-gradient-to-br from-blue-50 to-red-50 flex justify-center">
+    <main className="py-10 md:pt-24 md:px-6 flex justify-center">
       <div className="max-w-3xl w-full rounded-3xl p-8 md:p-10 shadow-xl bg-white/70 backdrop-blur-xl border border-white/40">
 
         {/* Header */}
@@ -228,7 +228,7 @@ const StudentsGalaPage = () => {
                   <button
                     type="button"
                     onClick={checkMobile}
-                    className="px-4 py-3 bg-gradient-to-r from-red-500 to-blue-500 text-white rounded-xl"
+                    className="px-4 py-3     bg-[#645eef] text-white rounded-xl"
                   >
                     Check
                   </button>
@@ -236,7 +236,7 @@ const StudentsGalaPage = () => {
                   <button
                     type="button"
                     onClick={resetMobileCheck}
-                    className="px-4 py-3 bg-gray-700 text-white rounded-xl"
+                    className="px-4 py-3     bg-[#645eef] text-white rounded-xl"
                   >
                     Change
                   </button>
