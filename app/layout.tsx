@@ -5,7 +5,7 @@ import LayoutClient from "./components/LayoutClient";
 export const metadata: Metadata = {
   title: "SSF Kozhikode South",
   description: "Official website of SSF Kozhikode South",
-  icons: { icon: "/Students-Gala.png" },
+  icons: { icon: "/grandconclave1.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
