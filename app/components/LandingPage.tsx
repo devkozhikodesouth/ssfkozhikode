@@ -7,7 +7,7 @@ import Link from "next/link";
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white text-gray-800">
-      
+
       {/* Hero Section */}
       <section
         className="relative flex flex-col items-center justify-center text-center px-6 md:px-16 min-h-screen bg-gradient-to-br from-green-100 via-green-50 to-green-200"
@@ -29,9 +29,9 @@ const LandingPage = () => {
           </p>
 
           <div className="flex justify-center gap-4 mt-6">
-            <Link href="/studentsgala">
+            <Link href="/grandconclave">
               <button className="px-8 py-3 rounded-full bg-gradient-to-r from-green-400 to-green-500 text-white font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300">
-                Students Gala
+                Grand Conclave
               </button>
             </Link>
 
