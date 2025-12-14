@@ -75,7 +75,7 @@ grandConclaveSchema.pre("save", async function (next) {
     { new: true, upsert: true }
   );
 
-  this.ticket = `KS${String(counter.value).padStart(3, "0")}`;
+  this.ticket = `GC${String(counter.value).padStart(3, "0")}`;
   next();
 });
 

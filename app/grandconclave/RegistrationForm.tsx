@@ -55,8 +55,7 @@ const StudentsGalaPage = () => {
   const validators: Record<string, (val: string, state: any) => string> = {
     name: (v) => (!v.trim() ? "Please enter your full name." : ""),
     mobile: (v) => (/^[0-9]{10}$/.test(v) ? "" : "Enter a valid 10-digit mobile number."),
-    school: (v) => (!v ? "Please select your school." : ""),
-    course: (v) => (!v ? "Please select your course." : ""),
+
     year: (v) => (!v ? "Please select your year." : ""),
     organizationLevel: (v) => (!v ? "Please select an organization level." : ""),
     designation: (v) => (!v ? "Please select your designation." : ""),
@@ -83,42 +82,44 @@ const StudentsGalaPage = () => {
    * Generic Field Updater
    * -------------------------------------------------------- */
   const updateField = (name: string, value: string) => {
-    const updated = { ...formData, [name]: value };
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
 
-    // dynamic resets  
-    if (name === "organizationLevel") {
-      updated.designation = "";
-      updated.sector = "";
-    }
-    if (name === "division") {
-      const localSectors = sectors[value] || [];
-      if (localSectors && localSectors.length) {
-        setAvailableSectors(localSectors);
-      } else {
-        // try fetching sectors from server by division name
-        fetch(`/api/sectors?division=${encodeURIComponent(value)}`)
-          .then((r) => r.json())
-          .then((d) => {
-            if (d?.success && Array.isArray(d.data)) {
-              setAvailableSectors(d.data.map((s: any) => s.sectorName));
-            } else {
-              setAvailableSectors([]);
-            }
-          })
-          .catch(() => setAvailableSectors([]));
+      if (name === "organizationLevel") {
+        updated.designation = "";
+        updated.sector = "";
       }
-      setFormData({ ...formData, division: value, sector: "" });
-      return;
-    }
 
-    // real-time validation
+      if (name === "division") {
+        updated.sector = "";
+
+        const localSectors = sectors[value] || [];
+        if (localSectors.length) {
+          setAvailableSectors(localSectors);
+        } else {
+          fetch(`/api/sectors?division=${encodeURIComponent(value)}`)
+            .then((r) => r.json())
+            .then((d) => {
+              if (d?.success && Array.isArray(d.data)) {
+                setAvailableSectors(d.data.map((s: any) => s.sectorName));
+              } else {
+                setAvailableSectors([]);
+              }
+            })
+            .catch(() => setAvailableSectors([]));
+        }
+      }
+
+      return updated;
+    });
+
+    // ✅ ALWAYS clear the field error on change
     setErrors((prev) => ({
       ...prev,
-      [name]: validate(name, value, updated),
+      [name]: "",
     }));
-
-    setFormData(updated);
   };
+
 
   /* ----------------------------------------------------------
    * Mobile Check API
@@ -279,7 +280,6 @@ const StudentsGalaPage = () => {
                   )}
                 </div>
 
-                {/* Designation */}
                 <Select
                   label="Designation"
                   name="designation"
@@ -293,8 +293,17 @@ const StudentsGalaPage = () => {
                   }
                   disabled={!formData.organizationLevel}
                   error={errors.designation}
+                  onClick={() => {
+                    if (!formData.organizationLevel) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        designation: "Please select organization level first",
+                      }));
+                    }
+                  }}
                   onChange={updateField}
                 />
+
 
                 {/* Division */}
                 <Select
@@ -322,7 +331,7 @@ const StudentsGalaPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-red-500 to-blue-500 ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+                  className={`w-full py-4 rounded-xl text-white font-semibold bg-[#0c8960] ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
                     }`}
                 >
                   {isSubmitting ? "Submitting..." : "Submit"}

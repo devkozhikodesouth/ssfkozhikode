@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 
 const CountDown = () => {
-  const targetDate = new Date("2025-12-19T09:00:00");
+  const targetDate = new Date("2025-12-19T17:00:00");
 
   const calculateTimeLeft = () => {
     const now = new Date();
