@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import Student from "../../../models/Students";
 import { connectDB } from "@/app/lib/mongodb";
+import GrandConclave from "@/app/models/GrandConclave";
 
 export async function GET() {
   try {
     await connectDB();
 
     // Division wise + attendance counted
-    const divisions = await Student.aggregate([
+    const divisions = await GrandConclave.aggregate([
       {
         $lookup: {
           from: "units",
@@ -42,11 +42,11 @@ export async function GET() {
     ]);
 
     // Total students count
-    const totalResult = await Student.aggregate([{ $count: "totalStudents" }]);
+    const totalResult = await GrandConclave.aggregate([{ $count: "totalStudents" }]);
     const totalStudents = totalResult[0]?.totalStudents || 0;
 
     // Total Attendance marked
-    const attendanceTotalResult = await Student.aggregate([
+    const attendanceTotalResult = await GrandConclave.aggregate([
       { $match: { attendance: true } },
       { $count: "attendanceMarked" },
     ]);

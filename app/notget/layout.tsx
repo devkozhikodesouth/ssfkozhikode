@@ -10,13 +10,23 @@ import {
   LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+type NavGroupProps = {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  items: { name: string; path: string }[];
+  open: boolean;
+  onToggle: () => void;
+  expanded: boolean;
+  pathname: string;
+};
 
 /* ─────────────────────────────
    MENU CONFIG
 ────────────────────────────── */
 const MENU = [
   {
-    key: "students-gala",
+    id: "students-gala",
     label: "Students Gala",
     icon: "🎓",
     items: [
@@ -29,7 +39,7 @@ const MENU = [
     ],
   },
   {
-    key: "grand-conclave",
+    id: "grand-conclave",
     label: "Grand Conclave",
     icon: "🏛️",
     items: [
@@ -40,6 +50,7 @@ const MENU = [
     ],
   },
 ];
+
 
 export default function AdminLayout({
   children,
@@ -90,18 +101,19 @@ export default function AdminLayout({
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-4 space-y-3 overflow-y-auto">
-          {MENU.map((group) => (
-            <NavGroup
-              key={group.key}
-              {...group}
-              open={openGroup === group.key}
-              onToggle={() =>
-                setOpenGroup(openGroup === group.key ? null : group.key)
-              }
-              expanded={sidebarOpen}
-              pathname={pathname}
-            />
-          ))}
+{MENU.map((group) => (
+  <NavGroup
+    key={group.id}              // ✅ React key
+    {...group}
+    open={openGroup === group.id}
+    onToggle={() =>
+      setOpenGroup(openGroup === group.id ? null : group.id)
+    }
+    expanded={sidebarOpen}
+    pathname={pathname}
+  />
+))}
+
         </nav>
 
         {/* Logout */}
@@ -132,11 +144,11 @@ export default function AdminLayout({
               <nav className="px-4 py-4 space-y-3">
                 {MENU.map((group) => (
                   <NavGroup
-                    key={group.key}
+                    key={group.id}
                     {...group}
-                    open={openGroup === group.key}
+                    open={openGroup === group.id}
                     onToggle={() =>
-                      setOpenGroup(openGroup === group.key ? null : group.key)
+                      setOpenGroup(openGroup === group.id ? null : group.id)
                     }
                     expanded
                     pathname={pathname}
@@ -205,7 +217,7 @@ function NavGroup({
   onToggle,
   expanded,
   pathname,
-}: any) {
+}: NavGroupProps) {
   const router = useRouter();
 
   return (
