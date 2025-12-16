@@ -5,10 +5,10 @@ import UnitTable from "./sectorDeligates";
 import StudentsDetails from "./StudentsDetails";
 
 export default function DivisionTabs({ divisionName }: { divisionName: string }) {
-  const [active, setActive] = useState<"unit" | "sectordelegates">("unit");
+  const [active, setActive] = useState<"divdelegates" | "sectordelegates">("divdelegates");
 
   const tabs = [
-    { id: "unit", label: "Unit Wise" },
+    { id: "divdelegates", label: "Division Delegates" },
     { id: "sectordelegates", label: "Sector Delegates" },
   ] as const;
 
@@ -34,7 +34,7 @@ export default function DivisionTabs({ divisionName }: { divisionName: string })
 
       {/* Content */}
       <div>
-        {active === "unit" && <UnitTable key={`unit-${divisionName}`} divisionName={divisionName} />}
+        {active === "divdelegates" && <UnitTable key={`unit-${divisionName}`} divisionName={divisionName} />}
         {active === "sectordelegates" && (<StudentsDetails divisionName={divisionName} />)}
       </div>
     </div>
