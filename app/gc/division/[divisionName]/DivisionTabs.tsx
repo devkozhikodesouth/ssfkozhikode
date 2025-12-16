@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import UnitTable from "./sectorDeligates";
+import UnitTable from "./DIvisionDeligates";
 import StudentsDetails from "./StudentsDetails";
 
 export default function DivisionTabs({ divisionName }: { divisionName: string }) {
