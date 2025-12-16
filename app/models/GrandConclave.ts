@@ -54,8 +54,8 @@ const grandConclaveSchema = new Schema(
 );
 
 /* ----------------------------------------------------
- * Conditional Validation
- * -------------------------------------------------- */
+* Conditional Validation
+* -------------------------------------------------- */
 grandConclaveSchema.pre("validate", function (next) {
   if (this.organizationLevel === "sector" && !this.sectorId) {
     this.invalidate("sectorId", "Sector is required for sector-level members");
@@ -64,8 +64,8 @@ grandConclaveSchema.pre("validate", function (next) {
 });
 
 /* ----------------------------------------------------
- * Auto Ticket Generation
- * -------------------------------------------------- */
+* Auto Ticket Generation
+* -------------------------------------------------- */
 grandConclaveSchema.pre("save", async function (next) {
   if (this.ticket) return next();
 
@@ -80,8 +80,8 @@ grandConclaveSchema.pre("save", async function (next) {
 });
 
 /* ----------------------------------------------------
- * Model Export
- * -------------------------------------------------- */
+* Model Export
+* -------------------------------------------------- */
 const GrandConclave =
   models.GrandConclave ||
   mongoose.model("GrandConclave", grandConclaveSchema);

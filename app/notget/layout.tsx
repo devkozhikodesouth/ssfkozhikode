@@ -2,215 +2,161 @@
 
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, Menu, ChevronRight, LogOut, ChevronLeft } from "lucide-react";
+import {
+  Menu,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+/* ─────────────────────────────
+   MENU CONFIG
+────────────────────────────── */
+const MENU = [
+  {
+    key: "students-gala",
+    label: "Students Gala",
+    icon: "🎓",
+    items: [
+      { name: "Division Wise Data", path: "/notget/gala/division" },
+      { name: "Sector Wise Data", path: "/notget/gala/sector" },
+      { name: "Unit Wise Data", path: "/notget/gala/unit" },
+      { name: "Students List", path: "/notget/gala/students" },
+      { name: "Mark Attendance", path: "/notget/gala/markattendance" },
+      { name: "Attendance List", path: "/notget/gala/attendancelist" },
+    ],
+  },
+  {
+    key: "grand-conclave",
+    label: "Grand Conclave",
+    icon: "🏛️",
+    items: [
+      { name: "Division Delegates", path: "/notget/grand/division" },
+      { name: "Sector Delegates", path: "/notget/grand/sector" },
+      { name: "All Delegates", path: "/notget/grand/delegates" },
+      { name: "Mark Attendance", path: "/notget/grand/attendance" },
+    ],
+  },
+];
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState("Students Gala");
-
   const router = useRouter();
   const pathname = usePathname();
 
-  const toggleMenu = (label: string) => {
-    setOpenMenu(openMenu === label ? "" : label);
-  };
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout", { method: "POST", credentials: "include" });
-      router.push("/admin/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+  const logout = async () => {
+    await fetch("/api/logout", { method: "POST", credentials: "include" });
+    router.push("/notget/login");
   };
 
   return (
-    <div className="flex min-h-screen min-w-screen bg-gray-100 text-gray-900 transition-colors duration-300">
-      {/* ─── Desktop Sidebar ───────────────────────── */}
+    <div className="flex min-h-screen bg-slate-100 text-slate-800">
+      {/* ───────── Desktop Sidebar ───────── */}
       <motion.aside
-        animate={{ width: sidebarOpen ? 260 : 80 }}
+        animate={{ width: sidebarOpen ? 280 : 84 }}
         transition={{ type: "spring", stiffness: 120, damping: 20 }}
-        className="hidden md:flex flex-col border-r h-screen sticky top-0 z-30 bg-white border-gray-200 shadow-sm"
+        className="hidden md:flex flex-col bg-white border-r shadow-sm"
       >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 rounded-full bg-indigo-500" />
+        {/* Brand */}
+        <div className="flex items-center justify-between px-5 py-4 border-b">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+              S
+            </div>
             {sidebarOpen && (
-              <span className="font-bold text-lg">SSF Admin</span>
+              <div>
+                <p className="font-semibold leading-tight">SSF Admin</p>
+                <p className="text-xs text-gray-500">Management Panel</p>
+              </div>
             )}
           </div>
 
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1 text-gray-600 hover:text-gray-900 transition"
+            className="text-gray-500 hover:text-gray-800"
           >
             {sidebarOpen ? <ChevronLeft /> : <ChevronRight />}
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-2">
-          {sidebarOpen && (
-            <p className="text-xs font-semibold uppercase mb-2 text-gray-500">
-              Main Menu
-            </p>
-          )}
-
-          <NavGroup
-            label="Students Gala"
-            icon="🎓"
-            items={[
-              { name: "Division Wise Data", path: "/notget/gala/division" },
-              { name: "Div Sector Wise Data", path: "/notget/gala/sector" },
-              { name: "Div Unit Wise Data", path: "/notget/gala/unit" },
-              { name: "Sector Wise Data", path: "/notget/gala/sectorwise" },
-              { name: "Students data", path: "/notget/gala/studentsdata" },
-              { name: "Bult message", path: "/notget/gala/sendreminder" },
-              {
-                name: "Residential students",
-                path: "/notget/gala/residentialstudents",
-              },
-              { name: "Mark attendance", path: "/notget/gala/markattendance" },
-              { name: "Attendance list", path: "/notget/gala/attendancelist" },
-            ]}
-            open={openMenu === "Students Gala"}
-            onToggle={() => toggleMenu("Students Gala")}
-            pathname={pathname}
-            expanded={sidebarOpen}
-          />
-
-          <NavItem
-            label="Calendar"
-            icon="📅"
-            active={pathname === "/notget/calendar"}
-            onClick={() => router.push("/admin/calendar")}
-            expanded={sidebarOpen}
-          />
-
-          <NavItem
-            label="Profile"
-            icon="👤"
-            active={pathname === "/notget/profile"}
-            onClick={() => router.push("/admin/profile")}
-            expanded={sidebarOpen}
-          />
+        <nav className="flex-1 px-4 py-4 space-y-3 overflow-y-auto">
+          {MENU.map((group) => (
+            <NavGroup
+              key={group.key}
+              {...group}
+              open={openGroup === group.key}
+              onToggle={() =>
+                setOpenGroup(openGroup === group.key ? null : group.key)
+              }
+              expanded={sidebarOpen}
+              pathname={pathname}
+            />
+          ))}
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="px-4 py-4 border-t">
           <button
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium rounded-md bg-red-600 text-white hover:bg-red-700 transition"
+            onClick={logout}
+            className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="w-4 h-4" />
             {sidebarOpen && "Logout"}
           </button>
         </div>
       </motion.aside>
 
-      {/* ─── Mobile Sidebar ───────────────────────── */}
+      {/* ───────── Mobile Sidebar ───────── */}
       <AnimatePresence>
-        {mobileSidebarOpen && (
+        {mobileOpen && (
           <>
             <motion.aside
-              initial={{ x: -260 }}
+              initial={{ x: -300 }}
               animate={{ x: 0 }}
-              exit={{ x: -260 }}
-              transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              className="fixed inset-y-0 left-0 z-40 w-64 flex flex-col border-r bg-white border-gray-200"
+              exit={{ x: -300 }}
+              className="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r"
             >
-              <div className="p-5 flex items-center justify-between border-b border-gray-200">
-                <div className="flex items-center gap-2 text-xl font-bold">
-                  <div className="w-7 h-7 rounded-full bg-indigo-500" />
-                  SSF Admin
-                </div>
-                <button
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className="md:hidden text-gray-600 hover:text-gray-900 transition text-xl"
-                >
-                  ✖
-                </button>
+              <div className="px-5 py-4 border-b font-semibold">
+                SSF Admin
               </div>
-
-              <nav className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-                <NavGroup
-                  label="Students Gala"
-                  icon="🎓"
-                  items={[
-                    {
-                      name: "Division Wise Data",
-                      path: "/notget/gala/division",
-                    },
-                    {
-                      name: "Div Sector Wise Data",
-                      path: "/notget/gala/sector",
-                    },
-                    { name: "Div Unit Wise Data", path: "/admin/gala/unit" },
-                    {
-                      name: "Sector Wise Data",
-                      path: "/notget/gala/sectorwise",
-                    },
-                    { name: "Students data", path: "/notget/gala/studentsdata" },
-                    { name: "Bult message", path: "/notget/gala/sendreminder" },
-
-                    {
-                      name: "Residential students",
-                      path: "/notget/gala/residentialstudents",
-                    },
-
-                    {
-                      name: "Mark attendance",
-                      path: "/notget/gala/markattendance",
-                    },
-                                  { name: "Attendance list", path: "/notget/gala/attendancelist" },
-
-                  ]}
-                  open={openMenu === "Students Gala"}
-                  onToggle={() => toggleMenu("Students Gala")}
-                  pathname={pathname}
-                  expanded={true}
-                />
-
-                <NavItem
-                  label="Calendar"
-                  icon="📅"
-                  active={pathname === "/admin/calendar"}
-                  onClick={() => router.push("/admin/calendar")}
-                  expanded={true}
-                />
-
-                <NavItem
-                  label="Profile"
-                  icon="👤"
-                  active={pathname === "/admin/profile"}
-                  onClick={() => router.push("/admin/profile")}
-                  expanded={true}
-                />
+              <nav className="px-4 py-4 space-y-3">
+                {MENU.map((group) => (
+                  <NavGroup
+                    key={group.key}
+                    {...group}
+                    open={openGroup === group.key}
+                    onToggle={() =>
+                      setOpenGroup(openGroup === group.key ? null : group.key)
+                    }
+                    expanded
+                    pathname={pathname}
+                  />
+                ))}
               </nav>
             </motion.aside>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black z-30 md:hidden"
-              onClick={() => setMobileSidebarOpen(false)}
+            <div
+              className="fixed inset-0 bg-black/40 z-30"
+              onClick={() => setMobileOpen(false)}
             />
           </>
         )}
       </AnimatePresence>
 
-      {/* ─── Main Content ───────────────────────── */}
+      {/* ───────── Main Content ───────── */}
       <div className="flex-1 flex flex-col">
-        <Navbar setSidebarOpen={setMobileSidebarOpen} />
-        <main className="p-6 md:p-8">{children}</main>
+        <Navbar onMenu={() => setMobileOpen((p) => !p)} />
+        <main className="flex-1 p-6 md:p-8">{children}</main>
       </div>
     </div>
   );
@@ -219,71 +165,32 @@ export default function AdminLayout({
 /* ─────────────────────────────
    Navbar
 ────────────────────────────── */
-function Navbar({
-  setSidebarOpen,
-}: {
-  setSidebarOpen: (value: boolean | ((prev: boolean) => boolean)) => void;
-}) {
+function Navbar({ onMenu }: { onMenu: () => void }) {
   return (
-    <header className="flex justify-between items-center px-5 py-4 border-b sticky top-0 z-20 shadow-sm bg-white border-gray-200">
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => setSidebarOpen((p) => !p)}
-          className="p-2 border rounded-md md:hidden hover:bg-gray-100 transition"
-        >
-          <Menu className="h-5 w-5" />
+    <header className="flex items-center justify-between px-6 py-4 bg-white border-b shadow-sm">
+      <div className="flex items-center gap-3">
+        <button onClick={onMenu} className="md:hidden text-gray-600">
+          <Menu />
         </button>
-        <h1 className="text-xl md:text-2xl font-semibold">Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight">
+          Admin Dashboard
+        </h1>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="relative hidden sm:block">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+      <div className="hidden sm:flex items-center gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
           <input
-            type="text"
             placeholder="Search..."
-            className="pl-9 pr-4 py-2 rounded-md text-sm border bg-white border-gray-200 text-gray-700 placeholder-gray-500 focus:outline-none"
+            className="pl-9 pr-4 py-2 text-sm rounded-lg border bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none"
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-indigo-500 rounded-full flex items-center justify-center text-white font-semibold">
-            A
-          </div>
-          <span className="hidden sm:block text-sm font-medium">Admin</span>
+        <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">
+          A
         </div>
       </div>
     </header>
-  );
-}
-
-/* ─────────────────────────────
-   NavItem
-────────────────────────────── */
-function NavItem({
-  label,
-  icon,
-  active,
-  onClick,
-  expanded,
-}: {
-  label: string;
-  icon: string;
-  active?: boolean;
-  onClick?: () => void;
-  expanded?: boolean;
-}) {
-  return (
-    <div
-      onClick={onClick}
-      title={!expanded ? label : ""}
-      className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-sm transition ${
-        active ? "bg-indigo-600 text-white" : "hover:bg-indigo-50 text-gray-700"
-      }`}
-    >
-      <span>{icon}</span>
-      {expanded && <span>{label}</span>}
-    </div>
   );
 }
 
@@ -296,64 +203,48 @@ function NavGroup({
   items,
   open,
   onToggle,
-  pathname,
   expanded,
-}: {
-  label: string;
-  icon: string;
-  items: { name: string; path: string }[];
-  open: boolean;
-  onToggle: () => void;
-  pathname: string;
-  expanded: boolean;
-}) {
+  pathname,
+}: any) {
   const router = useRouter();
 
   return (
     <div>
       <button
         onClick={onToggle}
-        title={!expanded ? label : ""}
-        className={`flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium transition ${
-          open
-            ? "bg-indigo-100 text-indigo-700"
-            : "hover:bg-indigo-50 text-gray-700"
-        }`}
+        className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition ${open
+          ? "bg-indigo-50 text-indigo-700"
+          : "hover:bg-slate-100"
+          }`}
       >
         <div className="flex items-center gap-2">
           <span>{icon}</span>
           {expanded && <span>{label}</span>}
         </div>
-
         {expanded && (
-          <motion.div
-            animate={{ rotate: open ? 90 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ChevronRight className="w-4 h-4" />
-          </motion.div>
+          <ChevronRight
+            className={`w-4 h-4 transition-transform ${open ? "rotate-90" : ""
+              }`}
+          />
         )}
       </button>
 
-      {/* Dropdown Items */}
       <AnimatePresence>
         {open && expanded && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="ml-6 mt-1 space-y-1"
+            className="ml-6 mt-2 space-y-1"
           >
-            {items.map((item) => (
+            {items.map((item: any) => (
               <div
-                key={item.name}
+                key={item.path}
                 onClick={() => router.push(item.path)}
-                className={`py-1.5 px-2 rounded-md cursor-pointer text-sm transition ${
-                  pathname === item.path
-                    ? "font-semibold bg-indigo-50 text-indigo-600"
-                    : "text-gray-600 hover:text-indigo-600"
-                }`}
+                className={`px-2 py-1.5 rounded-md text-sm cursor-pointer transition ${pathname === item.path
+                  ? "bg-indigo-100 text-indigo-700 font-semibold"
+                  : "text-gray-600 hover:text-indigo-600"
+                  }`}
               >
                 {item.name}
               </div>
