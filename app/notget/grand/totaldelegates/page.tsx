@@ -41,6 +41,11 @@ export default function DivisionRegistrationTable({
     setSortKey(key);
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
+  const grandTotalRegistered = data.reduce(
+  (sum, row) => sum + row.totalRegistered,
+  0
+);
+
 
   return (
     <section className="p-6">
@@ -49,9 +54,21 @@ export default function DivisionRegistrationTable({
           darkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-800"
         }`}
       >
-        <h3 className="font-semibold text-lg mb-4">
-          Division Registration Summary
-        </h3>
+       <div className="flex justify-between items-center mb-4">
+  <h3 className="font-semibold text-lg">
+    Division Registration Summary
+  </h3>
+
+  <span
+    className={`text-sm font-semibold px-4 py-1 rounded-full ${
+      darkMode
+        ? "bg-gray-700 text-green-400"
+        : "bg-green-100 text-green-700"
+    }`}
+  >
+    Total Registered: {grandTotalRegistered}
+  </span>
+</div>  
 
         <table className="w-full text-left border-collapse">
           <thead>
