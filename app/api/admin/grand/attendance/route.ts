@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
-import Students from "@/app/models/Students";
+import GrandConclave from "@/app/models/GrandConclave";
 export async function GET(req: Request) {
   try {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
-console.log("Received code:", code); 
+
     if (!code) {
       return NextResponse.json(
         { success: false, message: "Code is required" },
@@ -15,7 +15,7 @@ console.log("Received code:", code);
       );
     }
 
-    const student = await Students.findOne({ ticket: code });
+    const student = await GrandConclave.findOne({ ticket: code }).populate('divisionId sectorId');
 
     if (!student) {
       return NextResponse.json(
@@ -66,7 +66,7 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const updatedStudent = await Students.findByIdAndUpdate(
+    const updatedStudent = await GrandConclave.findByIdAndUpdate(
       id,
       { attendance: true },
       { new: true }

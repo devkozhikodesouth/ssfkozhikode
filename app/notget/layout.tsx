@@ -46,8 +46,8 @@ const MENU = [
       { name: "Division Delegates", path: "/notget/grand/division" },
       { name: "Sector Delegates", path: "/notget/grand/sector" },
       { name: "Total Delegates", path: "/notget/grand/totaldelegates" },
+      { name: "Mark Attendance", path: "/notget/grand/attendance" },
       // { name: "All Delegates", path: "/notget/grand/delegates" },
-      // { name: "Mark Attendance", path: "/notget/grand/attendance" },
     ],
   },
 ];

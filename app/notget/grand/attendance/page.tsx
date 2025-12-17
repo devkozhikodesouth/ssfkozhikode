@@ -19,7 +19,7 @@
       setLoading(true);
       setStudent(null);
 
-      const isValidFormat = /^KS\d{2,}$/i.test(decodedText);
+      const isValidFormat = /^GC\d{2,}$/i.test(decodedText);
       if (!isValidFormat) {
         showToast("error", "Invalid QR Code");
         setLoading(false);
@@ -27,12 +27,13 @@
       }
 
       try {
-        const res = await fetch(`/api/admin/attendance?code=${decodedText}`);
+        const res = await fetch(`/api/admin/grand/attendance?code=${decodedText}`);
         const data = await res.json();
 
         if (!data?.success) {
           showToast("error", data?.message || "Student not found");
         } else {
+          console.log(data.data)
           setStudent(data.data);
 
           if (data?.already) showToast("warning", "Attendance already marked!");
@@ -46,7 +47,7 @@
     };
 
     const confirmAttendance = async () => {
-      const res = await fetch(`/api/admin/attendance`, {
+      const res = await fetch(`/api/admin/grand/attendance`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: student._id }),
@@ -200,9 +201,17 @@
         </div>
 
         <div className="flex justify-between">
-          <span className="text-gray-600 font-medium">School</span>
-          <span className="font-semibold text-gray-900">{student.school}</span>
+          <span className="text-gray-600 font-medium">Designation</span>
+          <span className="font-semibold text-gray-900">{student?.designation}</span>
         </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600 font-medium">Division</span>
+          <span className="font-semibold text-gray-900">{student?.divisionId?.divisionName}</span>
+        </div>
+      {  student.sectorId&& (<div className="flex justify-between">
+            <span className="text-gray-600 font-medium">Sector</span>
+            <span className="font-semibold text-gray-900">{student?.sectorId?.sectorName}</span>
+          </div>)}
 
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">Ticket No.</span>
