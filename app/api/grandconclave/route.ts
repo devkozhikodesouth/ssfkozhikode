@@ -71,7 +71,7 @@ export async function POST(req: Request) {
 
 
         /* ---------- Basic Validation ---------- */
-        if (!name || !mobile || !organizationLevel || !designation || !division) {
+        if (!name || !mobile || !organizationLevel || !designation  ) {
             return NextResponse.json(
                 { success: false, message: "Missing required fields" },
                 { status: 400 }
@@ -94,14 +94,28 @@ export async function POST(req: Request) {
             );
         }
 
-        /* ---------- Resolve Division ---------- */
-        const divisionDoc = await Division.findOne({ divisionName: division });
-        if (!divisionDoc) {
-            return NextResponse.json(
-                { success: false, message: "Invalid division" },
-                { status: 400 }
-            );
-        }
+let divisionId = null;
+
+/* Division is REQUIRED only for division & sector */
+if (organizationLevel === "division" || organizationLevel === "sector") {
+  if (!division) {
+    return NextResponse.json(
+      { success: false, message: "Division is required" },
+      { status: 400 }
+    );
+  }
+
+  const divisionDoc = await Division.findOne({ divisionName: division });
+  if (!divisionDoc) {
+    return NextResponse.json(
+      { success: false, message: "Invalid division" },
+      { status: 400 }
+    );
+  }
+
+  divisionId = divisionDoc._id;
+}
+
 
         /* ---------- Resolve Sector (if needed) ---------- */
         let sectorId = null;
@@ -116,7 +130,7 @@ export async function POST(req: Request) {
 
             const sectorDoc = await Sector.findOne({
                 sectorName: sector,
-                divisionId: divisionDoc._id,
+                divisionId
             });
 
             if (!sectorDoc) {
@@ -135,7 +149,7 @@ export async function POST(req: Request) {
             mobile,
             organizationLevel,
             designation,
-            divisionId: divisionDoc._id,
+            divisionId,
             sectorId,
         });
 

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { Ticket } from "lucide-react";
 import WhatsAppCard from "@/app/components/WhatsAppCard";
-import { sectors, divisionDesignations, sectorDesignations } from "../utils/hirarcyList";
+import { sectors, divisionDesignations, sectorDesignations,DistrictDesignations } from "../utils/hirarcyList";
 
 const defaultForm = {
   name: "",
@@ -49,6 +49,13 @@ const StudentsGalaPage = () => {
     };
   }, []);
 
+  const getDesignationOptions = (orgLevel: string) => {
+    if (orgLevel === "sector") return sectorDesignations;
+    if (orgLevel === "division") return divisionDesignations;
+    if (orgLevel === "district") return DistrictDesignations;
+    return [];
+  }
+
   /* ----------------------------------------------------------
    * Validation Rules — Clean & Central
    * -------------------------------------------------------- */
@@ -59,7 +66,12 @@ const StudentsGalaPage = () => {
     year: (v) => (!v ? "Please select your year." : ""),
     organizationLevel: (v) => (!v ? "Please select an organization level." : ""),
     designation: (v) => (!v ? "Please select your designation." : ""),
-    division: (v) => (!v ? "Please select your division." : ""),
+division: (v, s) =>
+  (s.organizationLevel === "division" ||
+    s.organizationLevel === "sector") &&
+  !v
+    ? "Please select your division."
+    : "",
     sector: (v, s) =>
       s.organizationLevel === "sector" && !v ? "Please select your sector." : "",
   };
@@ -93,10 +105,7 @@ const StudentsGalaPage = () => {
       if (name === "division") {
         updated.sector = "";
 
-        const localSectors = sectors[value] || [];
-        if (localSectors.length) {
-          setAvailableSectors(localSectors);
-        } else {
+      
           fetch(`/api/sectors?division=${encodeURIComponent(value)}`)
             .then((r) => r.json())
             .then((d) => {
@@ -107,7 +116,7 @@ const StudentsGalaPage = () => {
               }
             })
             .catch(() => setAvailableSectors([]));
-        }
+        
       }
 
       return updated;
@@ -262,7 +271,7 @@ const StudentsGalaPage = () => {
                 <div>
                   <label className="font-semibold text-gray-800">Organization Level</label>
                   <div className="flex gap-6 mt-2">
-                    {["sector", "division"].map((lvl) => (
+                    {["sector", "division", "district"].map((lvl) => (
                       <label key={lvl} className="flex gap-2">
                         <input
                           type="radio"
@@ -284,13 +293,8 @@ const StudentsGalaPage = () => {
                   label="Designation"
                   name="designation"
                   value={formData.designation}
-                  options={
-                    formData.organizationLevel === "sector"
-                      ? sectorDesignations
-                      : formData.organizationLevel === "division"
-                        ? divisionDesignations
-                        : []
-                  }
+           options={getDesignationOptions(formData.organizationLevel)}
+
                   disabled={!formData.organizationLevel}
                   error={errors.designation}
                   onClick={() => {
@@ -305,15 +309,19 @@ const StudentsGalaPage = () => {
                 />
 
 
-                {/* Division */}
-                <Select
-                  label="Division"
-                  name="division"
-                  value={formData.division}
-                  options={divisions}
-                  error={errors.division}
-                  onChange={updateField}
-                />
+       {/* Division */}
+{(formData.organizationLevel === "division" ||
+  formData.organizationLevel === "sector") && (
+  <Select
+    label="Division"
+    name="division"
+    value={formData.division}
+    options={divisions}
+    error={errors.division}
+    onChange={updateField}
+  />
+)}
+
 
                 {/* Sector (only for sector org) */}
                 {formData.organizationLevel === "sector" && (

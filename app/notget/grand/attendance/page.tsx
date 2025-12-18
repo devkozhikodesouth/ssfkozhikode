@@ -204,10 +204,15 @@
           <span className="text-gray-600 font-medium">Designation</span>
           <span className="font-semibold text-gray-900">{student?.designation}</span>
         </div>
-        <div className="flex justify-between">
+        {  !student.divisionId&& (<div className="flex justify-center ">
+  <span className="font-semibold text-red-500">District Delegates</span>
+        </div>
+        )}
+        {  student.divisionId&& (<div className="flex justify-between">
           <span className="text-gray-600 font-medium">Division</span>
           <span className="font-semibold text-gray-900">{student?.divisionId?.divisionName}</span>
         </div>
+        )}
       {  student.sectorId&& (<div className="flex justify-between">
             <span className="text-gray-600 font-medium">Sector</span>
             <span className="font-semibold text-gray-900">{student?.sectorId?.sectorName}</span>

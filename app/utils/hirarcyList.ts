@@ -114,5 +114,9 @@ export const divisionDesignations = [
   "Campus Secretary",
   "Secretariat member",
 ];
+export const DistrictDesignations = [
+'Executive Member',
+'Director Member'
+];
 
 

@@ -18,7 +18,7 @@ const grandConclaveSchema = new Schema(
 
     organizationLevel: {
       type: String,
-      enum: ["sector", "division"],
+      enum: ["sector", "division",'district'],
       required: true,
     },
 
@@ -30,7 +30,7 @@ const grandConclaveSchema = new Schema(
     divisionId: {
       type: Schema.Types.ObjectId,
       ref: "Division",
-      required: true,
+      default: null,
     },
 
     sectorId: {
