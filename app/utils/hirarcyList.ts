@@ -113,10 +113,11 @@ export const divisionDesignations = [
   "Daawa Secretary",
   "Campus Secretary",
   "Secretariat member",
+  'Executive Member'
 ];
 export const DistrictDesignations = [
 'Executive Member',
-'Director Member'
+'Directorate Member'
 ];
 
 
