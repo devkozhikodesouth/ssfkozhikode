@@ -7,57 +7,146 @@ export async function GET() {
   try {
     await connectDB();
 
-    const divisions = await Division.find({}, { divisionName: 1 }).lean();
+    /* ---------------------------------------
+     * Fetch divisions
+     * ------------------------------------- */
+    const divisions = await Division.find(
+      {},
+      { divisionName: 1 }
+    ).lean();
 
+    /* ---------------------------------------
+     * Division-wise registration & attendance
+     * ------------------------------------- */
     const stats = await GrandConclave.aggregate([
       {
         $group: {
           _id: {
             divisionId: "$divisionId",
             hasSector: {
-              $cond: [{ $ifNull: ["$sectorId", false] }, true, false],
+              $cond: [
+                { $ifNull: ["$sectorId", false] },
+                true,
+                false,
+              ],
             },
           },
-          count: { $sum: 1 },
+          registeredCount: { $sum: 1 },
+          attendedCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$attendance", true] },
+                1,
+                0,
+              ],
+            },
+          },
         },
       },
     ]);
 
-    const map = new Map<string, { divisionOnly: number; sectorBased: number }>();
-
-    stats.forEach((item) => {
-      const divisionId = String(item._id.divisionId);
-      if (!map.has(divisionId)) {
-        map.set(divisionId, { divisionOnly: 0, sectorBased: 0 });
+    /* ---------------------------------------
+     * Normalize stats into a map
+     * ------------------------------------- */
+    const divisionMap = new Map<
+      string,
+      {
+        divisionRegistered: number;
+        sectorRegistered: number;
+        divisionAttended: number;
+        sectorAttended: number;
       }
+    >();
+
+    for (const item of stats) {
+      const divisionId = String(item._id.divisionId);
+
+      if (!divisionMap.has(divisionId)) {
+        divisionMap.set(divisionId, {
+          divisionRegistered: 0,
+          sectorRegistered: 0,
+          divisionAttended: 0,
+          sectorAttended: 0,
+        });
+      }
+
+      const entry = divisionMap.get(divisionId)!;
 
       if (item._id.hasSector) {
-        map.get(divisionId)!.sectorBased += item.count;
+        entry.sectorRegistered += item.registeredCount;
+        entry.sectorAttended += item.attendedCount;
       } else {
-        map.get(divisionId)!.divisionOnly += item.count;
+        entry.divisionRegistered += item.registeredCount;
+        entry.divisionAttended += item.attendedCount;
       }
-    });
+    }
 
-    const result = divisions.map((d) => {
-      const counts = map.get(String(d._id)) || {
-        divisionOnly: 0,
-        sectorBased: 0,
+    /* ---------------------------------------
+     * Build final division response
+     * ------------------------------------- */
+    const divisionSummary = divisions.map((d) => {
+      const c = divisionMap.get(String(d._id)) || {
+        divisionRegistered: 0,
+        sectorRegistered: 0,
+        divisionAttended: 0,
+        sectorAttended: 0,
       };
 
       return {
         _id: d._id,
         divisionName: d.divisionName,
-        divisionRegistered: counts.divisionOnly,
-        sectorRegistered: counts.sectorBased,
-        totalRegistered: counts.divisionOnly + counts.sectorBased,
+
+        divisionRegistered: c.divisionRegistered,
+        sectorRegistered: c.sectorRegistered,
+        totalRegistered:
+          c.divisionRegistered + c.sectorRegistered,
+
+        divisionAttended: c.divisionAttended,
+        sectorAttended: c.sectorAttended,
+        totalAttended:
+          c.divisionAttended + c.sectorAttended,
       };
     });
 
-    return NextResponse.json({ success: true, divisions: result });
+    /* ---------------------------------------
+     * Overall grand totals
+     * ------------------------------------- */
+    const overall = await GrandConclave.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRegistered: { $sum: 1 },
+          totalAttended: {
+            $sum: {
+              $cond: [
+                { $eq: ["$attendance", true] },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    /* ---------------------------------------
+     * Final response
+     * ------------------------------------- */
+    return NextResponse.json({
+      success: true,
+      divisions: divisionSummary,
+      overall: {
+        totalRegistered: overall[0]?.totalRegistered || 0,
+        totalAttended: overall[0]?.totalAttended || 0,
+      },
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Division summary error:", error);
     return NextResponse.json(
-      { success: false, message: "Failed to fetch division summary" },
+      {
+        success: false,
+        message: "Failed to fetch division summary",
+      },
       { status: 500 }
     );
   }

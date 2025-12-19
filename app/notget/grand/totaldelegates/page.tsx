@@ -7,10 +7,16 @@ import { ArrowUpDown } from "lucide-react";
 type DivisionRow = {
   _id: string;
   divisionName: string;
+
   divisionRegistered: number;
   sectorRegistered: number;
   totalRegistered: number;
+
+  divisionAttended: number;
+  sectorAttended: number;
+  totalAttended: number;
 };
+
 
 export default function DivisionRegistrationTable({
   darkMode,
@@ -41,11 +47,15 @@ export default function DivisionRegistrationTable({
     setSortKey(key);
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
-  const grandTotalRegistered = data.reduce(
+const grandTotalRegistered = data.reduce(
   (sum, row) => sum + row.totalRegistered,
   0
 );
 
+const grandTotalAttended = data.reduce(
+  (sum, row) => sum + row.totalAttended,
+  0
+);
 
   return (
     <section className="p-6">
@@ -54,21 +64,33 @@ export default function DivisionRegistrationTable({
           darkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-800"
         }`}
       >
-       <div className="flex justify-between items-center mb-4">
+<div className="flex justify-between items-center mb-4">
   <h3 className="font-semibold text-lg">
-    Division Registration Summary
+    Division Registration & Attendance Summary
   </h3>
 
-  <span
-    className={`text-sm font-semibold px-4 py-1 rounded-full ${
-      darkMode
-        ? "bg-gray-700 text-green-400"
-        : "bg-green-100 text-green-700"
-    }`}
-  >
-    Total Registered: {grandTotalRegistered}
-  </span>
-</div>  
+  <div className="flex gap-3">
+    <span
+      className={`text-sm font-semibold px-4 py-1 rounded-full ${
+        darkMode
+          ? "bg-gray-700 text-green-400"
+          : "bg-green-100 text-green-700"
+      }`}
+    >
+      Registered: {grandTotalRegistered}
+    </span>
+
+    <span
+      className={`text-sm font-semibold px-4 py-1 rounded-full ${
+        darkMode
+          ? "bg-gray-700 text-blue-400"
+          : "bg-blue-100 text-blue-700"
+      }`}
+    >
+      Attended: {grandTotalAttended}
+    </span>
+  </div>
+</div>
 
         <table className="w-full text-left border-collapse">
           <thead>
@@ -82,10 +104,14 @@ export default function DivisionRegistrationTable({
               <th className="pb-3 border-b">Division</th>
 
               {[
-                { key: "divisionRegistered", label: "Division Only" },
-                { key: "sectorRegistered", label: "Via Sectors" },
-                { key: "totalRegistered", label: "Total Registered" },
-              ].map(({ key, label }) => (
+  { key: "divisionRegistered", label: "Division Reg" },
+  { key: "sectorRegistered", label: "Sector Reg" },
+  { key: "totalRegistered", label: "Total Reg" },
+  { key: "divisionAttended", label: "Division Att" },
+  { key: "sectorAttended", label: "Sector Att" },
+  { key: "totalAttended", label: "Total Att" },
+]
+.map(({ key, label }) => (
                 <th
                   key={key}
                   onClick={() => sortBy(key as any)}
@@ -129,6 +155,12 @@ export default function DivisionRegistrationTable({
                 <td className="py-3 text-right font-semibold text-green-600">
                   {row.totalRegistered}
                 </td>
+                <td className="py-3 text-right">{row.divisionAttended}</td>
+<td className="py-3 text-right text-indigo-500">{row.sectorAttended}</td>
+<td className="py-3 text-right text-blue-600 font-semibold">
+  {row.totalAttended}
+</td>
+
               </motion.tr>
             ))}
           </tbody>
