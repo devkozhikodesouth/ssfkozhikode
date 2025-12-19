@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
-
 import GrandConclave from "@/app/models/GrandConclave";
-import Division from "@/app/models/Division"; // REQUIRED     
-import Sector from "@/app/models/Sector";     // REQUIRED 
-
 export async function GET(req: Request) {
   try {
     await connectDB();
@@ -19,9 +15,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const student = await GrandConclave
-      .findOne({ ticket: code })
-  
+    const student = await GrandConclave.findOne({ ticket: code }).populate('divisionId sectorId');
 
     if (!student) {
       return NextResponse.json(
@@ -30,14 +24,64 @@ export async function GET(req: Request) {
       );
     }
 
+    // Attendance already marked
+    if (student.attendance) {
+      return NextResponse.json(
+        {
+          success: true,           // <-- SUCCESS but with flag
+          already: true,
+          message: "Attendance already marked",
+          data: student
+        },
+        { status: 200 }
+      );
+    }
+
+    // Normal success
     return NextResponse.json({
       success: true,
+      already: false,
+      message: "Student found",
       data: student,
     });
+
   } catch (error) {
     console.error("Error while fetching student:", error);
     return NextResponse.json(
       { success: false, message: "Error while fetching student" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    await connectDB();
+    const { id } = await req.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "Student ID missing" }, 
+        { status: 400 }
+      );
+    }
+
+    const updatedStudent = await GrandConclave.findByIdAndUpdate(
+      id,
+      { attendance: true },
+      { new: true }
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: "Attendance recorded successfully",
+      data: updatedStudent,
+    });
+
+  } catch (error) {
+    console.error("Error marking attendance:", error);
+    return NextResponse.json(
+      { success: false, message: "Error marking attendance" }, 
       { status: 500 }
     );
   }
