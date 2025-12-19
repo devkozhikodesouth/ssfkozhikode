@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const student = await GrandConclave.findOne({ ticket: code });
+    const student = await GrandConclave.findOne({ ticket: code })
 
     if (!student) {
       return NextResponse.json(

@@ -36,6 +36,7 @@ export async function GET(
 
     const sectors = await Sector.find({ divisionId: division._id }).lean();
 
+
     const sectorData = await Promise.all(
       sectors.map(async (sector) => {
         const registrations = await GrandConclave.find({
@@ -52,12 +53,17 @@ export async function GET(
       })
     );
 
+    const totalStudents = sectorData.reduce(
+      (sum, sector) => sum + sector.registrations.length,
+      0
+    );
     return NextResponse.json({
       divisionName: division.divisionName,
       sectors: sectorData,
+      totalStudents
     });
   } catch (error) {
-    console.error("Division API Error:", error);
+    console.error("Division API Error:",  error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
