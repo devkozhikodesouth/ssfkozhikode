@@ -37,9 +37,9 @@ interface LogEntry {
 type SendingState = "idle" | "sending" | "paused" | "done";
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const DEFAULT_TEMPLATE = "money_challange";
+const DEFAULT_TEMPLATE = "111_challange";
 const DEFAULT_MEDIA_ID = "1033052079221832";
-const DEFAULT_LANGUAGE = "ml";
+const DEFAULT_LANGUAGE = "en";
 const PREVIEW_PAGE_SIZE = 10;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
