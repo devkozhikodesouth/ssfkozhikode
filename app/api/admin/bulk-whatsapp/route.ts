@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 
       for (let i = 0; i < contacts.length; i++) {
         const { name, mobile } = contacts[i];
-        console.log(name,mobile)
+        console.log(name, mobile)
 
         // ── Validate mobile ──────────────────────────────────────────────
         const cleanMobile = String(mobile).replace(/\D/g, "").slice(-10);
