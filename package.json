@@ -34,7 +34,8 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "sweetalert2": "^11.26.3",
-    "swiper": "^12.0.3"
+    "swiper": "^12.0.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@csstools/postcss-oklab-function": "^4.0.12",
