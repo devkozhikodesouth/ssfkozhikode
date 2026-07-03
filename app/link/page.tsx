@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export default function Pay() {
   const upiUrl =
-    "upi://pay?pa=shafeequemk80-2@okhdfcbank&pn=SSF%20Kozhikode&am=111&cu=INR&tn=hadya%20Fee";
+    "upi://pay?pa=work.me702566@okaxis&pn=SSF%20Kozhikode&am=111&cu=INR&tn=hadya%20Fee";
 
   useEffect(() => {
     const timer = setTimeout(() => {
