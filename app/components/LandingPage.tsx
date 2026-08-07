@@ -35,7 +35,7 @@ const LandingPage = () => {
           </h1>
 
           <p className="text-base sm:text-xl text-slate-300 max-w-2xl font-normal leading-relaxed mb-10 px-2">
-            Welcome to the official portal of SSF Kozhikode South. Serving 3,000+ delegates across units, sectors, and divisions.
+            Welcome to the official portal of SSF Kozhikode South. Serving delegates across units, sectors, and divisions.
           </p>
 
           {/* Primary Event Card */}
@@ -69,11 +69,7 @@ const LandingPage = () => {
 
       {/* Stats Counter Section */}
       <section className="py-12 bg-slate-900/60 border-y border-slate-800">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div>
-            <p className="text-3xl sm:text-4xl font-black text-purple-400">3000+</p>
-            <p className="text-xs text-slate-400 uppercase font-semibold mt-1">Delegates Capacity</p>
-          </div>
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div>
             <p className="text-3xl sm:text-4xl font-black text-emerald-400">10</p>
             <p className="text-xs text-slate-400 uppercase font-semibold mt-1">Divisions</p>

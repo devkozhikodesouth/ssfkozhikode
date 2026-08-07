@@ -42,7 +42,7 @@ export default function GrandGatheringPage() {
       </div>
 
       {/* ================= HERO SECTION ================= */}
-      <div className="relative z-10 pt-20 pb-12 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto">
+      <div className="relative z-10 pt-20  px-4 sm:px-6 md:px-12 max-w-7xl mx-auto">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* LEFT CONTENT */}
@@ -142,7 +142,7 @@ export default function GrandGatheringPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="lg:col-span-5 flex justify-center mt-6 lg:mt-0"
+            className="hidden sm:flex lg:col-span-5 justify-center mt-6 lg:mt-0"
           >
             <div className="relative w-full max-w-md rounded-3xl p-6 sm:p-8 bg-slate-900/90 border border-purple-500/30 backdrop-blur-2xl shadow-2xl flex flex-col justify-between items-center text-center">
               <div className="w-full flex justify-between items-center text-xs text-purple-300/80 font-mono border-b border-purple-500/20 pb-3">
@@ -150,7 +150,7 @@ export default function GrandGatheringPage() {
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                   OFFICIAL DELEGATE PORTAL
                 </span>
-                <span className="bg-purple-500/20 px-2 py-0.5 rounded-full text-purple-200">3000+ DELEGATES</span>
+                <span className="bg-purple-500/20 px-2 py-0.5 rounded-full text-purple-200">DELEGATE PORTAL</span>
               </div>
 
               <div className="my-8">
@@ -196,7 +196,7 @@ export default function GrandGatheringPage() {
       {/* ================= FORM SECTION ================= */}
       <section
         ref={formRef}
-        className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 md:px-12 scroll-mt-16"
+        className="relative z-10 max-w-4xl mx-auto pb-12 px-4 sm:px-6 md:px-12"
       >
         <RegistrationForm />
       </section>
