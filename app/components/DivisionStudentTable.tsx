@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Share2 } from "lucide-react";
 
 type DivisionCount = {
   _id: string;
@@ -51,28 +51,51 @@ export default function DivisionStudentTable({ darkMode }: { darkMode?: boolean 
     setAttendanceSortOrder(attendanceSortOrder === "asc" ? "desc" : "asc");
   };
 
+  const shareSummaryToWhatsApp = () => {
+    if (data.length === 0) return;
+
+    const listItems = data
+      .map(
+        (row, i) =>
+          `${i + 1}. *${row.divisionName}*\n   Registered: ${row.totalStudents} | Attended: ${row.attendanceMarked}`
+      )
+      .join("\n\n");
+
+    const text = `*Students Gala — Division Registration Summary*\n\n📊 *Total Students:* ${total}\n✅ *Total Attended:* ${attendanceTotal}\n\n*Division Breakdown:*\n${listItems}\n\n*SSF Kozhikode South*`;
+
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
   return (
-    <section className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Tables</h2>
+    <section className="p-2 sm:p-6">
+      <div className={`p-6 rounded-2xl shadow-sm border ${darkMode ? "bg-gray-800 text-gray-200 border-gray-700" : "bg-white text-gray-800 border-gray-200"}`}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h3 className="font-extrabold text-lg sm:text-xl">Division Student Count</h3>
 
-      <div className={`p-6 rounded-lg shadow-sm ${darkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-800"}`}>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-lg">Division Student Count</h3>
-
-          <div className="flex items-center gap-3">
-            <span className={`text-sm font-medium px-3 py-1 rounded-full ${
-              darkMode ? "bg-gray-700 text-gray-200" : "bg-gray-100 text-gray-700"
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${
+              darkMode ? "bg-gray-700 text-gray-200" : "bg-purple-100 text-purple-700"
             }`}>
-              Total Students: {total}
+              Total: {total}
             </span>
 
-            <span className="text-sm font-medium px-3 py-1 rounded-full bg-green-600/15 text-green-600">
-              Attendance Marked: {attendanceTotal}
+            <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700">
+              Attended: {attendanceTotal}
             </span>
+
+            <button
+              onClick={shareSummaryToWhatsApp}
+              disabled={data.length === 0}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share Table List</span>
+            </button>
           </div>
         </div>
 
-       <table className="w-full text-left border-collapse">
+       <table className="w-full text-left border-collapse text-sm">
   <thead>
     <tr
       className={`text-sm ${

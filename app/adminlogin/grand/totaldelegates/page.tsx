@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpDown, Users, CheckCircle2 } from "lucide-react";
+import { ArrowUpDown, Users, CheckCircle2, Share2 } from "lucide-react";
+import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 type DivisionRow = {
   _id: string;
@@ -23,6 +24,8 @@ export default function DivisionRegistrationTable() {
     "divisionRegistered" | "sectorRegistered" | "totalRegistered"
   >("totalRegistered");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const { attendanceMode } = useAttendanceMode();
 
   useEffect(() => {
     fetch("/api/admin/grand/totaldeligates", {
@@ -52,10 +55,33 @@ export default function DivisionRegistrationTable() {
     0
   );
 
+  const shareSummaryToWhatsApp = () => {
+    if (data.length === 0) return;
+
+    const listItems = data
+      .map((row, i) => {
+        let line = `${i + 1}. *${row.divisionName}*\n   Registered: ${row.totalRegistered} (Div: ${row.divisionRegistered}, Sector: ${row.sectorRegistered})`;
+        if (attendanceMode) {
+          line += `\n   Attended: ${row.totalAttended} (Div: ${row.divisionAttended}, Sector: ${row.sectorAttended})`;
+        }
+        return line;
+      })
+      .join("\n\n");
+
+    let text = `*Grand Conclave — Division Registration Summary*\n\n📊 *Total Registered:* ${grandTotalRegistered}`;
+    if (attendanceMode) {
+      text += `\n✅ *Total Attended:* ${grandTotalAttended}`;
+    }
+    text += `\n\n*Division Breakdown:*\n${listItems}\n\n*SSF Kozhikode South*`;
+
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <section className="p-2 sm:p-6 space-y-6">
       {/* Metric Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-6">
+      <div className={`grid ${attendanceMode ? "grid-cols-2" : "grid-cols-1"} gap-3 sm:gap-6`}>
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
           <div className="p-3 rounded-xl bg-emerald-100 text-emerald-700 shrink-0">
             <Users className="w-6 h-6" />
@@ -66,23 +92,34 @@ export default function DivisionRegistrationTable() {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-teal-100 text-teal-700 shrink-0">
-            <CheckCircle2 className="w-6 h-6" />
+        {attendanceMode && (
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-teal-100 text-teal-700 shrink-0">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Attended</p>
+              <p className="text-2xl sm:text-3xl font-black text-teal-700">{grandTotalAttended}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Attended</p>
-            <p className="text-2xl sm:text-3xl font-black text-teal-700">{grandTotalAttended}</p>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Container */}
       <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h3 className="font-extrabold text-lg sm:text-xl text-slate-900">
             Grand Conclave — Division Summary
           </h3>
+
+          <button
+            onClick={shareSummaryToWhatsApp}
+            disabled={data.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Share2 className="w-4 h-4" />
+            <span>Share Table List to WhatsApp</span>
+          </button>
         </div>
 
         {/* Mobile Stacked Card View */}
@@ -100,18 +137,26 @@ export default function DivisionRegistrationTable() {
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs pt-1">
                 <div>
-                  <span className="text-slate-500 block">Division Reg / Att</span>
-                  <span className="font-bold text-slate-800">
-                    {row.divisionRegistered} / {row.divisionAttended}
-                  </span>
+                  <span className="text-slate-500 block">Division Reg</span>
+                  <span className="font-bold text-slate-800">{row.divisionRegistered}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">Sector Reg / Att</span>
-                  <span className="font-bold text-emerald-600">
-                    {row.sectorRegistered} / {row.sectorAttended}
-                  </span>
+                  <span className="text-slate-500 block">Sector Reg</span>
+                  <span className="font-bold text-emerald-600">{row.sectorRegistered}</span>
                 </div>
               </div>
+              {attendanceMode && (
+                <div className="grid grid-cols-2 gap-2 text-xs border-t border-slate-200 pt-2">
+                  <div>
+                    <span className="text-slate-500 block">Division Att</span>
+                    <span className="font-bold text-teal-700">{row.divisionAttended}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block">Sector Att</span>
+                    <span className="font-bold text-teal-700">{row.sectorAttended}</span>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -127,9 +172,13 @@ export default function DivisionRegistrationTable() {
                   { key: "divisionRegistered", label: "Division Reg" },
                   { key: "sectorRegistered", label: "Sector Reg" },
                   { key: "totalRegistered", label: "Total Reg" },
-                  { key: "divisionAttended", label: "Division Att" },
-                  { key: "sectorAttended", label: "Sector Att" },
-                  { key: "totalAttended", label: "Total Att" },
+                  ...(attendanceMode
+                    ? [
+                        { key: "divisionAttended", label: "Division Att" },
+                        { key: "sectorAttended", label: "Sector Att" },
+                        { key: "totalAttended", label: "Total Att" },
+                      ]
+                    : []),
                 ].map(({ key, label }) => (
                   <th
                     key={key}
@@ -162,11 +211,15 @@ export default function DivisionRegistrationTable() {
                   <td className="py-3.5 text-right font-bold text-emerald-700">
                     {row.totalRegistered}
                   </td>
-                  <td className="py-3.5 text-right text-slate-600">{row.divisionAttended}</td>
-                  <td className="py-3.5 text-right text-emerald-600">{row.sectorAttended}</td>
-                  <td className="py-3.5 text-right text-teal-600 font-bold">
-                    {row.totalAttended}
-                  </td>
+                  {attendanceMode && (
+                    <>
+                      <td className="py-3.5 text-right text-slate-600">{row.divisionAttended}</td>
+                      <td className="py-3.5 text-right text-emerald-600">{row.sectorAttended}</td>
+                      <td className="py-3.5 text-right text-teal-600 font-bold">
+                        {row.totalAttended}
+                      </td>
+                    </>
+                  )}
                 </motion.tr>
               ))}
             </tbody>

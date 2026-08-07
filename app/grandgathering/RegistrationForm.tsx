@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { Ticket, Sparkles, CheckCircle2, PhoneCall, User, ShieldCheck, MapPin } from "lucide-react";
+import { Ticket, Sparkles, CheckCircle2, PhoneCall, User, ShieldCheck, MapPin, Loader2 } from "lucide-react";
 import WhatsAppCard from "@/app/components/WhatsAppCard";
 import { sectors, divisionDesignations, sectorDesignations, DistrictDesignations } from "../utils/hirarcyList";
 
@@ -21,6 +21,7 @@ export default function RegistrationForm() {
   const [divisions, setDivisions] = useState<string[]>([]);
   const [availableSectors, setAvailableSectors] = useState<string[]>([]);
   const [mobileChecked, setMobileChecked] = useState(false);
+  const [isCheckingMobile, setIsCheckingMobile] = useState(false);
   const [foundUser, setFoundUser] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -125,6 +126,7 @@ export default function RegistrationForm() {
     const msg = validate("mobile", formData.mobile);
     if (msg) return setErrors({ mobile: msg });
 
+    setIsCheckingMobile(true);
     try {
       const res = await fetch(`/api/grandgathering?mobile=${formData.mobile}`);
       const data = await res.json();
@@ -133,6 +135,8 @@ export default function RegistrationForm() {
       setMobileChecked(true);
     } catch (e) {
       setMobileChecked(true);
+    } finally {
+      setIsCheckingMobile(false);
     }
   };
 
@@ -239,7 +243,7 @@ export default function RegistrationForm() {
                   placeholder="Enter 10-digit mobile number"
                   value={formData.mobile}
                   onChange={(e) => updateField("mobile", e.target.value)}
-                  disabled={mobileChecked}
+                  disabled={mobileChecked || isCheckingMobile}
                   className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-purple-500 ${
                     errors.mobile ? "border-red-500" : "border-purple-500/30 focus:border-purple-400"
                   }`}
@@ -248,9 +252,17 @@ export default function RegistrationForm() {
                   <button
                     type="button"
                     onClick={checkMobile}
-                    className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold shadow-lg shadow-purple-600/30 transition active:scale-95 text-sm whitespace-nowrap"
+                    disabled={isCheckingMobile}
+                    className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold shadow-lg shadow-purple-600/30 transition active:scale-95 text-sm whitespace-nowrap flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    Check
+                    {isCheckingMobile ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Checking...</span>
+                      </>
+                    ) : (
+                      <span>Check</span>
+                    )}
                   </button>
                 ) : (
                   <button
@@ -399,11 +411,18 @@ export default function RegistrationForm() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-4 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 shadow-lg shadow-emerald-500/25 transition-all duration-300 active:scale-98 ${
-                    isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+                  className={`w-full py-4 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 shadow-lg shadow-emerald-500/25 transition-all duration-300 active:scale-98 flex items-center justify-center gap-2 ${
+                    isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
-                  {isSubmitting ? "Generating Ticket..." : "Get Delegate Ticket"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-white" />
+                      <span>Generating Ticket...</span>
+                    </>
+                  ) : (
+                    <span>Get Delegate Ticket</span>
+                  )}
                 </button>
               </div>
             )}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Share2, CheckCircle2 } from "lucide-react";
+import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 interface Registration {
   name: string;
@@ -36,6 +37,9 @@ export default function GrandGatheringSectorList({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [showAttendedOnly, setShowAttendedOnly] = useState(false);
+
+  const { attendanceMode } = useAttendanceMode();
 
   useEffect(() => {
     if (!divisionName) {
@@ -78,6 +82,86 @@ export default function GrandGatheringSectorList({
 
     fetchData();
   }, [divisionName]);
+
+  const shareSingleToWhatsApp = (user: Registration, sectorName: string) => {
+    let text = `*Grand Gathering — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${user.name}\n📱 *Mobile:* ${user.mobile}\n🏷️ *Designation:* ${user.designation || "N/A"}\n🎫 *Ticket:* ${user.ticket || "N/A"}\n📍 *Division / Sector:* ${divisionName} / ${sectorName}`;
+    if (attendanceMode) {
+      text += `\n✅ *Attendance:* ${user.attendance ? "Present" : "Not Marked"}`;
+    }
+    text += `\n\nThank you!`;
+
+    const cleanMobile = user.mobile ? user.mobile.replace(/\D/g, "") : "";
+    const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
+    const url = phoneParam
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  const shareFullDivisionListToWhatsApp = () => {
+    if (!data || data.sectors.length === 0) return;
+
+    const textBlocks = data.sectors.map((sec) => {
+      const regs = attendanceMode && showAttendedOnly
+        ? sec.registrations.filter((r) => r.attendance)
+        : sec.registrations;
+
+      const delegatesList = regs.length > 0
+        ? regs
+            .map((r, i) => {
+              let line = `   ${i + 1}. *${r.name}* (${r.designation || "Delegate"})\n      📱 ${r.mobile} | 🎫 ${r.ticket || "N/A"}`;
+              if (attendanceMode) {
+                line += ` | ${r.attendance ? "✅ Present" : "❌ Not Marked"}`;
+              }
+              return line;
+            })
+            .join("\n")
+        : "   _No registrations_";
+
+      return `📍 *${sec.sectorName} Sector* (Reg: ${regs.length})\n${delegatesList}`;
+    });
+
+    let text = `*Grand Gathering — ${data.divisionName} Division Sector Data*\n📊 *Total Delegates:* ${data.totalStudents}`;
+    if (attendanceMode) {
+      const totalAtt = data.sectors.reduce(
+        (sum, sec) => sum + sec.registrations.filter((r) => r.attendance).length,
+        0
+      );
+      text += `\n✅ *Total Attended:* ${totalAtt}`;
+    }
+    text += `\n\n${textBlocks.join("\n\n")}\n\n*SSF Kozhikode South*`;
+
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  const shareSectorListToWhatsApp = (sectorName: string, registrations: Registration[]) => {
+    const regs = attendanceMode && showAttendedOnly
+      ? registrations.filter((r) => r.attendance)
+      : registrations;
+
+    if (regs.length === 0) return;
+
+    const listItems = regs
+      .map((r, i) => {
+        let line = `${i + 1}. *${r.name}* (${r.designation || "Delegate"})\n   📱 ${r.mobile} | 🎫 ${r.ticket || "N/A"}`;
+        if (attendanceMode) {
+          line += ` | ${r.attendance ? "✅ Present" : "❌ Not Marked"}`;
+        }
+        return line;
+      })
+      .join("\n\n");
+
+    let text = `*Grand Gathering — ${divisionName} / ${sectorName} Sector Delegates*\n📊 *Total Delegates:* ${regs.length}`;
+    if (attendanceMode) {
+      const att = regs.filter((r) => r.attendance).length;
+      text += `\n✅ *Total Attended:* ${att}`;
+    }
+    text += `\n\n${listItems}\n\n*SSF Kozhikode South*`;
+
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
 
   if (loading)
     return (
@@ -134,13 +218,40 @@ export default function GrandGatheringSectorList({
         </p>
       </div>
 
-      <div className="flex justify-end mb-6">
-        <button
-          onClick={handleSort}
-          className="flex items-center gap-2 bg-indigo-600 text-white font-medium px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition"
-        >
-          Sort by Count <ArrowUpDown className="w-4 h-4" />
-        </button>
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+        <div className="flex flex-wrap items-center gap-2">
+          {attendanceMode && (
+            <button
+              type="button"
+              onClick={() => setShowAttendedOnly(!showAttendedOnly)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                showAttendedOnly
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow"
+                  : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>{showAttendedOnly ? "Showing Attended Only" : "Show Attended Only"}</span>
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={shareFullDivisionListToWhatsApp}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl shadow transition text-sm active:scale-95"
+          >
+            <Share2 className="w-4 h-4" />
+            <span>Share Full Division List</span>
+          </button>
+
+          <button
+            onClick={handleSort}
+            className="flex items-center gap-2 bg-indigo-600 text-white font-medium px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition text-sm"
+          >
+            Sort by Count <ArrowUpDown className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <div className="join join-vertical w-full space-y-2">
@@ -150,6 +261,10 @@ export default function GrandGatheringSectorList({
               (r) => r.attendance === true
             ).length ?? 0;
 
+          const visibleRegistrations = attendanceMode && showAttendedOnly
+            ? sector.registrations.filter((r) => r.attendance)
+            : sector.registrations;
+
           return (
             <div
               key={index}
@@ -158,59 +273,90 @@ export default function GrandGatheringSectorList({
               <input type="radio" name="accordion-sectors" />
 
               <div className="collapse-title bg-gray-50 group-open:bg-indigo-50 px-5 py-4">
-                <div className="w-full flex justify-between items-center text-lg font-semibold">
+                <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-lg font-semibold">
                   <span>{sector.sectorName}</span>
 
-                  <div className="flex gap-4 text-sm font-bold">
+                  <div className="flex items-center gap-4 text-sm font-bold">
                     <span className="text-indigo-600">
                       Reg: {sector.registrations.length}
                     </span>
-                    <span className="text-emerald-600">
-                      Att: {attendedCount}
-                    </span>
+                    {attendanceMode && (
+                      <span className="text-emerald-600">
+                        Att: {attendedCount}
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        shareSectorListToWhatsApp(sector.sectorName, sector.registrations);
+                      }}
+                      disabled={visibleRegistrations.length === 0}
+                      className="flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Share Sector</span>
+                    </button>
                   </div>
                 </div>
               </div>
 
               <div className="collapse-content px-5 pb-4 pt-2 bg-white">
-                {sector.registrations.length ? (
-                  <table className="w-full text-sm sm:text-base mt-3 border-collapse">
-                    <thead className="bg-gray-100 text-gray-700">
-                      <tr>
-                        <th className="px-3 py-2 text-left">Name</th>
-                        <th className="px-3 py-2 text-left">Mobile</th>
-                        <th className="px-3 py-2 text-left">Designation</th>
-                        <th className="px-3 py-2 text-left">Ticket</th>
-                        <th className="px-3 py-2 text-center">Attendance</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {sector.registrations.map((user, i) => (
-                        <tr
-                          key={i}
-                          className="hover:bg-indigo-50 transition"
-                        >
-                          <td className="px-3 py-2 font-medium">
-                            {user.name}
-                          </td>
-                          <td className="px-3 py-2">{user.mobile}</td>
-                          <td className="px-3 py-2">{user.designation}</td>
-                          <td className="px-3 py-2 font-mono text-purple-700">
-                            {user.ticket || "—"}
-                          </td>
-                          <td className="px-3 py-2 text-center">
-                            {user.attendance ? (
-                              <span className="text-emerald-600 font-bold">
-                                Present
-                              </span>
-                            ) : (
-                              "—"
-                            )}
-                          </td>
+                {visibleRegistrations.length ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm sm:text-base mt-3 border-collapse">
+                      <thead className="bg-gray-100 text-gray-700">
+                        <tr>
+                          <th className="px-3 py-2 text-left">Name</th>
+                          <th className="px-3 py-2 text-left">Mobile</th>
+                          <th className="px-3 py-2 text-left">Designation</th>
+                          <th className="px-3 py-2 text-left">Ticket</th>
+                          {attendanceMode && (
+                            <th className="px-3 py-2 text-center">Attendance</th>
+                          )}
+                          <th className="px-3 py-2 text-center">Share</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y">
+                        {visibleRegistrations.map((user, i) => (
+                          <tr
+                            key={i}
+                            className="hover:bg-indigo-50 transition"
+                          >
+                            <td className="px-3 py-2 font-medium">
+                              {user.name}
+                            </td>
+                            <td className="px-3 py-2">{user.mobile}</td>
+                            <td className="px-3 py-2">{user.designation}</td>
+                            <td className="px-3 py-2 font-mono text-purple-700 font-bold">
+                              {user.ticket || "—"}
+                            </td>
+                            {attendanceMode && (
+                              <td className="px-3 py-2 text-center">
+                                {user.attendance ? (
+                                  <span className="text-emerald-600 font-bold">
+                                    Present
+                                  </span>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                            )}
+                            <td className="px-3 py-2 text-center">
+                              <button
+                                onClick={() => shareSingleToWhatsApp(user, sector.sectorName)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition active:scale-95"
+                              >
+                                <Share2 className="w-3.5 h-3.5" />
+                                <span>WhatsApp</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 ) : (
                   <p className="text-sm text-gray-500 py-2">
                     No registrations found.

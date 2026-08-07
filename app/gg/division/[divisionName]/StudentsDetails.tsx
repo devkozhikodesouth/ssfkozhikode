@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Share2, CheckCircle2 } from "lucide-react";
+import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 interface Sector {
   _id: string;
@@ -16,6 +17,7 @@ interface Delegate {
   designation: string;
   divisionName: string;
   sectorName: string;
+  attendance?: boolean;
 }
 
 export default function StudentsDetails({
@@ -32,6 +34,9 @@ export default function StudentsDetails({
   const [loadingDelegates, setLoadingDelegates] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
+  const [showAttendedOnly, setShowAttendedOnly] = useState(false);
+
+  const { attendanceMode } = useAttendanceMode();
 
   // Fetch Sectors for Division
   useEffect(() => {
@@ -96,9 +101,48 @@ export default function StudentsDetails({
     fetchDelegates();
   }, [selectedSectorId]);
 
-  const filtered = delegates.filter((d) =>
-    d.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filtered = delegates
+    .filter((d) => (attendanceMode && showAttendedOnly ? d.attendance === true : true))
+    .filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const shareSingleToWhatsApp = (d: Delegate) => {
+    let text = `*Grand Gathering — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n📱 *Mobile:* ${d.phone}\n🏷️ *Designation:* ${d.designation || "N/A"}\n🎫 *Ticket:* ${d.ticket || "N/A"}\n📍 *Division / Sector:* ${divisionName} / ${d.sectorName}`;
+    if (attendanceMode) {
+      text += `\n✅ *Attendance:* ${d.attendance ? "Present" : "Not Marked"}`;
+    }
+    text += `\n\nThank you!`;
+
+    const cleanMobile = d.phone ? d.phone.replace(/\D/g, "") : "";
+    const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
+    const url = phoneParam
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  const shareFullListToWhatsApp = () => {
+    if (filtered.length === 0) return;
+    const currentSector = sectors.find((s) => s._id === selectedSectorId)?.name || "";
+    const listItems = filtered
+      .map((d, i) => {
+        let line = `${i + 1}. *${d.name}* (${d.designation || "Delegate"})\n   📱 ${d.phone} | 🎫 ${d.ticket || "N/A"}`;
+        if (attendanceMode) {
+          line += ` | ${d.attendance ? "✅ Present" : "❌ Not Marked"}`;
+        }
+        return line;
+      })
+      .join("\n\n");
+
+    let text = `*Grand Gathering — ${divisionName} / ${currentSector} Sector Delegates*\n📊 *Total Delegates:* ${filtered.length}`;
+    if (attendanceMode) {
+      const attendedCount = filtered.filter((d) => d.attendance).length;
+      text += `\n✅ *Total Attended:* ${attendedCount}`;
+    }
+    text += `\n\n${listItems}\n\n*SSF Kozhikode South*`;
+
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
 
   return (
     <div
@@ -166,8 +210,37 @@ export default function StudentsDetails({
               }
             />
           </div>
-          <div className={lightMode ? "text-sm font-semibold text-slate-700" : "text-sm font-semibold text-purple-200"}>
-            Total Delegates: <span className={lightMode ? "text-purple-700 font-extrabold" : "text-amber-300 font-extrabold"}>{filtered.length}</span>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {attendanceMode && (
+              <button
+                type="button"
+                onClick={() => setShowAttendedOnly(!showAttendedOnly)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 border ${
+                  showAttendedOnly
+                    ? "bg-emerald-600 text-white border-emerald-600 shadow"
+                    : lightMode
+                    ? "bg-slate-100 text-slate-700 border-slate-300"
+                    : "bg-slate-800 text-purple-200 border-purple-500/30"
+                }`}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{showAttendedOnly ? "Showing Attended" : "Show Attended"}</span>
+              </button>
+            )}
+
+            <div className={lightMode ? "text-sm font-semibold text-slate-700" : "text-sm font-semibold text-purple-200"}>
+              Total: <span className={lightMode ? "text-purple-700 font-extrabold" : "text-amber-300 font-extrabold"}>{filtered.length}</span>
+            </div>
+
+            <button
+              onClick={shareFullListToWhatsApp}
+              disabled={filtered.length === 0}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share Full List</span>
+            </button>
           </div>
         </div>
       )}
@@ -190,6 +263,10 @@ export default function StudentsDetails({
                 <th className="px-4 py-3 text-left font-bold">Designation</th>
                 <th className="px-4 py-3 text-left font-bold">Ticket</th>
                 <th className="px-4 py-3 text-left font-bold">Sector</th>
+                {attendanceMode && (
+                  <th className="px-4 py-3 text-center font-bold">Attendance</th>
+                )}
+                <th className="px-4 py-3 text-center font-bold">Share</th>
               </tr>
             </thead>
             <tbody className={lightMode ? "divide-y divide-slate-100 bg-white" : "divide-y divide-purple-500/10 bg-slate-900/50"}>
@@ -201,6 +278,24 @@ export default function StudentsDetails({
                   <td className={lightMode ? "px-4 py-3 text-purple-700 font-semibold" : "px-4 py-3 text-purple-200"}>{d.designation}</td>
                   <td className={lightMode ? "px-4 py-3 font-mono text-purple-800 font-bold" : "px-4 py-3 font-mono text-amber-300 font-bold"}>{d.ticket}</td>
                   <td className={lightMode ? "px-4 py-3 text-slate-600 font-medium" : "px-4 py-3 text-slate-300"}>{d.sectorName}</td>
+                  {attendanceMode && (
+                    <td className="px-4 py-3 text-center font-bold">
+                      {d.attendance ? (
+                        <span className="text-emerald-600">Present</span>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                  )}
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => shareSingleToWhatsApp(d)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition active:scale-95"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

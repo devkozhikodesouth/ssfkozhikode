@@ -34,7 +34,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
     const timeout = setTimeout(async () => {
       if (!cardRef.current) return;
 
-      setIsCapturing(true); // REMOVE SCALE BEFORE CAPTURE
+      setIsCapturing(true);
 
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
@@ -42,7 +42,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
         backgroundColor: null,
       });
 
-      setIsCapturing(false); // RESTORE SCALE
+      setIsCapturing(false);
 
       const dataUrl = canvas.toDataURL("image/png");
       const blob = await (await fetch(dataUrl)).blob();
@@ -65,33 +65,46 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
     a.click();
   };
 
-  // Share native sheet
+  // Direct WhatsApp Text Share
+  const shareToWhatsAppText = () => {
+    const text = `*Grand Gathering — SSF Kozhikode South*\n\n📌 *Delegate Ticket Details*\n👤 *Name:* ${name}\n📱 *Mobile:* ${mobile}\n🎫 *Ticket Code:* ${ticket || "N/A"}\n\nThank you!`;
+    const cleanMobile = String(mobile).replace(/\D/g, "");
+    const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
+    const url = phoneParam
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  // Share native sheet with fallback
   const shareImage = async () => {
-    if (!generatedFile) return;
+    if (!generatedFile) {
+      shareToWhatsAppText();
+      return;
+    }
 
     try {
       const shareData = {
         files: [generatedFile],
-        title: "SSF Gala Ticket",
+        title: "SSF Delegate Ticket",
         text: `🎟 Ticket for ${name} (${ticket})`,
       };
 
       if (navigator.canShare && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
-        alert("Sharing not supported");
+        shareToWhatsAppText();
       }
     } catch (err) {
       console.error(err);
+      shareToWhatsAppText();
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-4">
-
       {/* PREVIEW WRAPPER */}
       <div style={{ width: "300px", height: "600px", overflow: "hidden" }}>
-
         {/* REAL CARD (HD SIZE FOR EXPORT) */}
         <div
           ref={cardRef}
@@ -151,27 +164,24 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
       </div>
 
       {/* BUTTONS */}
-
-      <div className="flex gap-4">
+      <div className="flex flex-wrap justify-center gap-3 mt-2">
         <button
           onClick={downloadImage}
           style={{ backgroundColor: Colors.accent }}
-          className="flex items-center gap-2 text-white px-4 py-2 rounded-lg"
+          className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:brightness-110 transition active:scale-95"
         >
           <Download size={18} />
-          Download
+          Download Ticket
         </button>
 
         <button
-          onClick={shareImage}
-          style={{ backgroundColor: Colors.primaryDark }}
-          className="flex items-center gap-2 text-white px-4 py-2 rounded-lg"
+          onClick={shareToWhatsAppText}
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition active:scale-95"
         >
           <Share2 size={18} />
-          Share
+          Share to WhatsApp
         </button>
       </div>
-
     </div>
   );
 };

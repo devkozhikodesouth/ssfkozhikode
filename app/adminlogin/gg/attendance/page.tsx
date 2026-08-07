@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
+import { Share2 } from "lucide-react";
 
 export default function GGAttendancePage() {
   const [showScanner, setShowScanner] = useState(false);
@@ -12,6 +13,19 @@ export default function GGAttendancePage() {
   const showToast = (type: string, message: string) => {
     setToast({ show: true, type, message });
     setTimeout(() => setToast({ show: false, type: "", message: "" }), 3000);
+  };
+
+  const shareToWhatsApp = () => {
+    if (!student) return;
+    const divName = student?.divisionId?.divisionName || "";
+    const secName = student?.sectorId?.sectorName || "";
+    const text = `*Grand Gathering — SSF Kozhikode South*\n\n📌 *Delegate Attendance Details*\n👤 *Name:* ${student.name}\n📱 *Mobile:* ${student.mobile}\n🏷️ *Designation:* ${student.designation || "N/A"}\n🎫 *Ticket Code:* ${student.ticket || "N/A"}\n📍 *Division / Sector:* ${divName}${secName ? ` / ${secName}` : ""}\n✅ *Status:* ${student.attendance ? "Present" : "Marked"}\n\nThank you!`;
+    const cleanMobile = student.mobile ? student.mobile.replace(/\D/g, "") : "";
+    const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
+    const url = phoneParam
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
   };
 
   const onScanSuccess = async (decodedText: string) => {
@@ -56,7 +70,7 @@ export default function GGAttendancePage() {
       const data = await res.json();
       if (data.success) {
         showToast("success", "Attendance recorded successfully");
-        setStudent(null);
+        setStudent({ ...student, attendance: true });
       } else {
         showToast("error", data.message || "Failed to record attendance");
       }
@@ -220,6 +234,14 @@ export default function GGAttendancePage() {
                 Already Marked
               </button>
             )}
+
+            <button
+              onClick={shareToWhatsApp}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition active:scale-95"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Share via WhatsApp</span>
+            </button>
 
             <button
               onClick={() => setStudent(null)}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Share2 } from "lucide-react";
 
 interface Student {
   _id: string;
@@ -28,6 +29,30 @@ export default function StudentsDetails() {
   const filteredStudents = students.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const shareFullListToWhatsApp = () => {
+    if (filteredStudents.length === 0) return;
+    const listItems = filteredStudents
+      .map(
+        (s, i) =>
+          `${i + 1}. *${s.name}*\n   📱 ${s.phone} | 🎫 ${s.ticket || "N/A"} | 📍 Unit: ${s.unitName} (${s.sector})`
+      )
+      .join("\n\n");
+
+    const text = `*Students Gala — ${divisionName} Division Students*\n📊 *Total Students:* ${filteredStudents.length}\n\n${listItems}\n\n*SSF Kozhikode South*`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  const shareSingleToWhatsApp = (stu: Student) => {
+    const text = `*Students Gala — SSF Kozhikode South*\n\n📌 *Student Details*\n👤 *Name:* ${stu.name}\n📱 *Mobile:* ${stu.phone}\n🎫 *Ticket:* ${stu.ticket || "N/A"}\n📍 *Division / Sector / Unit:* ${divisionName} / ${stu.sector} / ${stu.unitName}\n\nThank you!`;
+    const cleanMobile = stu.phone ? stu.phone.replace(/\D/g, "") : "";
+    const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
+    const url = phoneParam
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
 
   // ===== Fetch Divisions =====
   useEffect(() => {
@@ -186,13 +211,22 @@ export default function StudentsDetails() {
                 className="border px-4 py-2 rounded-lg w-full sm:w-64"
               />
 
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3">
                 <div className="font-bold text-gray-800">
                   Total Count: {filteredStudents.length}
                 </div>
 
-                <button onClick={exportPDF} className="bg-blue-600 text-white px-6 py-2 rounded-lg">PDF</button>
-                <button onClick={exportCSV} className="bg-green-600 text-white px-6 py-2 rounded-lg">CSV</button>
+                <button
+                  onClick={shareFullListToWhatsApp}
+                  disabled={filteredStudents.length === 0}
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Share Full List</span>
+                </button>
+
+                <button onClick={exportPDF} className="bg-blue-600 text-white px-5 py-2 rounded-lg text-xs font-semibold">PDF</button>
+                <button onClick={exportCSV} className="bg-green-600 text-white px-5 py-2 rounded-lg text-xs font-semibold">CSV</button>
               </div>
             </div>
 
@@ -204,37 +238,39 @@ export default function StudentsDetails() {
               <p className="text-center text-gray-600">No students found.</p>
             ) : (
               <div className="w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-400 rounded-lg">
-                <table className="w-full border border-gray-200 rounded-lg">
-                  <thead className="bg-gray-100 text-sm md:text-base">
+                <table className="w-full border border-gray-200 rounded-lg text-sm">
+                  <thead className="bg-gray-100 font-bold text-gray-700">
                     <tr>
-                      <th className="px-4 py-3 text-left font-semibold">#</th>
-                      <th className="px-4 py-3 text-left font-semibold">Name</th>
-                      <th className="px-4 py-3 text-left font-semibold">Phone</th>
-                      <th className="px-4 py-3 text-left font-semibold">Ticket</th>
-                      <th className="px-4 py-3 text-left font-semibold">Unit</th>
-                      <th className="px-4 py-3 text-left font-semibold">Sector</th>
-                      <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">
-                        School / Email
-                      </th>
+                      <th className="px-4 py-3 text-left font-bold w-12">#</th>
+                      <th className="px-4 py-3 text-left font-bold">Name</th>
+                      <th className="px-4 py-3 text-left font-bold">Phone</th>
+                      <th className="px-4 py-3 text-left font-bold">Ticket</th>
+                      <th className="px-4 py-3 text-left font-bold">Unit</th>
+                      <th className="px-4 py-3 text-left font-bold">Sector</th>
+                      <th className="px-4 py-3 text-center font-bold">Share</th>
                     </tr>
                   </thead>
 
-                  <tbody className="text-sm md:text-base">
+                  <tbody>
                     {filteredStudents.map((stu, index) => (
                       <tr
                         key={stu._id}
                         className="border-t border-gray-300/40 hover:bg-blue-50 transition"
                       >
                         <td className="px-4 py-3 font-semibold">{index + 1}</td>
-                        <td className="px-4 py-3">{stu.name}</td>
+                        <td className="px-4 py-3 font-bold text-gray-900">{stu.name}</td>
                         <td className="px-4 py-3">{stu.phone}</td>
-                        <td className="px-4 py-3">{stu.ticket}</td>
+                        <td className="px-4 py-3 font-mono font-bold text-indigo-700">{stu.ticket}</td>
                         <td className="px-4 py-3">{stu.unitName}</td>
                         <td className="px-4 py-3">{stu.sector}</td>
-                        <td className="px-4 py-3 hidden md:table-cell">
-                          {stu.school ?? stu.email ?? (
-                            <span className="text-gray-400 italic">N/A</span>
-                          )}
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => shareSingleToWhatsApp(stu)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition active:scale-95"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                          </button>
                         </td>
                       </tr>
                     ))}

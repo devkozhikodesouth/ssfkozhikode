@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Menu,
-  Search,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -15,6 +14,7 @@ import {
   UserCheck
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 type NavGroupProps = {
   id: string;
@@ -62,7 +62,7 @@ const MENU = [
       { name: "Division Wise Data", path: "/adminlogin/gala/division" },
       { name: "Sector Wise Data", path: "/adminlogin/gala/sector" },
       { name: "Unit Wise Data", path: "/adminlogin/gala/unit" },
-      { name: "Students List", path: "/adminlogin/gala/students" },
+      { name: "Students List", path: "/adminlogin/gala/studentsdata" },
       { name: "Mark Attendance", path: "/adminlogin/gala/markattendance" },
       { name: "Attendance List", path: "/adminlogin/gala/attendancelist" },
     ],
@@ -274,9 +274,11 @@ export default function AdminLayout({
 }
 
 /* ─────────────────────────────
-   Navbar
+   Navbar with Attendance Toggle
 ────────────────────────────── */
 function Navbar({ onMenu }: { onMenu: () => void }) {
+  const { attendanceMode, toggleAttendanceMode } = useAttendanceMode();
+
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 py-3.5 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
       <div className="flex items-center gap-3">
@@ -292,6 +294,20 @@ function Navbar({ onMenu }: { onMenu: () => void }) {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Centralized Attendance Mode Toggle Button in Admin Navbar */}
+        <button
+          type="button"
+          onClick={toggleAttendanceMode}
+          className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 border shadow-sm active:scale-95 ${
+            attendanceMode
+              ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700"
+              : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+          }`}
+        >
+          <UserCheck className="w-4 h-4" />
+          <span>{attendanceMode ? "Attendance Mode: ON" : "Attendance Mode: OFF"}</span>
+        </button>
+
         <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-extrabold text-sm shadow-md">
           A
         </div>
