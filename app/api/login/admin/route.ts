@@ -1,30 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { connectDB } from "@/app/lib/mongodb";
+import Admin, { ensureDefaultAdmin } from "@/app/models/Admin";
 
 export const runtime = "nodejs";
 
-const ADMIN_EMAIL = "admin@gmail.com";
-const ADMIN_PASSWORD_HASH = bcrypt.hashSync("admin123", 10);
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "ssf-kozhikode-secret-jwt-key-2026";
 
 export async function POST(req: NextRequest) {
   try {
+    await connectDB();
+    await ensureDefaultAdmin();
+
     const { email, password } = await req.json();
 
-    if (email !== ADMIN_EMAIL)
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: "Email and password are required" },
+        { status: 400 }
+      );
+    }
 
-    const valid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
-    if (!valid)
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+    const admin = await Admin.findOne({ email: email.toLowerCase().trim() });
+    if (!admin) {
+      return NextResponse.json(
+        { message: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
 
-    const token = jwt.sign({ email, role: "admin" }, JWT_SECRET, { expiresIn: "1h" });
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return NextResponse.json(
+        { message: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
 
-    // Set cookie on the response. Return JSON so fetch() receives a 200 and the
-    // browser can persist the Set-Cookie header. The client will then redirect
-    // client-side to avoid opaqueredirect issues with fetch + redirect: 'manual'.
-    const res = NextResponse.json({ success: true, redirect: "/admin/dashboard" });
+    const token = jwt.sign(
+      { id: admin._id, email: admin.email, role: "admin" },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    const res = NextResponse.json({
+      success: true,
+      message: "Login successful",
+      redirect: "/adminlogin",
+    });
+
     res.cookies.set({
       name: "token",
       value: token,
@@ -32,13 +57,12 @@ export async function POST(req: NextRequest) {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 60,
+      maxAge: 7 * 24 * 60 * 60,
     });
 
-    console.log("✅ Admin logged in, cookie set; returning JSON for client-side redirect");
     return res;
-  } catch (error) {
-    console.error("🔥 Login error:", error);
+  } catch (error: any) {
+    console.error("Login error:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

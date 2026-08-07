@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { Ticket, PhoneCall, User, ShieldCheck, MapPin } from "lucide-react";
+import { Ticket, Sparkles, CheckCircle2, PhoneCall, User, ShieldCheck, MapPin } from "lucide-react";
 import WhatsAppCard from "@/app/components/WhatsAppCard";
 import { sectors, divisionDesignations, sectorDesignations, DistrictDesignations } from "../utils/hirarcyList";
 
@@ -24,6 +24,9 @@ export default function RegistrationForm() {
   const [foundUser, setFoundUser] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /* ----------------------------------------------------------
+   * Fetch Divisions
+   * -------------------------------------------------------- */
   useEffect(() => {
     let active = true;
 
@@ -31,6 +34,7 @@ export default function RegistrationForm() {
       .then((r) => r.json())
       .then((data) => {
         if (!active) return;
+
         const loaded =
           data?.success && Array.isArray(data.data)
             ? data.data.map((d: any) => d.divisionName || String(d))
@@ -52,6 +56,9 @@ export default function RegistrationForm() {
     return [];
   };
 
+  /* ----------------------------------------------------------
+   * Validation Rules
+   * -------------------------------------------------------- */
   const validators: Record<string, (val: string, state: any) => string> = {
     name: (v) => (!v.trim() ? "Please enter your full name." : ""),
     mobile: (v) => (/^[0-9]{10}$/.test(v) ? "" : "Enter a valid 10-digit mobile number."),
@@ -111,12 +118,15 @@ export default function RegistrationForm() {
     }));
   };
 
+  /* ----------------------------------------------------------
+   * Mobile Check API
+   * -------------------------------------------------------- */
   const checkMobile = async () => {
     const msg = validate("mobile", formData.mobile);
     if (msg) return setErrors({ mobile: msg });
 
     try {
-      const res = await fetch(`/api/grandconclave?mobile=${formData.mobile}`);
+      const res = await fetch(`/api/grandgathering?mobile=${formData.mobile}`);
       const data = await res.json();
 
       if (data?.success && data.user) setFoundUser(data.user);
@@ -133,6 +143,9 @@ export default function RegistrationForm() {
     setFormData(defaultForm);
   };
 
+  /* ----------------------------------------------------------
+   * Submit
+   * -------------------------------------------------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -143,7 +156,7 @@ export default function RegistrationForm() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/grandconclave", {
+      const res = await fetch("/api/grandgathering", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -174,27 +187,28 @@ export default function RegistrationForm() {
 
   return (
     <div className="w-full flex justify-center py-6">
-      <div className="relative w-full max-w-3xl rounded-3xl p-8 md:p-12 bg-slate-900/80 backdrop-blur-2xl border border-emerald-500/20 shadow-2xl shadow-emerald-900/30 overflow-hidden text-white">
+      <div className="relative w-full max-w-3xl rounded-3xl p-8 md:p-12 bg-slate-900/80 backdrop-blur-2xl border border-purple-500/20 shadow-2xl shadow-purple-900/30 overflow-hidden text-white">
         
         {/* Glow ambient accent */}
-        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-emerald-600/20 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-purple-600/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
 
         {/* Header */}
         <div className="text-center mb-8 relative z-10">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 shadow-lg shadow-emerald-600/30 mb-3">
+          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30 mb-3">
             <Ticket className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-white via-emerald-100 to-amber-200 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-white via-purple-100 to-amber-200 bg-clip-text text-transparent">
             Delegate Registration
           </h2>
-          <p className="text-emerald-200/70 text-sm mt-1">
-            GRAND CONCLAVE — SSF Kozhikode South
+          <p className="text-purple-200/70 text-sm mt-1">
+            GRAND GATHERING — SSF Kozhikode South
           </p>
         </div>
 
         {/* Existing User Ticket View */}
         {foundUser ? (
-          <div className="relative z-10 bg-slate-800/80 p-6 rounded-2xl border border-emerald-500/30 shadow-inner">
+          <div className="relative z-10 bg-slate-800/80 p-6 rounded-2xl border border-purple-500/30 shadow-inner">
             <WhatsAppCard
               name={foundUser.name}
               mobile={foundUser.mobile}
@@ -205,7 +219,7 @@ export default function RegistrationForm() {
               <button
                 type="button"
                 onClick={resetMobileCheck}
-                className="px-6 py-2.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-400/30 transition text-sm font-medium"
+                className="px-6 py-2.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-400/30 transition text-sm font-medium"
               >
                 Register Another Number
               </button>
@@ -213,9 +227,9 @@ export default function RegistrationForm() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-            {/* Mobile Field */}
+            {/* Mobile Number Verification */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-emerald-200 flex items-center gap-2">
+              <label className="text-sm font-semibold text-purple-200 flex items-center gap-2">
                 <PhoneCall className="w-4 h-4 text-amber-400" />
                 Mobile Number
               </label>
@@ -226,15 +240,15 @@ export default function RegistrationForm() {
                   value={formData.mobile}
                   onChange={(e) => updateField("mobile", e.target.value)}
                   disabled={mobileChecked}
-                  className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.mobile ? "border-red-500" : "border-emerald-500/30 focus:border-emerald-400"
+                  className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-purple-500 ${
+                    errors.mobile ? "border-red-500" : "border-purple-500/30 focus:border-purple-400"
                   }`}
                 />
                 {!mobileChecked ? (
                   <button
                     type="button"
                     onClick={checkMobile}
-                    className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 font-semibold shadow-lg shadow-emerald-600/30 transition active:scale-95 text-sm whitespace-nowrap"
+                    className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold shadow-lg shadow-purple-600/30 transition active:scale-95 text-sm whitespace-nowrap"
                   >
                     Check
                   </button>
@@ -242,7 +256,7 @@ export default function RegistrationForm() {
                   <button
                     type="button"
                     onClick={resetMobileCheck}
-                    className="px-6 py-3.5 rounded-2xl bg-slate-700 hover:bg-slate-600 text-emerald-200 font-semibold transition active:scale-95 text-sm whitespace-nowrap"
+                    className="px-6 py-3.5 rounded-2xl bg-slate-700 hover:bg-slate-600 text-purple-200 font-semibold transition active:scale-95 text-sm whitespace-nowrap"
                   >
                     Change
                   </button>
@@ -256,7 +270,7 @@ export default function RegistrationForm() {
               <div className="space-y-6 animate-fadeIn">
                 {/* Full Name */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-emerald-200 flex items-center gap-2">
+                  <label className="text-sm font-semibold text-purple-200 flex items-center gap-2">
                     <User className="w-4 h-4 text-amber-400" />
                     Full Name
                   </label>
@@ -265,8 +279,8 @@ export default function RegistrationForm() {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={(e) => updateField("name", e.target.value)}
-                    className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-emerald-500 ${
-                      errors.name ? "border-red-500" : "border-emerald-500/30 focus:border-emerald-400"
+                    className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-purple-500 ${
+                      errors.name ? "border-red-500" : "border-purple-500/30 focus:border-purple-400"
                     }`}
                   />
                   {errors.name && <p className="text-red-400 text-xs">{errors.name}</p>}
@@ -274,7 +288,7 @@ export default function RegistrationForm() {
 
                 {/* Organization Level */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-emerald-200 flex items-center gap-2">
+                  <label className="text-sm font-semibold text-purple-200 flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-amber-400" />
                     Organization Level
                   </label>
@@ -286,8 +300,8 @@ export default function RegistrationForm() {
                         onClick={() => updateField("organizationLevel", lvl)}
                         className={`py-3 px-3 rounded-2xl border text-sm font-semibold capitalize transition-all ${
                           formData.organizationLevel === lvl
-                            ? "bg-gradient-to-r from-emerald-600 to-teal-600 border-emerald-400 shadow-md text-white"
-                            : "bg-slate-800/70 border-emerald-500/20 text-emerald-200/80 hover:bg-slate-800"
+                            ? "bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-400 shadow-md text-white"
+                            : "bg-slate-800/70 border-purple-500/20 text-purple-200/80 hover:bg-slate-800"
                         }`}
                       >
                         {lvl}
@@ -301,13 +315,13 @@ export default function RegistrationForm() {
 
                 {/* Designation */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-emerald-200">Designation</label>
+                  <label className="text-sm font-semibold text-purple-200">Designation</label>
                   <select
                     value={formData.designation}
                     disabled={!formData.organizationLevel}
                     onChange={(e) => updateField("designation", e.target.value)}
-                    className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-emerald-500 ${
-                      errors.designation ? "border-red-500" : "border-emerald-500/30 focus:border-emerald-400"
+                    className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-purple-500 ${
+                      errors.designation ? "border-red-500" : "border-purple-500/30 focus:border-purple-400"
                     } ${!formData.organizationLevel ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <option value="" className="bg-slate-900 text-gray-300">
@@ -328,15 +342,15 @@ export default function RegistrationForm() {
                 {(formData.organizationLevel === "division" ||
                   formData.organizationLevel === "sector") && (
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-emerald-200 flex items-center gap-2">
+                    <label className="text-sm font-semibold text-purple-200 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-amber-400" />
                       Division
                     </label>
                     <select
                       value={formData.division}
                       onChange={(e) => updateField("division", e.target.value)}
-                      className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-emerald-500 ${
-                        errors.division ? "border-red-500" : "border-emerald-500/30 focus:border-emerald-400"
+                      className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-purple-500 ${
+                        errors.division ? "border-red-500" : "border-purple-500/30 focus:border-purple-400"
                       }`}
                     >
                       <option value="" className="bg-slate-900 text-gray-300">
@@ -357,13 +371,13 @@ export default function RegistrationForm() {
                 {/* Sector Dropdown */}
                 {formData.organizationLevel === "sector" && (
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-emerald-200">Sector</label>
+                    <label className="text-sm font-semibold text-purple-200">Sector</label>
                     <select
                       value={formData.sector}
                       disabled={!formData.division}
                       onChange={(e) => updateField("sector", e.target.value)}
-                      className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-emerald-500 ${
-                        errors.sector ? "border-red-500" : "border-emerald-500/30 focus:border-emerald-400"
+                      className={`w-full rounded-2xl px-4 py-3.5 bg-slate-800/90 border transition-all text-white outline-none focus:ring-2 focus:ring-purple-500 ${
+                        errors.sector ? "border-red-500" : "border-purple-500/30 focus:border-purple-400"
                       } ${!formData.division ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       <option value="" className="bg-slate-900 text-gray-300">
