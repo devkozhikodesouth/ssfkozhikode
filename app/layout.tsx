@@ -11,7 +11,7 @@ const googleSans = Plus_Jakarta_Sans({
 });
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://ssfkozhikodesouth.com";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://ssfkozhikodesouth.in";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
