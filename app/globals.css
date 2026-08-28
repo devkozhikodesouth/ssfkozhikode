@@ -1,6 +1,24 @@
 @import "tailwindcss";
 @plugin "daisyui";  
 
+@font-face {
+  font-family: 'Cooper Black';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Cooper Black'), url('https://fonts.cdnfonts.com/s/14988/COOPBL.woff') format('woff');
+}
+
+@theme {
+  --font-cooper: "Cooper Black", "Cooper", var(--font-cooper-font), "Caprasimo", serif;
+}
+
+/* Cooper Black font for SSF branding */
+.font-cooper {
+  font-family: "Cooper Black", "Cooper", var(--font-cooper-font), "Caprasimo", serif !important;
+  font-weight: normal !important;
+  letter-spacing: -0.01em;
+}
+
 /* Application Font & Background */
 :root,
 html,

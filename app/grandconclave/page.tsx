@@ -53,7 +53,7 @@ export default function GrandConclaveLanding() {
           >
             <motion.div variants={itemAnim} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-900/50 border border-emerald-400/30 text-emerald-200 text-xs sm:text-sm font-semibold backdrop-blur-md mb-4 shadow-lg shadow-emerald-950/40">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>SSF Kozhikode South</span>
+              <span><span className="font-cooper">SSF</span> Kozhikode South</span>
             </motion.div>
 
             <motion.h1
@@ -154,7 +154,7 @@ export default function GrandConclaveLanding() {
                   </div>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-white tracking-wider">
-                  SSF KOZHIKODE SOUTH
+                  <span className="font-cooper">SSF</span> KOZHIKODE SOUTH
                 </h3>
                 <p className="text-xs sm:text-sm text-emerald-200/80 mt-1">
                   Grand Conclave Leadership Conference

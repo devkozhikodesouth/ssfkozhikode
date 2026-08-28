@@ -36,7 +36,7 @@ export default function StudentGalaLanding() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/50 border border-blue-400/30 text-blue-200 text-xs sm:text-sm font-semibold backdrop-blur-md mb-4 shadow-lg shadow-blue-950/40">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>SSF Kozhikode South</span>
+              <span><span className="font-cooper">SSF</span> Kozhikode South</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] mb-4">

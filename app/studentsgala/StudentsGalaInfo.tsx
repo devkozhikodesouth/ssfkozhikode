@@ -15,13 +15,13 @@ const StudentsGalaInfo = () => {
       content: (
         <>
           <p className="leading-relaxed text-gray-700">
-            The <strong>Sunni Students’ Federation (SSF)</strong> is a national
+            The <strong>Sunni Students’ Federation (<span className="font-cooper font-normal">SSF</span>)</strong> is a national
             student organization committed to nurturing the intellectual,
             moral, and social development of students across India.
           </p>
           <p className="leading-relaxed text-gray-700 mt-3">
             Through its diverse educational, cultural, and leadership programs,
-            SSF empowers young people to become <em>informed thinkers</em>,
+            <span className="font-cooper font-normal"> SSF</span> empowers young people to become <em>informed thinkers</em>,
             <em> responsible citizens</em>, and
             <em> compassionate leaders</em>.
           </p>
@@ -36,7 +36,7 @@ const StudentsGalaInfo = () => {
           <p className="leading-relaxed text-gray-700 mb-3">
             <strong>Students Gala</strong> is an exciting gathering for higher
             secondary students, organized by
-            <strong> SSF Kozhikode South District</strong>. The event takes
+            <strong> <span className="font-cooper font-normal">SSF</span> Kozhikode South District</strong>. The event takes
             place on <strong>November 29 at Kadalundi, Feroke</strong>.
           </p>
           <p className="leading-relaxed text-gray-700">

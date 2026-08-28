@@ -24,7 +24,7 @@ export default function Pay() {
           </div>
 
           <h1 className="mt-4 text-2xl font-bold text-gray-900">
-            SSF Kozhikode
+            <span className="font-cooper">SSF</span> Kozhikode
           </h1>
 
           <p className="mt-2 text-gray-500">Hadya For Sahithyotsav</p>

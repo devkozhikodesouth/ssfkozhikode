@@ -48,7 +48,7 @@ export default function GrandConclave26Page() {
             {/* Organization Badge */}
             <motion.div variants={itemAnim} className="">
               <span className="text-xs sm:text-sm font-medium uppercase -ms-42 sm:ms-0 tracking-widest text-purple-700 mb-2">
-                SSF Kozhikode South
+                <span className="font-cooper">SSF</span> Kozhikode South
               </span>
             </motion.div>
 
@@ -144,7 +144,7 @@ export default function GrandConclave26Page() {
                   </div>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-medium text-slate-900 tracking-wide">
-                  SSF KOZHIKODE SOUTH
+                  <span className="font-cooper">SSF</span> KOZHIKODE SOUTH
                 </h3>
                 <p className="text-sm sm:text-base text-purple-700 mt-1 font-normal">
                   Grand Conclave 26 Delegate Conference

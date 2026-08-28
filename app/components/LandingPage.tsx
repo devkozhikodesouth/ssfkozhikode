@@ -32,7 +32,7 @@ const LandingPage = () => {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-600 max-w-2xl font-normal leading-relaxed mb-10 px-2">
-            Welcome to the official portal of SSF Kozhikode South. Serving delegates across units, sectors, and divisions.
+            Welcome to the official portal of <span className="font-cooper">SSF</span> Kozhikode South. Serving delegates across units, sectors, and divisions.
           </p>
 
           {/* Primary Event Card */}
@@ -49,7 +49,7 @@ const LandingPage = () => {
                   Grand Conclave 26
                 </h3>
                 <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed font-normal">
-                  Jamia Markaz, Karanthur. The flagship delegate conference empowering student leadership across sectors and divisions in SSF Kozhikode South.
+                  Jamia Markaz, Karanthur. The flagship delegate conference empowering student leadership across sectors and divisions in <span className="font-cooper">SSF</span> Kozhikode South.
                 </p>
               </div>
 

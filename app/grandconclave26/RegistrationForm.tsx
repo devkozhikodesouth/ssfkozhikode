@@ -206,7 +206,7 @@ export default function RegistrationForm() {
             Delegate Registration
           </h2>
           <p className="text-purple-700 text-sm sm:text-base mt-1 font-normal">
-            GRAND CONCLAVE 26 — SSF Kozhikode South
+            GRAND CONCLAVE 26 — <span className="font-cooper">SSF</span> Kozhikode South
           </p>
         </div>
 

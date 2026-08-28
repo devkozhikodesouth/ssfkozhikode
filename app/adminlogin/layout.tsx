@@ -111,7 +111,7 @@ export default function AdminLayout({
             </div>
             {sidebarOpen && (
               <div>
-                <p className="font-bold leading-tight text-slate-900">SSF Admin</p>
+                <p className="font-bold leading-tight text-slate-900"><span className="font-cooper">SSF</span> Admin</p>
                 <p className="text-xs text-slate-500 font-medium">Management Panel</p>
               </div>
             )}
@@ -169,7 +169,7 @@ export default function AdminLayout({
                   <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     S
                   </div>
-                  <span>SSF Admin Panel</span>
+                  <span><span className="font-cooper">SSF</span> Admin Panel</span>
                 </div>
                 <button
                   onClick={() => setMobileOpen(false)}

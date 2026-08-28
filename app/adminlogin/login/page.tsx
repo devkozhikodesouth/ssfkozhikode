@@ -59,7 +59,7 @@ export default function LoginPage() {
             Admin Portal
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            SSF Kozhikode South Management Panel
+            <span className="font-cooper">SSF</span> Kozhikode South Management Panel
           </p>
         </div>
 

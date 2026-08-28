@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Caprasimo } from "next/font/google";
 import "./globals.css";
 import LayoutClient from "./components/LayoutClient";
 
@@ -7,6 +7,13 @@ const googleSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-google-sans",
+  display: "swap",
+});
+
+const cooperFont = Caprasimo({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-cooper-font",
   display: "swap",
 });
 
@@ -61,7 +68,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="light"
-      className={googleSans.variable}
+      className={`${googleSans.variable} ${cooperFont.variable}`}
     >
       <body
         className={`${googleSans.className} min-h-screen bg-[#FCFCFC] [background:radial-gradient(ellipse_55%_45%_at_50%_55%,#B4D2EB_0%,#EAF4FF_35%,#F7FBFF_60%,#FCFCFC_100%)] bg-fixed bg-no-repeat bg-cover antialiased`}

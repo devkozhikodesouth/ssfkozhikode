@@ -192,7 +192,7 @@ export default function RegistrationForm() {
             Delegate Registration
           </h2>
           <p className="text-emerald-200/70 text-sm mt-1">
-            GRAND CONCLAVE — SSF Kozhikode South
+            GRAND CONCLAVE — <span className="font-cooper">SSF</span> Kozhikode South
           </p>
         </div>
 
