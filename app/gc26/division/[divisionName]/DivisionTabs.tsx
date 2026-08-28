@@ -15,7 +15,7 @@ export default function DivisionTabs({ divisionName }: { divisionName: string })
   return (
     <div className="relative z-20 pointer-events-auto">
       {/* Tab Switcher */}
-      <div className="flex max-w-md mx-auto mb-8 bg-slate-800/80 p-1.5 rounded-2xl border border-purple-500/20 backdrop-blur-xl">
+      <div className="flex max-w-md mx-auto mb-8 bg-gray-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -23,8 +23,8 @@ export default function DivisionTabs({ divisionName }: { divisionName: string })
             onClick={() => setActive(tab.id)}
             className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer ${
               active === tab.id
-                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white shadow text-purple-700 font-extrabold"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
             }`}
           >
             {tab.label}
@@ -35,10 +35,10 @@ export default function DivisionTabs({ divisionName }: { divisionName: string })
       {/* Content */}
       <div>
         {active === "divdelegates" && (
-          <DivisionDelegatesTable key={`unit-${divisionName}`} divisionName={divisionName} />
+          <DivisionDelegatesTable key={`unit-${divisionName}`} divisionName={divisionName} lightMode={true} />
         )}
         {active === "sectordelegates" && (
-          <StudentsDetails divisionName={divisionName} />
+          <StudentsDetails divisionName={divisionName} lightMode={true} />
         )}
       </div>
     </div>
