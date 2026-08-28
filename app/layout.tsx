@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Grand Conclave 26 | SSF Kozhikode South",
     description: "Official portal of Grand Conclave 26 — SSF Kozhikode South",
+    url: "https://ssfkozhikodesouth.com",
+    siteName: "SSF Kozhikode South",
+    locale: "en_US",
+    type: "website",
     images: [
       {
         url: "/thumb.jpg",
