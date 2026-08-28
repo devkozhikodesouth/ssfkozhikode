@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     description: "Official portal of Grand Conclave 26 — SSF Kozhikode South",
     images: [
       {
-        url: "/thumb.webp",
+        url: "/thumb.jpg",
         width: 1200,
         height: 630,
         alt: "Grand Conclave 26",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Grand Conclave 26 | SSF Kozhikode South",
     description: "Official portal of Grand Conclave 26 — SSF Kozhikode South",
-    images: ["/thumb.webp"],
+    images: ["/thumb.jpg"],
   },
 };
 
