@@ -27,30 +27,30 @@ const Navbar: React.FC = () => {
   const navItems = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
-    { name: "Grand Gathering", href: "/grandgathering" },
+    { name: "Grand Conclave 26", href: "/grandconclave26" },
   ];
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full bg-transparent py-4 transition-all duration-300">
+    <header className="fixed top-0 left-0 z-50 w-full bg-white border-b border-slate-200 py-3.5 transition-all duration-300 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
-          <img src="/logo.png" width={32} height={32} alt="SSF Logo" className="drop-shadow" />
-          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+          <img src="/logo.png" width={32} height={32} alt="SSF Logo" className="drop-shadow-sm" />
+          <h2 className="text-xl sm:text-2xl font-medium text-slate-900 tracking-tight">
             SSF Kozhikode South
           </h2>
         </Link>
 
         {/* Desktop Menu */}
-        <nav className="hidden lg:flex items-center gap-8 font-medium text-white">
+        <nav className="hidden lg:flex items-center gap-8 font-medium text-slate-700">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className={`transition text-sm font-semibold ${
+              className={`transition text-sm sm:text-base font-medium ${
                 pathname === item.href
-                  ? "text-purple-400 font-bold border-b-2 border-purple-400 pb-1"
-                  : "text-slate-300 hover:text-white"
+                  ? "text-purple-600 font-medium border-b-2 border-purple-600 pb-1"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               {item.name}
@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
         <div className="lg:hidden">
           <button
             onClick={() => setNavbarOpen(!navbarOpen)}
-            className="text-white p-2 rounded-lg focus:outline-none bg-slate-950/60 backdrop-blur-md border border-purple-500/20"
+            className="text-slate-800 p-2 rounded-xl focus:outline-none bg-white border border-slate-200 shadow-sm"
             aria-label="Toggle Menu"
           >
             <Icon icon={navbarOpen ? "tabler:x" : "tabler:menu-2"} width={24} />
@@ -70,34 +70,37 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Menu Drawer (Solid light, no blur) */}
       <div
         ref={mobileMenuRef}
-        className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-slate-950 text-white shadow-2xl transform transition-transform duration-300 ${
+        className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-white text-slate-900 shadow-2xl transform transition-transform duration-300 ${
           navbarOpen ? "translate-x-0" : "translate-x-full"
-        } z-50 border-l border-purple-500/20`}
+        } z-50 border-l border-slate-200 flex flex-col`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-purple-500/20">
-          <h2 className="text-base font-bold text-white">SSF Kozhikode South</h2>
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50/80">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" width={24} height={24} alt="SSF Logo" />
+            <h2 className="text-base font-medium text-slate-900">SSF Kozhikode</h2>
+          </div>
           <button
             onClick={() => setNavbarOpen(false)}
-            className="text-slate-400 hover:text-white"
+            className="text-slate-400 hover:text-slate-800 p-1 rounded-lg hover:bg-slate-200/60 transition"
             aria-label="Close Menu"
           >
-            <Icon icon="tabler:x" width={24} />
+            <Icon icon="tabler:x" width={22} />
           </button>
         </div>
 
-        <nav className="flex flex-col items-start p-4 space-y-4 text-base">
+        <nav className="flex flex-col items-start p-4 space-y-2 text-base">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               onClick={() => setNavbarOpen(false)}
-              className={`w-full py-2 transition font-medium ${
+              className={`w-full px-3.5 py-2.5 rounded-xl transition font-medium text-sm sm:text-base ${
                 pathname === item.href
-                  ? "text-purple-400 font-bold border-l-4 border-purple-500 pl-3"
-                  : "text-slate-300 hover:text-white"
+                  ? "text-purple-600 bg-purple-50 font-medium border-l-4 border-purple-600 pl-3"
+                  : "text-slate-700 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
               {item.name}
@@ -106,10 +109,10 @@ const Navbar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Overlay */}
+      {/* Overlay (Clean background, no blur) */}
       {navbarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          className="fixed inset-0 bg-slate-900/30 z-40 transition-opacity"
           onClick={() => setNavbarOpen(false)}
         />
       )}

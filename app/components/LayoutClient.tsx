@@ -4,6 +4,7 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import TouchGlowEffect from "./TouchGlowEffect";
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -11,6 +12,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   return (
     <>
+      <TouchGlowEffect />
       {!isAdminRoute && <Navbar />}
       {children}
       {!isAdminRoute && <Footer />}

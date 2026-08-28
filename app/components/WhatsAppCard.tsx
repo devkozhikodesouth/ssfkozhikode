@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import QRCode from "qrcode";
 import html2canvas from "html2canvas";
 import { Colors } from "../constants/colors";
-import { Download, Share2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 
 type WhatsAppCardProps = {
   name: string;
@@ -18,6 +18,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
   const cardRef = useRef<HTMLDivElement>(null);
   const [generatedFile, setGeneratedFile] = useState<File | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Generate High Quality QR Code
   useEffect(() => {
@@ -27,7 +28,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
       .catch((err) => console.error("QR generation failed:", err));
   }, [ticket]);
 
-  // Capture HD Image for download/share
+  // Capture HD Image for export
   useEffect(() => {
     if (!name || !mobile || !ticket) return;
 
@@ -55,49 +56,28 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
     return () => clearTimeout(timeout);
   }, [name, mobile, ticket]);
 
-  // Download HD Image
-  const downloadImage = () => {
-    if (!generatedFile) return;
-    const url = URL.createObjectURL(generatedFile);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = generatedFile.name;
-    a.click();
-  };
-
-  // Direct WhatsApp Text Share
-  const shareToWhatsAppText = () => {
-    const text = `*Grand Gathering — SSF Kozhikode South*\n\n📌 *Delegate Ticket Details*\n👤 *Name:* ${name}\n📱 *Mobile:* ${mobile}\n🎫 *Ticket Code:* ${ticket || "N/A"}\n\nThank you!`;
-    const cleanMobile = String(mobile).replace(/\D/g, "");
-    const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
-    const url = phoneParam
-      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
-      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
-  };
-
-  // Share native sheet with fallback
-  const shareImage = async () => {
-    if (!generatedFile) {
-      shareToWhatsAppText();
-      return;
-    }
-
+  // Download Ticket as Image
+  const handleDownloadImage = async () => {
+    if (!cardRef.current) return;
     try {
-      const shareData = {
-        files: [generatedFile],
-        title: "SSF Delegate Ticket",
-        text: `🎟 Ticket for ${name} (${ticket})`,
-      };
-
-      if (navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        shareToWhatsAppText();
-      }
+      setIsDownloading(true);
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        scale: 4,
+        backgroundColor: null,
+      });
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      const safeName = name ? name.trim().replace(/\s+/g, "_") : "Ticket";
+      link.download = `${safeName}_Grand_Conclave_26_Ticket.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (err) {
-      console.error(err);
-      shareToWhatsAppText();
+      console.error("Failed to download ticket image:", err);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -114,7 +94,7 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
             height: "1200px",
             transform: "scale(0.5)",
             transformOrigin: "top left",
-            backgroundImage: "url('/tiketgrand.png')",
+            backgroundImage: "url('/grandconclave26ticket.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -164,22 +144,23 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
       </div>
 
       {/* BUTTONS */}
-      <div className="flex flex-wrap justify-center gap-3 mt-2">
+      <div className="flex justify-center gap-3 mt-2">
         <button
-          onClick={downloadImage}
-          style={{ backgroundColor: Colors.accent }}
-          className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:brightness-110 transition active:scale-95"
+          onClick={handleDownloadImage}
+          disabled={isDownloading}
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-7 py-3 rounded-xl font-medium text-sm sm:text-base shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
         >
-          <Download size={18} />
-          Download Ticket
-        </button>
-
-        <button
-          onClick={shareToWhatsAppText}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition active:scale-95"
-        >
-          <Share2 size={18} />
-          Share to WhatsApp
+          {isDownloading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Downloading...</span>
+            </>
+          ) : (
+            <>
+              <Download size={18} />
+              <span>Download Ticket</span>
+            </>
+          )}
         </button>
       </div>
     </div>

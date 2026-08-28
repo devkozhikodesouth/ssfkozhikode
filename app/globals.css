@@ -1,6 +1,26 @@
-
 @import "tailwindcss";
 @plugin "daisyui";  
+
+/* Application Font & Background */
+:root,
+html,
+body {
+  font-family: var(--font-google-sans), "Google Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  background-color: #FCFCFC !important;
+  background-image: radial-gradient(
+    ellipse 55% 45% at 50% 55%,
+    #B4D2EB 0%,
+    #EAF4FF 35%,
+    #F7FBFF 60%,
+    #FCFCFC 100%
+  ) !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
 
 /* global.css */
 ::-webkit-scrollbar {
@@ -10,3 +30,4 @@
   background: #bfbfbf;
   border-radius: 10px;
 }
+

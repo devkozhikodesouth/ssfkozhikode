@@ -35,14 +35,14 @@ export default async function DivisionPage(
     : undefined;
 
   return (
-    <main className="min-h-screen bg-slate-900 py-10 px-4 flex justify-center text-white">
+    <main className="min-h-screen py-10 px-4 flex justify-center text-slate-900">
       {matchedDivisionName ? (
         <div className="w-full max-w-5xl mt-14 md:mt-10">
           <div className="text-center mb-8">
-            <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-semibold uppercase tracking-widest border border-purple-500/30">
-              Grand Gathering
+            <span className="px-3.5 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium uppercase tracking-widest border border-purple-200 shadow-sm">
+              Grand Conclave 26
             </span>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-2">
+            <h1 className="text-3xl md:text-4xl font-medium text-slate-900 mt-3">
               {matchedDivisionName} Division
             </h1>
           </div>

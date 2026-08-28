@@ -34,7 +34,7 @@ type NavGroupProps = {
 const MENU = [
   {
     id: "grand-gathering",
-    label: "Grand Gathering",
+    label: "Grand Conclave 26",
     icon: "✨",
     items: [
       { name: "Total Delegates", path: "/adminlogin/gg/totaldelegates" },

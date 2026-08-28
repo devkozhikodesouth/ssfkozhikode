@@ -11,8 +11,8 @@ export default function CountDown() {
   });
 
   useEffect(() => {
-    // Target date: August 13, 2026 17:30:00
-    const targetDate = new Date("2026-08-13T17:30:00").getTime();
+    // Target date: September 10, 2026 17:30:00
+    const targetDate = new Date("2026-09-10T17:30:00").getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -46,16 +46,16 @@ export default function CountDown() {
   ];
 
   return (
-    <div className="flex gap-3 sm:gap-4 justify-center md:justify-start my-4">
+    <div className="flex gap-2.5 sm:gap-4 justify-center md:justify-start my-3 sm:my-4">
       {items.map((item, idx) => (
         <div
           key={idx}
-          className="flex flex-col items-center justify-center w-16 sm:w-20 py-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg shadow-purple-500/10"
+          className="flex flex-col items-center justify-center w-16 sm:w-20 py-2.5 sm:py-3.5 rounded-2xl bg-white/90 backdrop-blur-md border border-purple-200/90 shadow-sm shadow-purple-500/5"
         >
-          <span className="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-purple-300 via-pink-200 to-amber-200 bg-clip-text text-transparent">
+          <span className="text-2xl sm:text-3xl font-medium bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-600 bg-clip-text text-transparent leading-none">
             {String(item.value).padStart(2, "0")}
           </span>
-          <span className="text-[10px] sm:text-xs font-medium text-purple-200/80 uppercase tracking-widest mt-1">
+          <span className="text-[10px] sm:text-xs font-medium text-purple-700 uppercase tracking-wider sm:tracking-widest mt-1.5">
             {item.label}
           </span>
         </div>
