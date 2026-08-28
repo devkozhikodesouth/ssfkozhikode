@@ -53,31 +53,31 @@ export default function TouchGlowEffect() {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {/* Smooth Following Glow Spotlight with Violet & Pale-Blue blend */}
+      {/* Smooth Following Glow Spotlight with Soft Pale-Blue & Subtle Violet blend */}
       <motion.div
-        className="absolute w-[420px] h-[420px] sm:w-[620px] sm:h-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[90px] transition-opacity duration-700"
+        className="absolute w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[90px] transition-opacity duration-700"
         style={{
           x: springX,
           y: springY,
-          opacity: isActive ? 0.8 : 0,
+          opacity: isActive ? 0.6 : 0,
           background:
-            "radial-gradient(circle, rgba(167, 139, 250, 0.6) 0%, rgba(139, 92, 246, 0.4) 25%, rgba(180, 210, 235, 0.45) 50%, rgba(234, 244, 255, 0) 75%)",
+            "radial-gradient(circle, rgba(180, 210, 235, 0.5) 0%, rgba(199, 210, 254, 0.3) 30%, rgba(221, 214, 254, 0.2) 50%, rgba(234, 244, 255, 0) 75%)",
         }}
       />
 
-      {/* Interactive Touch/Tap Violet Ripples */}
+      {/* Interactive Touch/Tap Subtle Ripples */}
       {touchRipples.map((ripple) => (
         <motion.div
           key={ripple.id}
-          initial={{ scale: 0.2, opacity: 0.9 }}
-          animate={{ scale: 2.5, opacity: 0 }}
+          initial={{ scale: 0.2, opacity: 0.55 }}
+          animate={{ scale: 2.3, opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          className="absolute w-48 h-48 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[45px]"
+          className="absolute w-44 h-44 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[40px]"
           style={{
             left: ripple.x,
             top: ripple.y,
             background:
-              "radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, rgba(167, 139, 250, 0.6) 35%, rgba(180, 210, 235, 0.4) 60%, transparent 75%)",
+              "radial-gradient(circle, rgba(167, 139, 250, 0.4) 0%, rgba(180, 210, 235, 0.35) 45%, transparent 70%)",
           }}
         />
       ))}

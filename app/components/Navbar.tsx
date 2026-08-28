@@ -7,8 +7,22 @@ import { usePathname } from "next/navigation";
 
 const Navbar: React.FC = () => {
   const [navbarOpen, setNavbarOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 15) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -31,12 +45,18 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full bg-white border-b border-slate-200 py-3.5 transition-all duration-300 shadow-sm">
+    <header
+      className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
+        isScrolled
+          ? "bg-transparent sm:bg-white border-b border-transparent sm:border-slate-200 py-3 shadow-none sm:shadow-sm"
+          : "bg-transparent border-b border-transparent py-4"
+      }`}
+    >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <img src="/logo.png" width={32} height={32} alt="SSF Logo" className="drop-shadow-sm" />
-          <h2 className="text-xl sm:text-2xl font-medium text-slate-900 tracking-tight">
+          <h2 className="hidden sm:block text-xl sm:text-2xl font-medium text-slate-900 tracking-tight">
             SSF Kozhikode South
           </h2>
         </Link>

@@ -33,14 +33,14 @@ type NavGroupProps = {
 ────────────────────────────── */
 const MENU = [
   {
-    id: "grand-gathering",
+    id: "gc26",
     label: "Grand Conclave 26",
     icon: "✨",
     items: [
-      { name: "Total Delegates", path: "/adminlogin/gg/totaldelegates" },
-      { name: "Division Delegates", path: "/adminlogin/gg/division" },
-      { name: "Sector Delegates", path: "/adminlogin/gg/sector" },
-      { name: "Mark Attendance", path: "/adminlogin/gg/attendance" },
+      { name: "Total Delegates", path: "/adminlogin/gc26/totaldelegates" },
+      { name: "Division Delegates", path: "/adminlogin/gc26/division" },
+      { name: "Sector Delegates", path: "/adminlogin/gc26/sector" },
+      { name: "Mark Attendance", path: "/adminlogin/gc26/attendance" },
     ],
   },
   {
@@ -88,7 +88,7 @@ export default function AdminLayout({
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openGroup, setOpenGroup] = useState<string | null>("grand-gathering");
+  const [openGroup, setOpenGroup] = useState<string | null>("gc26");
 
   const logout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
@@ -226,15 +226,15 @@ export default function AdminLayout({
       {/* ───────── Mobile Bottom Navigation Bar ───────── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-lg border-t border-slate-200 z-30 flex items-center justify-around px-2 shadow-lg">
         <button
-          onClick={() => router.push("/adminlogin/gg/totaldelegates")}
+          onClick={() => router.push("/adminlogin/gc26/totaldelegates")}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
-            pathname.includes("/adminlogin/gg")
+            pathname.includes("/adminlogin/gc26")
               ? "text-purple-600"
               : "text-slate-500 hover:text-slate-800"
           }`}
         >
           <Sparkles className="w-5 h-5" />
-          <span>Gathering</span>
+          <span>GC26</span>
         </button>
 
         <button
