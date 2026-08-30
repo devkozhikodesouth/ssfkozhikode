@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@plugin "daisyui";  
+@plugin "daisyui";
 
 @font-face {
   font-family: 'Cooper Black';
@@ -28,13 +28,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   background-color: #FCFCFC !important;
-  background-image: radial-gradient(
-    ellipse 55% 45% at 50% 55%,
-    #B4D2EB 0%,
-    #EAF4FF 35%,
-    #F7FBFF 60%,
-    #FCFCFC 100%
-  ) !important;
+  background-image: radial-gradient(ellipse 55% 45% at 50% 55%,
+      #B4D2EB 0%,
+      #EAF4FF 35%,
+      #F7FBFF 60%,
+      #FCFCFC 100%) !important;
   background-attachment: fixed !important;
   background-repeat: no-repeat !important;
   background-size: cover !important;
@@ -44,8 +42,61 @@ body {
 ::-webkit-scrollbar {
   height: 6px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #bfbfbf;
   border-radius: 10px;
 }
 
+/* Conclave 26 Page Background */
+.bg-conclave26-radial-1 {
+  background-image: radial-gradient(
+    ellipse 55% 45% at 50% 55%,
+    #ff0f47 0%,
+    #ff475e 35%,
+    #ff8580 60%,
+    #ffab96 100%
+  ) !important;
+}
+
+.bg-conclave26-radial-2 {
+  background-image: radial-gradient(
+    ellipse 55% 45% at 50% 55%,
+    #ffab96 0%,
+    #ff8580 35%,
+    #ff475e 60%,
+    #ff0f47 100%
+  ) !important;
+}
+
+@keyframes colorFadeAnim {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-colorFade {
+  animation: colorFadeAnim 10s ease-in-out infinite;
+}
+
+@keyframes bgGlowAnim {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(3%, -4%) scale(1.05) rotate(2deg);
+  }
+  66% {
+    transform: translate(-2%, 3%) scale(0.97) rotate(-2deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+}
+
+.animate-bgGlow {
+  animation: bgGlowAnim 15s ease-in-out infinite alternate;
+}

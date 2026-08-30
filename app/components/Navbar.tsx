@@ -44,11 +44,15 @@ const Navbar: React.FC = () => {
     { name: "Grand Conclave 26", href: "/grandconclave26" },
   ];
 
+  const isConclave26 = pathname === "/grandconclave26";
+
   return (
     <header
       className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "bg-transparent sm:bg-white border-b border-transparent sm:border-slate-200 py-3 shadow-none sm:shadow-sm"
+          ? isConclave26
+            ? "bg-rose-950/40 border-b border-rose-500/20 py-3 shadow-lg backdrop-blur-md"
+            : "bg-transparent sm:bg-white border-b border-transparent sm:border-slate-200 py-3 shadow-none sm:shadow-sm"
           : "bg-transparent border-b border-transparent py-4"
       }`}
     >
@@ -56,20 +60,24 @@ const Navbar: React.FC = () => {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <img src="/logo.png" width={32} height={32} alt="SSF Logo" className="drop-shadow-sm" />
-          <h2 className="hidden sm:block text-xl sm:text-2xl font-medium text-slate-900 tracking-tight">
+          <h2 className={`hidden sm:block text-xl sm:text-2xl font-medium tracking-tight ${isConclave26 ? "text-white" : "text-slate-900"}`}>
             <span className="font-cooper">SSF</span> Kozhikode South
           </h2>
         </Link>
 
         {/* Desktop Menu */}
-        <nav className="hidden lg:flex items-center gap-8 font-medium text-slate-700">
+        <nav className={`hidden lg:flex items-center gap-8 font-medium ${isConclave26 ? "text-white/80" : "text-slate-700"}`}>
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               className={`transition text-sm sm:text-base font-medium ${
                 pathname === item.href
-                  ? "text-purple-600 font-medium border-b-2 border-purple-600 pb-1"
+                  ? isConclave26
+                    ? "text-white font-semibold border-b-2 border-white pb-1"
+                    : "text-purple-600 font-semibold border-b-2 border-purple-600 pb-1"
+                  : isConclave26
+                  ? "text-white/80 hover:text-white"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -82,7 +90,11 @@ const Navbar: React.FC = () => {
         <div className="lg:hidden">
           <button
             onClick={() => setNavbarOpen(!navbarOpen)}
-            className="text-slate-800 p-2 rounded-xl focus:outline-none bg-white border border-slate-200 shadow-sm"
+            className={`p-2 rounded-xl focus:outline-none transition-all ${
+              isConclave26
+                ? "text-white bg-rose-950/40 border border-rose-500/30 shadow-md hover:bg-rose-900/40"
+                : "text-slate-800 bg-white border border-slate-200 shadow-sm"
+            }`}
             aria-label="Toggle Menu"
           >
             <Icon icon={navbarOpen ? "tabler:x" : "tabler:menu-2"} width={24} />
