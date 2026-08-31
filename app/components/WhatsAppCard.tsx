@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import html2canvas from "html2canvas";
-import { Colors } from "../constants/colors";
 import { Download, Loader2 } from "lucide-react";
 
 type WhatsAppCardProps = {
@@ -13,100 +12,259 @@ type WhatsAppCardProps = {
   handleImage: (file: File) => void;
 };
 
-const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) => {
+const CARD_WIDTH = 1920;
+const CARD_HEIGHT = 1080;
+
+const WhatsAppCard = ({
+  name,
+  mobile,
+  ticket,
+  handleImage,
+}: WhatsAppCardProps) => {
   const qrRef = useRef<HTMLImageElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const [generatedFile, setGeneratedFile] = useState<File | null>(null);
-  const [isCapturing, setIsCapturing] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Generate High Quality QR Code
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [scale, setScale] = useState(0.25);
+
+  /*
+   * Responsive preview scale
+   * Real ticket always remains 1920 × 1080
+   */
+  useEffect(() => {
+    const updateScale = () => {
+      if (!containerRef.current) return;
+
+      const parentWidth =
+        containerRef.current.parentElement?.clientWidth || 320;
+
+      const availableWidth = Math.max(parentWidth - 32, 280);
+      const previewWidth = Math.min(availableWidth, 700);
+
+      setScale(previewWidth / CARD_WIDTH);
+    };
+
+    updateScale();
+
+    window.addEventListener("resize", updateScale);
+
+    return () => {
+      window.removeEventListener("resize", updateScale);
+    };
+  }, []);
+
+  /*
+   * Generate QR Code
+   */
   useEffect(() => {
     if (!ticket) return;
-    QRCode.toDataURL(String(ticket), { width: 800, margin: 1 })
-      .then((url) => qrRef.current && (qrRef.current.src = url))
-      .catch((err) => console.error("QR generation failed:", err));
+
+    QRCode.toDataURL(String(ticket), {
+      width: 800,
+      margin: 1,
+      errorCorrectionLevel: "H",
+    })
+      .then((url) => {
+        if (qrRef.current) {
+          qrRef.current.src = url;
+        }
+      })
+      .catch((error) => {
+        console.error("QR generation failed:", error);
+      });
   }, [ticket]);
 
-  // Capture HD Image for export
+  /*
+   * Create a clean 1920 × 1080 canvas
+   * without including the CSS preview scale.
+   */
+  const captureTicket = async (captureScale = 2) => {
+    if (!cardRef.current) return null;
+
+    const canvas = await html2canvas(cardRef.current, {
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+
+      /*
+       * 1920 × 1080 element
+       * scale: 2 gives a very high quality export.
+       */
+      scale: captureScale,
+
+      width: CARD_WIDTH,
+      height: CARD_HEIGHT,
+
+      /*
+       * Remove preview transform from cloned DOM
+       * before html2canvas renders it.
+       */
+      onclone: (clonedDocument) => {
+        const clonedCard = clonedDocument.querySelector(
+          '[data-ticket-card="true"]'
+        ) as HTMLElement | null;
+
+        if (clonedCard) {
+          clonedCard.style.transform = "none";
+          clonedCard.style.transformOrigin = "top left";
+        }
+      },
+    });
+
+    return canvas;
+  };
+
+  /*
+   * Automatically generate image for WhatsApp / sharing
+   */
   useEffect(() => {
     if (!name || !mobile || !ticket) return;
 
-    const timeout = setTimeout(async () => {
-      if (!cardRef.current) return;
+    const timeout = window.setTimeout(async () => {
+      try {
+        /*
+         * Wait until QR image has finished loading.
+         */
+        if (qrRef.current && !qrRef.current.complete) {
+          await new Promise<void>((resolve) => {
+            if (!qrRef.current) {
+              resolve();
+              return;
+            }
 
-      setIsCapturing(true);
+            qrRef.current.onload = () => resolve();
+            qrRef.current.onerror = () => resolve();
+          });
+        }
 
-      const canvas = await html2canvas(cardRef.current, {
-        useCORS: true,
-        scale: 6,
-        backgroundColor: null,
-      });
+        const canvas = await captureTicket(2);
 
-      setIsCapturing(false);
+        if (!canvas) return;
 
-      const dataUrl = canvas.toDataURL("image/png");
-      const blob = await (await fetch(dataUrl)).blob();
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return;
 
-      const file = new File([blob], `${name}-ticket.png`, { type: "image/png" });
-      setGeneratedFile(file);
-      handleImage(file);
+            const safeName = name
+              .trim()
+              .replace(/[^\w\s-]/g, "")
+              .replace(/\s+/g, "_");
+
+            const file = new File(
+              [blob],
+              `${safeName || "Ticket"}_Grand_Conclave_26_Ticket.png`,
+              {
+                type: "image/png",
+              }
+            );
+
+            handleImage(file);
+          },
+          "image/png",
+          1
+        );
+      } catch (error) {
+        console.error("Ticket generation failed:", error);
+      }
     }, 600);
 
-    return () => clearTimeout(timeout);
-  }, [name, mobile, ticket]);
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [name, mobile, ticket, handleImage]);
 
-  // Download Ticket as Image
+  /*
+   * Download Ticket
+   */
   const handleDownloadImage = async () => {
     if (!cardRef.current) return;
+
     try {
       setIsDownloading(true);
-      const canvas = await html2canvas(cardRef.current, {
-        useCORS: true,
-        scale: 4,
-        backgroundColor: null,
-      });
-      const dataUrl = canvas.toDataURL("image/png");
+
+      const canvas = await captureTicket(2);
+
+      if (!canvas) return;
+
+      const dataUrl = canvas.toDataURL("image/png", 1);
+
+      const safeName = name
+        ? name
+          .trim()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "_")
+        : "Ticket";
+
       const link = document.createElement("a");
+
       link.href = dataUrl;
-      const safeName = name ? name.trim().replace(/\s+/g, "_") : "Ticket";
       link.download = `${safeName}_Grand_Conclave_26_Ticket.png`;
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (err) {
-      console.error("Failed to download ticket image:", err);
+    } catch (error) {
+      console.error("Failed to download ticket image:", error);
     } finally {
       setIsDownloading(false);
     }
   };
 
+  const toTitleCase = (str: string) => {
+    return str
+      .toLowerCase()
+      .trim()
+      .split(/\s+/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const formattedName = name ? toTitleCase(name) : "";
   return (
-    <div className="flex flex-col items-center gap-4">
-      {/* PREVIEW WRAPPER */}
-      <div style={{ width: "300px", height: "600px", overflow: "hidden" }}>
-        {/* REAL CARD (HD SIZE FOR EXPORT) */}
+    <div
+      ref={containerRef}
+      className="flex w-full flex-col items-center gap-4"
+    >
+      {/* RESPONSIVE PREVIEW */}
+      <div
+        className="overflow-hidden rounded-xl"
+        style={{
+          width: `${CARD_WIDTH * scale}px`,
+          height: `${CARD_HEIGHT * scale}px`,
+        }}
+      >
+        {/* REAL 1920 × 1080 CARD */}
         <div
           ref={cardRef}
-          className="relative shadow-xl rounded-2xl border border-gray-200"
+          data-ticket-card="true"
+          className="relative overflow-hidden"
           style={{
-            width: "600px",
-            height: "1200px",
-            transform: "scale(0.5)",
+            width: `${CARD_WIDTH}px`,
+            height: `${CARD_HEIGHT}px`,
+
+            transform: `scale(${scale})`,
             transformOrigin: "top left",
+
             backgroundImage: "url('/grandconclave26ticket.webp')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundSize: "1920px 1080px",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "top left",
           }}
         >
-          {/* TICKET NO */}
+          {/* TICKET NUMBER */}
           <p
             className="absolute font-bold"
             style={{
-              top: "570px",
-              left: "150px",
-              fontSize: "25px",
-              color: Colors.accent,
+              top: "580px",
+              left: "1235px",
+
+              margin: 0,
+
+              fontSize: "50px",
+              lineHeight: 1,
+
+              color: "red",
             }}
           >
             {ticket}
@@ -114,45 +272,66 @@ const WhatsAppCard = ({ name, mobile, ticket, handleImage }: WhatsAppCardProps) 
 
           {/* NAME */}
           <p
-            className="absolute font-medium"
+            className="absolute font-medium text-blue-900"
             style={{
-              top: "600px",
-              left: "150px",
-              width: "360px",
-              fontSize: "25px",
-              lineHeight: "32px",
-              color: Colors.primary,
+              top: "650px",
+              left: "950px",
+              textAlign: "center",
+              justifyContent:'center',
+              justifyItems:'center',
+              width: "800px",
+              margin: 0,
+              fontSize: "40px",
+              lineHeight: "56px",
+
+              color: "#000",
             }}
           >
-            {name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}
+            {formattedName}
           </p>
 
-          {/* QR */}
+
+          {/* QR CODE */}
           <img
             ref={qrRef}
-            alt="QR"
+            alt={`QR code for ticket ${ticket || ""}`}
+            crossOrigin="anonymous"
             className="absolute"
             style={{
-              width: "250px",
-              height: "250px",
-              top: "675px",
-              left: "50%",
-              transform: "translateX(-50%)",
+              width: "300px",
+              height: "300px",
+              top: "280px",
+              left: "1200px",
+              objectFit: "contain",
             }}
           />
         </div>
       </div>
 
-      {/* BUTTONS */}
-      <div className="flex justify-center gap-3 mt-2">
+      {/* DOWNLOAD BUTTON */}
+      <div className="mt-2 flex justify-center gap-3">
         <button
+          type="button"
           onClick={handleDownloadImage}
           disabled={isDownloading}
-          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-7 py-3 rounded-xl font-medium text-sm sm:text-base shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+          className="
+            flex cursor-pointer items-center gap-2
+            rounded-xl
+            bg-gradient-to-r from-purple-600 to-indigo-600
+            px-7 py-3
+            text-sm font-medium text-white
+            shadow-lg shadow-purple-600/30
+            transition
+            hover:from-purple-500 hover:to-indigo-500
+            active:scale-95
+            disabled:cursor-not-allowed
+            disabled:opacity-75
+            sm:text-base
+          "
         >
           {isDownloading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
               <span>Downloading...</span>
             </>
           ) : (
