@@ -37,10 +37,12 @@ const WhatsAppCard = ({
       if (!containerRef.current) return;
 
       const parentWidth =
-        containerRef.current.parentElement?.clientWidth || 320;
+        containerRef.current.clientWidth ||
+        containerRef.current.parentElement?.clientWidth ||
+        320;
 
-      const availableWidth = Math.max(parentWidth - 32, 280);
-      const previewWidth = Math.min(availableWidth, 700);
+      // Full available width on mobile, capped at 750px on desktop
+      const previewWidth = Math.min(parentWidth, 750);
 
       setScale(previewWidth / CARD_WIDTH);
     };
@@ -228,7 +230,7 @@ const WhatsAppCard = ({
     >
       {/* RESPONSIVE PREVIEW */}
       <div
-        className="overflow-hidden rounded-xl"
+        className="overflow-hidden rounded-xl shadow-md border border-gray-200/50"
         style={{
           width: `${CARD_WIDTH * scale}px`,
           height: `${CARD_HEIGHT * scale}px`,
@@ -298,9 +300,9 @@ const WhatsAppCard = ({
             crossOrigin="anonymous"
             className="absolute"
             style={{
-              width: "300px",
-              height: "300px",
-              top: "280px",
+              width: "350px",
+              height: "350px",
+              top: "220px",
               left: "1200px",
               objectFit: "contain",
             }}

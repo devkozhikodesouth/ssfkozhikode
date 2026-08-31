@@ -198,7 +198,7 @@ export default function RegistrationForm() {
 
         {/* Existing User Ticket View */}
         {foundUser ? (
-          <div className="relative z-10 bg-slate-800/80 p-6 rounded-2xl border border-emerald-500/30 shadow-inner">
+          <div className="relative z-10 bg-slate-800/80 px-1 sm:px-2 py-4 sm:py-6 rounded-2xl border border-emerald-500/30 shadow-inner w-full">
             <WhatsAppCard
               name={foundUser.name}
               mobile={foundUser.mobile}

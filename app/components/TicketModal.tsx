@@ -88,8 +88,8 @@ const TicketModal: React.FC<TicketModalProps> = ({ open, onClose }) => {
   return (
     <>
       {open && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl w-11/12 sm:w-1/2 shadow-lg relative">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-2 sm:p-4">
+          <div className="bg-white px-1 sm:px-3 py-4 sm:py-6 rounded-2xl w-full sm:max-w-xl md:max-w-2xl shadow-lg relative">
             <h2 className="text-xl font-bold mb-4 text-center">Get Your Ticket 🎫</h2>
 
             {!foundUser && (
@@ -139,10 +139,10 @@ const TicketModal: React.FC<TicketModalProps> = ({ open, onClose }) => {
             )}
 
             {foundUser && (
-              <div className="flex flex-col items-center mt-4">
+              <div className="flex flex-col items-center mt-2 w-full">
                 {/* SPINNER LOADING */}
                 {imageLoading && (
-                  <div className="text-center py-6">
+                  <div className="text-center py-6 ">
                     <div className="w-8 h-8 border-4 border-gray-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
                     <p className="text-sm mt-2 text-gray-600">Generating preview...</p>
                   </div>

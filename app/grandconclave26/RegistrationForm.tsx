@@ -191,7 +191,7 @@ export default function RegistrationForm() {
 
   return (
     <div className="w-full flex justify-center py-6">
-      <div className="relative w-full max-w-3xl rounded-3xl p-8 md:p-12 bg-rose-950/45 backdrop-blur-2xl border border-rose-500/30 shadow-2xl shadow-rose-950/20 overflow-hidden text-white">
+      <div className="relative w-full max-w-3xl rounded-3xl p-1 md:p-12 bg-rose-950/45 backdrop-blur-2xl border border-rose-500/30 shadow-2xl shadow-rose-950/20 overflow-hidden text-white">
 
         {/* Glow ambient accent */}
         <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
@@ -212,7 +212,7 @@ export default function RegistrationForm() {
 
         {/* Existing User Ticket View */}
         {foundUser ? (
-          <div className="relative z-10 bg-rose-950/30 p-6 rounded-2xl border border-rose-500/20 shadow-inner">
+          <div className="relative z-10 bg-rose-950/30 px-1 sm:px-3 py-3 sm:py-6 rounded-2xl border border-rose-500/20 shadow-inner w-full">
             <WhatsAppCard
               name={foundUser.name}
               mobile={foundUser.mobile}
