@@ -259,8 +259,11 @@ const WhatsAppCard = ({
             className="absolute font-bold"
             style={{
               top: "580px",
-              left: "1235px",
-
+              left: "970px",
+  textAlign: "center",
+              justifyContent:'center',
+              justifyItems:'center',
+              width: "800px",
               margin: 0,
 
               fontSize: "50px",
