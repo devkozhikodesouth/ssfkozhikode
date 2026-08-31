@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Share2, CheckCircle2 } from "lucide-react";
+import { Search, Share2, CheckCircle2, BarChart3 } from "lucide-react";
 import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 interface Sector {
   _id: string;
   name: string;
+  count?: number;
 }
 
 interface Delegate {
@@ -35,6 +36,7 @@ export default function StudentsDetails({
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [showAttendedOnly, setShowAttendedOnly] = useState(false);
+  const [showSectorWiseSummary, setShowSectorWiseSummary] = useState(false);
 
   const { attendanceMode } = useAttendanceMode();
 
@@ -106,11 +108,7 @@ export default function StudentsDetails({
     .filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const shareSingleToWhatsApp = (d: Delegate) => {
-    let text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n📱 *Mobile:* ${d.phone}\n🏷️ *Designation:* ${d.designation || "N/A"}\n🎫 *Ticket:* ${d.ticket || "N/A"}\n📍 *Division / Sector:* ${divisionName} / ${d.sectorName}`;
-    if (attendanceMode) {
-      text += `\n✅ *Attendance:* ${d.attendance ? "Present" : "Not Marked"}`;
-    }
-    text += `\n\nThank you!`;
+    const text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n🏷️ *Position:* ${d.designation || "Delegate"}\n\nThank you!`;
 
     const cleanMobile = d.phone ? d.phone.replace(/\D/g, "") : "";
     const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
@@ -124,21 +122,10 @@ export default function StudentsDetails({
     if (filtered.length === 0) return;
     const currentSector = sectors.find((s) => s._id === selectedSectorId)?.name || "";
     const listItems = filtered
-      .map((d, i) => {
-        let line = `${i + 1}. *${d.name}* (${d.designation || "Delegate"})\n   📱 ${d.phone} | 🎫 ${d.ticket || "N/A"}`;
-        if (attendanceMode) {
-          line += ` | ${d.attendance ? "✅ Present" : "❌ Not Marked"}`;
-        }
-        return line;
-      })
-      .join("\n\n");
+      .map((d, i) => `${i + 1}. *${d.name}* (${d.designation || "Delegate"})`)
+      .join("\n");
 
-    let text = `*Grand Conclave 26 — ${divisionName} / ${currentSector} Sector Delegates*\n📊 *Total Delegates:* ${filtered.length}`;
-    if (attendanceMode) {
-      const attendedCount = filtered.filter((d) => d.attendance).length;
-      text += `\n✅ *Total Attended:* ${attendedCount}`;
-    }
-    text += `\n\n${listItems}\n\n*SSF Kozhikode South*`;
+    const text = `*Grand Conclave 26 — ${divisionName} / ${currentSector} Sector Delegates*\n📊 *Total Delegates:* ${filtered.length}\n\n${listItems}\n\n*SSF Kozhikode South*`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
@@ -187,9 +174,61 @@ export default function StudentsDetails({
                   : "bg-slate-800 text-purple-200 hover:bg-slate-700"
               }`}
             >
-              {sec.name}
+              {sec.name} {sec.count !== undefined ? `(${sec.count})` : ""}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Sector Wise Summary & Action Button */}
+      {!loadingSectors && sectors.length > 0 && (
+        <div className="flex flex-col items-center mb-6">
+          <button
+            type="button"
+            onClick={() => setShowSectorWiseSummary(!showSectorWiseSummary)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer border ${
+              showSectorWiseSummary
+                ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700"
+                : lightMode
+                ? "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                : "bg-slate-800 text-purple-200 border-purple-500/30 hover:bg-slate-700"
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>{showSectorWiseSummary ? "Hide Sector-wise Count" : "Show Sector-wise Count"}</span>
+          </button>
+          
+          {showSectorWiseSummary && (
+            <div className={`w-full mt-4 p-4 rounded-2xl border transition-all animate-fadeIn ${
+              lightMode
+                ? "bg-slate-50 border-slate-200 text-slate-800"
+                : "bg-slate-800/40 border-purple-500/20 text-white"
+            }`}>
+              <h3 className={`text-sm font-bold mb-3 flex items-center gap-2 ${lightMode ? "text-slate-900" : "text-purple-200"}`}>
+                <BarChart3 className="w-4 h-4 text-purple-500" />
+                Sector Wise Registration Summary
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {sectors.map((sec) => (
+                  <div
+                    key={sec._id}
+                    className={`p-3 rounded-xl border flex justify-between items-center transition-all ${
+                      lightMode
+                        ? "bg-white border-slate-200 shadow-sm"
+                        : "bg-slate-900/60 border-purple-500/10"
+                    }`}
+                  >
+                    <span className="font-semibold text-xs truncate max-w-[100px] sm:max-w-none">{sec.name}</span>
+                    <span className={`px-2.5 py-0.5 rounded-lg text-xs font-black shrink-0 ${
+                      lightMode ? "bg-purple-100 text-purple-700" : "bg-purple-900/40 text-amber-300"
+                    }`}>
+                      {sec.count ?? 0}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

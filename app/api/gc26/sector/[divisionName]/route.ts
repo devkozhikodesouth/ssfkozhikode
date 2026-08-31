@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
 import Division from "@/app/models/Division";
 import Sector from "@/app/models/Sector";
+import GrandConclave26 from "@/app/models/GrandConclave26";
 
 export async function GET(
   req: Request,
@@ -40,11 +41,19 @@ export async function GET(
       });
     }
 
-    const sectorList = sectors.map((sector) => ({
-      _id: sector._id,
-      name: sector.sectorName,
-      sectorName: sector.sectorName,
-    }));
+    const sectorList = await Promise.all(
+      sectors.map(async (sector) => {
+        const count = await GrandConclave26.countDocuments({
+          sectorId: sector._id,
+        });
+        return {
+          _id: sector._id,
+          name: sector.sectorName,
+          sectorName: sector.sectorName,
+          count,
+        };
+      })
+    );
 
     return NextResponse.json({
       divisionName: division.divisionName,

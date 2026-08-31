@@ -62,11 +62,7 @@ export default function DivisionDelegatesTable({
     .filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
 
   const shareSingleToWhatsApp = (d: Delegate) => {
-    let text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n📱 *Mobile:* ${d.mobile}\n🏷️ *Designation:* ${d.designation || "N/A"}\n🎫 *Ticket:* ${d.ticket || "N/A"}\n📍 *Division:* ${divisionName}`;
-    if (attendanceMode) {
-      text += `\n✅ *Attendance:* ${d.attendance ? "Present" : "Not Marked"}`;
-    }
-    text += `\n\nThank you!`;
+    const text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n🏷️ *Position:* ${d.designation || "Delegate"}\n\nThank you!`;
 
     const cleanMobile = d.mobile ? d.mobile.replace(/\D/g, "") : "";
     const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
@@ -79,21 +75,10 @@ export default function DivisionDelegatesTable({
   const shareFullListToWhatsApp = () => {
     if (filtered.length === 0) return;
     const listItems = filtered
-      .map((d, i) => {
-        let line = `${i + 1}. *${d.name}* (${d.designation || "Delegate"})\n   📱 ${d.mobile} | 🎫 ${d.ticket || "N/A"}`;
-        if (attendanceMode) {
-          line += ` | ${d.attendance ? "✅ Present" : "❌ Not Marked"}`;
-        }
-        return line;
-      })
-      .join("\n\n");
+      .map((d, i) => `${i + 1}. *${d.name}* (${d.designation || "Delegate"})`)
+      .join("\n");
 
-    let text = `*Grand Conclave 26 — ${divisionName} Division Delegates*\n📊 *Total Delegates:* ${filtered.length}`;
-    if (attendanceMode) {
-      const attendedCount = filtered.filter((d) => d.attendance).length;
-      text += `\n✅ *Total Attended:* ${attendedCount}`;
-    }
-    text += `\n\n${listItems}\n\n*SSF Kozhikode South*`;
+    const text = `*Grand Conclave 26 — ${divisionName} Division Delegates*\n📊 *Total Delegates:* ${filtered.length}\n\n${listItems}\n\n*SSF Kozhikode South*`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");

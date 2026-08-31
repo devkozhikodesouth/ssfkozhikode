@@ -42,11 +42,8 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
   const shareFullListToWhatsApp = () => {
     if (filteredStudents.length === 0) return;
     const listItems = filteredStudents
-      .map(
-        (d, i) =>
-          `${i + 1}. *${d.name}* (${d.designation || "Delegate"})\n   📱 ${d.phone} | 🎫 ${d.ticket || "N/A"}`
-      )
-      .join("\n\n");
+      .map((d, i) => `${i + 1}. *${d.name}* (${d.designation || "Delegate"})`)
+      .join("\n");
 
     const text = `*Grand Conclave — ${divisionName} / ${selectedSector} Sector Delegates*\n📊 *Total Delegates:* ${filteredStudents.length}\n\n${listItems}\n\n*SSF Kozhikode South*`;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
@@ -54,7 +51,7 @@ export default function StudentsDetails({ divisionName }: StudentsDetailsProps) 
   };
 
   const shareSingleToWhatsApp = (d: GrandConclaveUser) => {
-    const text = `*Grand Conclave — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n📱 *Mobile:* ${d.phone}\n🏷️ *Designation:* ${d.designation || "N/A"}\n🎫 *Ticket:* ${d.ticket || "N/A"}\n📍 *Division / Sector:* ${divisionName} / ${selectedSector}\n\nThank you!`;
+    const text = `*Grand Conclave — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n🏷️ *Position:* ${d.designation || "Delegate"}\n\nThank you!`;
     const cleanMobile = d.phone ? d.phone.replace(/\D/g, "") : "";
     const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
     const url = phoneParam

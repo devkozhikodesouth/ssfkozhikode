@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Calendar, Clock, MapPin, Sparkles, ChevronDown, Users, ShieldCheck, Ticket } from "lucide-react";
 
 import CountDown from "./CountDown";
@@ -27,11 +27,18 @@ export default function GrandConclave26Page() {
 
   const { scrollYProgress } = useScroll();
 
-  // Scroll animations for flight.png
-  const yVal = useTransform(scrollYProgress, [0, 0.4], [0, -320]);
-  const xVal = useTransform(scrollYProgress, [0, 0.4], [0, 280]);
-  const rotateVal = useTransform(scrollYProgress, [0, 0.4], [0, -18]);
-  const scaleVal = useTransform(scrollYProgress, [0, 0.4], [1, 0.65]);
+  // Scroll animations for flight.png (Right -> Top -> Left -> Bottom)
+  const yRaw = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6], [0, -120, -60, 380]);
+  const xRaw = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6], [0, 80, -150, -240]);
+  const rotateRaw = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6], [350, 260, 170, 80]);
+  const scaleRaw = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6], [1, 0.9, 0.8, 0.7]);
+
+  // Spring physics for ultra-smooth scroll lag
+  const springConfig = { damping: 20, stiffness: 90, mass: 0.4 };
+  const yVal = useSpring(yRaw, springConfig);
+  const xVal = useSpring(xRaw, springConfig);
+  const rotateVal = useSpring(rotateRaw, springConfig);
+  const scaleVal = useSpring(scaleRaw, springConfig);
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({
@@ -152,6 +159,7 @@ export default function GrandConclave26Page() {
                 <img
                   src="/flight.png"
                   alt="Flight to Grand Conclave 26"
+                  onClick={scrollToForm}
                   className="w-full h-auto max-h-[420px] object-contain drop-shadow-[0_20px_50px_rgba(255,15,71,0.25)] hover:scale-105 transition-all duration-500 active:scale-95 cursor-pointer"
                 />
               </motion.div>
