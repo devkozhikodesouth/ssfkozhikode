@@ -30,8 +30,8 @@ export default async function DivisionPage(
   // ✅ Reverse lookup (find key whose value matches route code)
   const matchedDivisionName = divisionName
     ? Object.keys(divisions).find(
-        (key) => divisions[key].toLowerCase() === divisionName.toLowerCase()
-      )
+      (key) => divisions[key].toLowerCase() === divisionName.toLowerCase()
+    )
     : undefined;
 
   console.log("Matched Division:", matchedDivisionName || "No match found");
@@ -46,11 +46,7 @@ export default async function DivisionPage(
         <div className="text-center mt-20 text-gray-700 dark:text-gray-300">
           <h1 className="text-2xl font-bold mb-2">Invalid Division</h1>
           <p>
-            The division code{" "}
-            <span className="font-semibold text-red-500">
-              {divisionName || "(empty)"}
-            </span>{" "}
-            was not found.
+            The URL was not found.
           </p>
         </div>
       )}

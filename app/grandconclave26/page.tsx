@@ -63,7 +63,7 @@ export default function GrandConclave26Page() {
               <img
                 src="/typoconclave26.webp"
                 alt="Grand Conclave 26"
-                className="h-45 sm:h-75 md:h-80 w-auto max-w-full object-contain drop-shadow-sm brightness-110"
+                className="h-28 sm:h-75  md:h-70 w-auto mt-4 max-w-full object-contain drop-shadow-sm brightness-110"
               />
             </motion.div>
 

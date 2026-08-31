@@ -43,6 +43,7 @@ export async function GET(
       designation: u.designation,
       divisionName: u.divisionId?.divisionName ?? "N/A",
       sectorName: u.sectorId?.sectorName ?? "N/A",
+      attendance: Boolean(u.attendance),
     }));
 
     return NextResponse.json({

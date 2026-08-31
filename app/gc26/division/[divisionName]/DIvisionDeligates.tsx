@@ -114,30 +114,15 @@ export default function DivisionDelegatesTable({
         </div>
 
         <div className="flex items-center gap-3">
-          <div
-            className={
-              lightMode
-                ? "text-left md:text-right bg-purple-50 px-4 py-2 rounded-2xl border border-purple-200"
-                : "text-left md:text-right bg-purple-900/30 px-4 py-2 rounded-2xl border border-purple-500/30"
-            }
-          >
-            <p
-              className={
-                lightMode
-                  ? "text-xs text-purple-700 uppercase tracking-wider font-bold"
-                  : "text-xs text-purple-200/70 uppercase tracking-wider font-semibold"
-              }
-            >
-              Total Delegates
-            </p>
-            <p
-              className={
-                lightMode ? "text-2xl font-black text-purple-700" : "text-2xl font-extrabold text-amber-300"
-              }
-            >
-              {filtered.length}
-            </p>
-          </div>
+      <div className="text-left md:text-right bg-purple-50 px-4 py-2 rounded-2xl border border-purple-200 flex items-center gap-2">
+  <p className="text-xs text-purple-700 uppercase tracking-wider font-bold">
+    Total Delegates:
+  </p>
+
+  <p className="text-2xl font-black text-purple-700">
+    {filtered.length}
+  </p>
+</div>
 
           <button
             onClick={shareFullListToWhatsApp}

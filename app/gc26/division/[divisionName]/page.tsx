@@ -25,13 +25,11 @@ export default async function DivisionPage(
     Thamarassery: "tha-k8p2",
   };
 
-  // Reverse lookup (find key whose value matches route code or matches division name)
+  // Reverse lookup (find key whose value matches route code ONLY)
   const matchedDivisionName = divisionName
     ? Object.keys(divisions).find(
-        (key) =>
-          divisions[key].toLowerCase() === divisionName.toLowerCase() ||
-          key.toLowerCase() === divisionName.toLowerCase()
-      )
+      (key) => divisions[key].toLowerCase() === divisionName.toLowerCase()
+    )
     : undefined;
 
   return (
@@ -52,11 +50,8 @@ export default async function DivisionPage(
         <div className="text-center mt-20 text-slate-400">
           <h1 className="text-2xl font-bold mb-2">Invalid Division</h1>
           <p>
-            The division code{" "}
-            <span className="font-semibold text-red-500">
-              {divisionName || "(empty)"}
-            </span>{" "}
-            was not found.
+                 The URL was not found.
+
           </p>
         </div>
       )}
