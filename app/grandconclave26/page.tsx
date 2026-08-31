@@ -69,7 +69,7 @@ export default function GrandConclave26Page() {
 
             <motion.p
               variants={itemAnim}
-              className="text-xs sm:text-base  lg:text-lg text-white/90 max-w-xl font-normal leading-snug sm:leading-relaxed mb-3 sm:mb-4 px-1 sm:px-0"
+              className="text-xs sm:text-base hidden sm:block  lg:text-lg text-white/90 max-w-xl font-normal leading-snug sm:leading-relaxed mb-3 sm:mb-4 px-1 sm:px-0"
             >
               The grand delegate conference empowering student leadership across sectors & divisions in Kozhikode South.
             </motion.p>
