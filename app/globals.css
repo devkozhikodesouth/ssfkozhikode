@@ -52,20 +52,20 @@ body {
 .bg-conclave26-radial-1 {
   background-image: radial-gradient(
     ellipse 55% 45% at 50% 55%,
-    #ff0f47 0%,
-    #ff475e 35%,
-    #ff8580 60%,
-    #ffab96 100%
+    #ffab96 0%,
+    #ff8580 35%,
+    #ff475e 60%,
+    #ff0f47 100%
   ) !important;
 }
 
 .bg-conclave26-radial-2 {
   background-image: radial-gradient(
     ellipse 55% 45% at 50% 55%,
-    #ffab96 0%,
-    #ff8580 35%,
-    #ff475e 60%,
-    #ff0f47 100%
+    #ff0f47 0%,
+    #ff475e 35%,
+    #ff8580 60%,
+    #ffab96 100%
   ) !important;
 }
 
