@@ -99,7 +99,11 @@ export default function GrandSectorList({
   const shareFullDivisionListToWhatsApp = () => {
     if (!data || data.sectors.length === 0) return;
 
-    const textBlocks = data.sectors.map((sec) => {
+    const sortedSectors = [...data.sectors].sort(
+      (a, b) => b.registrations.length - a.registrations.length
+    );
+
+    const textBlocks = sortedSectors.map((sec) => {
       const regs = showAttendedOnly
         ? sec.registrations.filter((r) => r.attendance)
         : sec.registrations;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Share2, CheckCircle2, BarChart3 } from "lucide-react";
+import { Search, Share2, CheckCircle2, BarChart3, Download } from "lucide-react";
 import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 interface Sector {
@@ -107,7 +107,11 @@ export default function StudentsDetails({
     .filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const shareSingleToWhatsApp = (d: Delegate) => {
-    const text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n🏷️ *Position:* ${d.designation || "Delegate"} \n📍 *Sector:* ${d.sectorName}\n\nThank you!`;
+    let text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n📱 *Mobile:* ${d.phone || "N/A"}\n🏷️ *Position:* ${d.designation || "Delegate"}\n🎫 *Ticket:* ${d.ticket || "N/A"}\n📍 *Sector:* ${d.sectorName}`;
+    if (attendanceMode) {
+      text += `\n✅ *Attendance:* ${d.attendance ? "Present" : "Not Marked"}`;
+    }
+    text += `\n\nThank you!`;
 
     const cleanMobile = d.phone ? d.phone.replace(/\D/g, "") : "";
     const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
@@ -120,13 +124,21 @@ export default function StudentsDetails({
   const shareSectorSummaryToWhatsApp = () => {
     if (sectors.length === 0) return;
 
-    const listItems = sectors
-      .map((sec) => `• ${sec.name} Sector: ${sec.count ?? 0}`)
+    // Sort sectors in descending order based on delegate count
+    const sortedSectors = [...sectors].sort((a, b) => {
+      const countA = a.count ?? 0;
+      const countB = b.count ?? 0;
+      if (countA !== countB) return countB - countA;
+      return (a.name || "").localeCompare(b.name || "");
+    });
+
+    const listItems = sortedSectors
+      .map((sec, i) => `${i + 1}. *${sec.name}* Sector: ${sec.count ?? 0}`)
       .join("\n");
 
     const total = sectors.reduce((sum, sec) => sum + (sec.count ?? 0), 0);
 
-    const text = `*GRAND CONCLAVE ’26 🌟*\n> 10th Sep Thursday 5:30pm @Markaz\n\n📌 Sector-wise Delegates\n\n${listItems}\n\n📊 Total Sector Delegates: ${total}\n\n©️ SSF ${divisionName} Division`;
+    let text = `*GRAND CONCLAVE ’26 🌟*\n> 10th Sep Thursday 5:30pm @Markaz\n\n📌 *Sector-wise Delegates Summary*\n\n${listItems}\n\n📊 *Total Sector Delegates:* ${total}\n\n©️ SSF ${divisionName} Division`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
@@ -136,13 +148,59 @@ export default function StudentsDetails({
     if (filtered.length === 0) return;
     const currentSector = sectors.find((s) => s._id === selectedSectorId)?.name || "";
     const listItems = filtered
-      .map((d, i) => `${i + 1}. *${d.name}* (${d.designation || "Delegate"})`)
-      .join("\n");
+      .map((d, i) => {
+        let line = `${i + 1}. *${d.name}* (${d.designation || "Delegate"})\n   📱 ${d.phone || "N/A"} | 🎫 ${d.ticket || "N/A"}`;
+        if (attendanceMode) {
+          line += ` | ${d.attendance ? "✅ Present" : "❌ Not Marked"}`;
+        }
+        return line;
+      })
+      .join("\n\n");
 
-    const text = `*Grand Conclave 26 — ${divisionName} / ${currentSector} Sector Delegates*\n📊 *Total Delegates:* ${filtered.length}\n\n${listItems}\n\n*SSF Kozhikode South*`;
+    let text = `*Grand Conclave 26 — ${divisionName} / ${currentSector} Sector Delegates*\n📊 *Total Delegates:* ${filtered.length}`;
+    if (attendanceMode) {
+      const att = filtered.filter((d) => d.attendance).length;
+      text += `\n✅ *Total Attended:* ${att}`;
+    }
+    text += `\n\n${listItems}\n\n*SSF Kozhikode South*`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
+  };
+
+  const downloadSectorCSV = () => {
+    if (filtered.length === 0) return;
+    const currentSector = sectors.find((s) => s._id === selectedSectorId)?.name || "Sector";
+
+    const headers = ["#", "Division", "Sector", "Name", "Phone", "Designation", "Ticket"];
+    if (attendanceMode) headers.push("Attendance");
+
+    const rows = filtered.map((d, i) => {
+      const row = [
+        String(i + 1),
+        `"${(divisionName || "").replace(/"/g, '""')}"`,
+        `"${(currentSector || "").replace(/"/g, '""')}"`,
+        `"${(d.name || "").replace(/"/g, '""')}"`,
+        d.phone || "",
+        `"${(d.designation || "Delegate").replace(/"/g, '""')}"`,
+        d.ticket || "",
+      ];
+      if (attendanceMode) {
+        row.push(d.attendance ? "Present" : "Absent");
+      }
+      return row.join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\r\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `GC26_${divisionName}_${currentSector}_Delegates.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 500);
   };
 
   const currentSectorName = sectors.find((s) => s._id === selectedSectorId)?.name || "";
@@ -245,6 +303,15 @@ export default function StudentsDetails({
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>Share Full List</span>
+            </button>
+
+            <button
+              onClick={downloadSectorCSV}
+              disabled={filtered.length === 0}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
             </button>
           </div>
         </div>

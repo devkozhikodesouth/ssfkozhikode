@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpDown, Users, CheckCircle2, Share2 } from "lucide-react";
+import { ArrowUpDown, Users, CheckCircle2, Share2, ArrowUp, ArrowDown } from "lucide-react";
 import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 type DivisionRow = {
@@ -18,11 +18,18 @@ type DivisionRow = {
   totalAttended: number;
 };
 
+type SortKey =
+  | "divisionName"
+  | "divisionRegistered"
+  | "sectorRegistered"
+  | "totalRegistered"
+  | "divisionAttended"
+  | "sectorAttended"
+  | "totalAttended";
+
 export default function GC26DivisionRegistrationTable() {
   const [data, setData] = useState<DivisionRow[]>([]);
-  const [sortKey, setSortKey] = useState<
-    "divisionRegistered" | "sectorRegistered" | "totalRegistered"
-  >("totalRegistered");
+  const [sortKey, setSortKey] = useState<SortKey>("totalRegistered");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const { attendanceMode } = useAttendanceMode();
@@ -32,17 +39,48 @@ export default function GC26DivisionRegistrationTable() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then((res) => setData(res.divisions || []))
+      .then((res) => {
+        const rows: DivisionRow[] = res.divisions || [];
+        const sorted = [...rows].sort((a, b) => b.totalRegistered - a.totalRegistered);
+        setData(sorted);
+      })
       .catch(console.error);
   }, []);
 
-  const sortBy = (key: typeof sortKey) => {
-    const sorted = [...data].sort((a, b) =>
-      sortOrder === "asc" ? a[key] - b[key] : b[key] - a[key]
-    );
+  const sortBy = (key: SortKey) => {
+    let nextOrder: "asc" | "desc" = "desc";
+    if (sortKey === key) {
+      nextOrder = sortOrder === "asc" ? "desc" : "asc";
+    } else {
+      nextOrder = key === "divisionName" ? "asc" : "desc";
+    }
+
+    const sorted = [...data].sort((a, b) => {
+      if (key === "divisionName") {
+        return nextOrder === "asc"
+          ? a.divisionName.localeCompare(b.divisionName)
+          : b.divisionName.localeCompare(a.divisionName);
+      }
+      return nextOrder === "asc" ? a[key] - b[key] : b[key] - a[key];
+    });
+
     setData(sorted);
     setSortKey(key);
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    setSortOrder(nextOrder);
+  };
+
+  const toggleSortOrder = () => {
+    const nextOrder = sortOrder === "asc" ? "desc" : "asc";
+    const sorted = [...data].sort((a, b) => {
+      if (sortKey === "divisionName") {
+        return nextOrder === "asc"
+          ? a.divisionName.localeCompare(b.divisionName)
+          : b.divisionName.localeCompare(a.divisionName);
+      }
+      return nextOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
+    });
+    setData(sorted);
+    setSortOrder(nextOrder);
   };
 
   const grandTotalRegistered = data.reduce(
@@ -78,6 +116,20 @@ export default function GC26DivisionRegistrationTable() {
     window.open(url, "_blank");
   };
 
+  const sortOptions: { key: SortKey; label: string }[] = [
+    { key: "totalRegistered", label: "Total Reg" },
+    { key: "divisionRegistered", label: "Div Reg" },
+    { key: "sectorRegistered", label: "Sector Reg" },
+    { key: "divisionName", label: "Division (A-Z)" },
+    ...(attendanceMode
+      ? [
+          { key: "totalAttended" as SortKey, label: "Total Att" },
+          { key: "divisionAttended" as SortKey, label: "Div Att" },
+          { key: "sectorAttended" as SortKey, label: "Sector Att" },
+        ]
+      : []),
+  ];
+
   return (
     <section className="p-2 sm:p-6 space-y-6">
       {/* Header Metric Cards */}
@@ -106,8 +158,8 @@ export default function GC26DivisionRegistrationTable() {
       </div>
 
       {/* Division Breakdown Container */}
-      <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="font-extrabold text-lg sm:text-xl text-slate-900">
             Division Breakdown — Grand Conclave 26
           </h3>
@@ -115,10 +167,60 @@ export default function GC26DivisionRegistrationTable() {
           <button
             onClick={shareSummaryToWhatsApp}
             disabled={data.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto justify-center"
           >
             <Share2 className="w-4 h-4" />
             <span>Share Table List to WhatsApp</span>
+          </button>
+        </div>
+
+        {/* Mobile & Desktop Sort Controls Bar */}
+        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+              <ArrowUpDown className="w-3.5 h-3.5 text-purple-600" />
+              Sort by:
+            </span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {sortOptions.map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => sortBy(opt.key)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    sortKey === opt.key
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                  }`}
+                >
+                  {opt.label}
+                  {sortKey === opt.key && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={toggleSortOrder}
+            className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+            title="Toggle sort direction"
+          >
+            {sortOrder === "asc" ? (
+              <>
+                <ArrowUp className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Ascending (Low to High)</span>
+              </>
+            ) : (
+              <>
+                <ArrowDown className="w-3.5 h-3.5 text-purple-600" />
+                <span>Descending (High to Low)</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -127,33 +229,78 @@ export default function GC26DivisionRegistrationTable() {
           {data.map((row) => (
             <div
               key={row._id}
-              className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2"
+              className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm space-y-2 hover:border-purple-300 transition"
             >
-              <div className="flex justify-between items-center font-bold text-slate-900 border-b border-slate-200 pb-2">
-                <span className="text-base">{row.divisionName}</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">
+              <div className="flex justify-between items-center font-bold text-slate-900 border-b border-slate-100 pb-2">
+                <span className="text-base font-extrabold">{row.divisionName}</span>
+                <span className={`text-xs px-2.5 py-1 rounded-full font-black ${
+                  sortKey === "totalRegistered"
+                    ? "bg-purple-600 text-white shadow-sm"
+                    : "bg-purple-100 text-purple-700"
+                }`}>
                   Total: {row.totalRegistered}
                 </span>
               </div>
+
               <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                <div>
+                <div
+                  onClick={() => sortBy("divisionRegistered")}
+                  className={`p-2 rounded-lg cursor-pointer transition ${
+                    sortKey === "divisionRegistered"
+                      ? "bg-purple-50 border border-purple-200"
+                      : "bg-slate-50"
+                  }`}
+                >
                   <span className="text-slate-500 block">Division Reg</span>
-                  <span className="font-bold text-slate-800">{row.divisionRegistered}</span>
+                  <span className="font-bold text-slate-800 text-sm">{row.divisionRegistered}</span>
                 </div>
-                <div>
+                <div
+                  onClick={() => sortBy("sectorRegistered")}
+                  className={`p-2 rounded-lg cursor-pointer transition ${
+                    sortKey === "sectorRegistered"
+                      ? "bg-purple-50 border border-purple-200"
+                      : "bg-slate-50"
+                  }`}
+                >
                   <span className="text-slate-500 block">Sector Reg</span>
-                  <span className="font-bold text-purple-600">{row.sectorRegistered}</span>
+                  <span className="font-bold text-purple-600 text-sm">{row.sectorRegistered}</span>
                 </div>
               </div>
+
               {attendanceMode && (
-                <div className="grid grid-cols-2 gap-2 text-xs border-t border-slate-200 pt-2">
-                  <div>
-                    <span className="text-slate-500 block">Division Att</span>
+                <div className="grid grid-cols-3 gap-2 text-xs border-t border-slate-100 pt-2">
+                  <div
+                    onClick={() => sortBy("divisionAttended")}
+                    className={`p-2 rounded-lg cursor-pointer transition ${
+                      sortKey === "divisionAttended"
+                        ? "bg-emerald-50 border border-emerald-200"
+                        : "bg-slate-50"
+                    }`}
+                  >
+                    <span className="text-slate-500 block text-[10px]">Div Att</span>
                     <span className="font-bold text-emerald-700">{row.divisionAttended}</span>
                   </div>
-                  <div>
-                    <span className="text-slate-500 block">Sector Att</span>
+                  <div
+                    onClick={() => sortBy("sectorAttended")}
+                    className={`p-2 rounded-lg cursor-pointer transition ${
+                      sortKey === "sectorAttended"
+                        ? "bg-emerald-50 border border-emerald-200"
+                        : "bg-slate-50"
+                    }`}
+                  >
+                    <span className="text-slate-500 block text-[10px]">Sector Att</span>
                     <span className="font-bold text-emerald-700">{row.sectorAttended}</span>
+                  </div>
+                  <div
+                    onClick={() => sortBy("totalAttended")}
+                    className={`p-2 rounded-lg cursor-pointer transition ${
+                      sortKey === "totalAttended"
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : "bg-emerald-100 text-emerald-800"
+                    }`}
+                  >
+                    <span className="block text-[10px] opacity-80">Total Att</span>
+                    <span className="font-black text-sm">{row.totalAttended}</span>
                   </div>
                 </div>
               )}
@@ -166,28 +313,36 @@ export default function GC26DivisionRegistrationTable() {
           <table className="w-full text-left border-collapse text-sm">
             <thead>
               <tr className="text-slate-500 border-b border-slate-200 font-semibold">
-                <th className="pb-3">Division</th>
+                <th
+                  onClick={() => sortBy("divisionName")}
+                  className="pb-3 cursor-pointer select-none hover:text-slate-900 transition"
+                >
+                  <div className="flex items-center">
+                    Division
+                    <ArrowUpDown className={`w-4 h-4 ml-1 ${sortKey === "divisionName" ? "text-purple-600" : "text-slate-400"}`} />
+                  </div>
+                </th>
 
                 {[
-                  { key: "divisionRegistered", label: "Division Reg" },
-                  { key: "sectorRegistered", label: "Sector Reg" },
-                  { key: "totalRegistered", label: "Total Reg" },
+                  { key: "divisionRegistered" as SortKey, label: "Division Reg" },
+                  { key: "sectorRegistered" as SortKey, label: "Sector Reg" },
+                  { key: "totalRegistered" as SortKey, label: "Total Reg" },
                   ...(attendanceMode
                     ? [
-                        { key: "divisionAttended", label: "Division Att" },
-                        { key: "sectorAttended", label: "Sector Att" },
-                        { key: "totalAttended", label: "Total Att" },
+                        { key: "divisionAttended" as SortKey, label: "Division Att" },
+                        { key: "sectorAttended" as SortKey, label: "Sector Att" },
+                        { key: "totalAttended" as SortKey, label: "Total Att" },
                       ]
                     : []),
                 ].map(({ key, label }) => (
                   <th
                     key={key}
-                    onClick={() => sortBy(key as any)}
-                    className="pb-3 cursor-pointer text-right select-none"
+                    onClick={() => sortBy(key)}
+                    className="pb-3 cursor-pointer text-right select-none hover:text-slate-900 transition"
                   >
                     <div className="flex items-center justify-end">
                       {label}
-                      <ArrowUpDown className="w-4 h-4 ml-1 text-slate-400" />
+                      <ArrowUpDown className={`w-4 h-4 ml-1 ${sortKey === key ? "text-purple-600" : "text-slate-400"}`} />
                     </div>
                   </th>
                 ))}

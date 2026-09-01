@@ -11,7 +11,8 @@ import {
   GraduationCap,
   Building2,
   X,
-  UserCheck
+  UserCheck,
+  Shield
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
@@ -40,31 +41,8 @@ const MENU = [
       { name: "Total Delegates", path: "/adminlogin/gc26/totaldelegates" },
       { name: "Division Delegates", path: "/adminlogin/gc26/division" },
       { name: "Sector Delegates", path: "/adminlogin/gc26/sector" },
+      { name: "District Delegates", path: "/adminlogin/gc26/district" },
       { name: "Mark Attendance", path: "/adminlogin/gc26/attendance" },
-    ],
-  },
-  {
-    id: "grand-conclave",
-    label: "Grand Conclave",
-    icon: "🏛️",
-    items: [
-      { name: "Total Delegates", path: "/adminlogin/grand/totaldelegates" },
-      { name: "Division Delegates", path: "/adminlogin/grand/division" },
-      { name: "Sector Delegates", path: "/adminlogin/grand/sector" },
-      { name: "Mark Attendance", path: "/adminlogin/grand/attendance" },
-    ],
-  },
-  {
-    id: "students-gala",
-    label: "Students Gala",
-    icon: "🎓",
-    items: [
-      { name: "Division Wise Data", path: "/adminlogin/gala/division" },
-      { name: "Sector Wise Data", path: "/adminlogin/gala/sector" },
-      { name: "Unit Wise Data", path: "/adminlogin/gala/unit" },
-      { name: "Students List", path: "/adminlogin/gala/studentsdata" },
-      { name: "Mark Attendance", path: "/adminlogin/gala/markattendance" },
-      { name: "Attendance List", path: "/adminlogin/gala/attendancelist" },
     ],
   },
 ];
@@ -224,48 +202,72 @@ export default function AdminLayout({
       </div>
 
       {/* ───────── Mobile Bottom Navigation Bar ───────── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-lg border-t border-slate-200 z-30 flex items-center justify-around px-2 shadow-lg">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-lg border-t border-slate-200 z-30 flex items-center justify-around px-1 shadow-lg">
         <button
           onClick={() => router.push("/adminlogin/gc26/totaldelegates")}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
-            pathname.includes("/adminlogin/gc26")
+            pathname === "/adminlogin/gc26/totaldelegates"
               ? "text-purple-600"
               : "text-slate-500 hover:text-slate-800"
           }`}
         >
-          <Sparkles className="w-5 h-5" />
-          <span>GC26</span>
+          <Sparkles className="w-4 h-4" />
+          <span>Total</span>
         </button>
 
         <button
-          onClick={() => router.push("/adminlogin/grand/totaldelegates")}
+          onClick={() => router.push("/adminlogin/gc26/division")}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
-            pathname.includes("/adminlogin/grand")
-              ? "text-indigo-600"
+            pathname === "/adminlogin/gc26/division"
+              ? "text-purple-600"
               : "text-slate-500 hover:text-slate-800"
           }`}
         >
-          <Building2 className="w-5 h-5" />
-          <span>Conclave</span>
+          <Building2 className="w-4 h-4" />
+          <span>Division</span>
         </button>
 
         <button
-          onClick={() => router.push("/adminlogin/gala/division")}
+          onClick={() => router.push("/adminlogin/gc26/sector")}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
-            pathname.includes("/adminlogin/gala")
-              ? "text-emerald-600"
+            pathname === "/adminlogin/gc26/sector"
+              ? "text-purple-600"
               : "text-slate-500 hover:text-slate-800"
           }`}
         >
-          <GraduationCap className="w-5 h-5" />
-          <span>Gala</span>
+          <GraduationCap className="w-4 h-4" />
+          <span>Sector</span>
+        </button>
+
+        <button
+          onClick={() => router.push("/adminlogin/gc26/district")}
+          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
+            pathname === "/adminlogin/gc26/district"
+              ? "text-purple-600"
+              : "text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          <Shield className="w-4 h-4" />
+          <span>District</span>
+        </button>
+
+        <button
+          onClick={() => router.push("/adminlogin/gc26/attendance")}
+          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
+            pathname === "/adminlogin/gc26/attendance"
+              ? "text-purple-600"
+              : "text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          <UserCheck className="w-4 h-4" />
+          <span>Attendance</span>
         </button>
 
         <button
           onClick={() => setMobileOpen(true)}
           className="flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold text-slate-500 hover:text-slate-800"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-4 h-4" />
           <span>Menu</span>
         </button>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Share2, CheckCircle2 } from "lucide-react";
+import { Search, Share2, CheckCircle2, Download } from "lucide-react";
 import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
 interface Delegate {
@@ -40,11 +40,11 @@ export default function DivisionDelegatesTable({
         );
         const data = await res.json();
 
-        if (!res.ok || !data.success) {
+        if (res.ok && Array.isArray(data.delegates)) {
+          setDelegates(data.delegates);
+        } else {
           setError(data.message || "Failed to fetch delegates");
           setDelegates([]);
-        } else {
-          setDelegates(data.delegates || []);
         }
       } catch (err) {
         console.error(err);
@@ -62,7 +62,11 @@ export default function DivisionDelegatesTable({
     .filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
 
   const shareSingleToWhatsApp = (d: Delegate) => {
-    const text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n🏷️ *Position:* ${d.designation || "Delegate"}\n\nThank you!`;
+    let text = `*Grand Conclave 26 — SSF Kozhikode South*\n\n📌 *Delegate Details*\n👤 *Name:* ${d.name}\n📱 *Mobile:* ${d.mobile || "N/A"}\n🏷️ *Position:* ${d.designation || "Delegate"}\n🎫 *Ticket:* ${d.ticket || "N/A"}\n📍 *Level:* ${divisionName} Division`;
+    if (attendanceMode) {
+      text += `\n✅ *Attendance:* ${d.attendance ? "Present" : "Not Marked"}`;
+    }
+    text += `\n\nThank you!`;
 
     const cleanMobile = d.mobile ? d.mobile.replace(/\D/g, "") : "";
     const phoneParam = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
@@ -75,13 +79,57 @@ export default function DivisionDelegatesTable({
   const shareFullListToWhatsApp = () => {
     if (filtered.length === 0) return;
     const listItems = filtered
-      .map((d, i) => `${i + 1}. *${d.name}* (${d.designation || "Delegate"})`)
-      .join("\n");
+      .map((d, i) => {
+        let line = `${i + 1}. *${d.name}* (${d.designation || "Delegate"})\n   📱 ${d.mobile || "N/A"} | 🎫 ${d.ticket || "N/A"}`;
+        if (attendanceMode) {
+          line += ` | ${d.attendance ? "✅ Present" : "❌ Not Marked"}`;
+        }
+        return line;
+      })
+      .join("\n\n");
 
-    const text = `*Grand Conclave 26 — ${divisionName} Division Delegates*\n📊 *Total Delegates:* ${filtered.length}\n\n${listItems}\n\n*SSF Kozhikode South*`;
+    let text = `*Grand Conclave 26 — ${divisionName} Division Delegates*\n📊 *Total Delegates:* ${filtered.length}`;
+    if (attendanceMode) {
+      const att = filtered.filter((d) => d.attendance).length;
+      text += `\n✅ *Total Attended:* ${att}`;
+    }
+    text += `\n\n${listItems}\n\n*SSF Kozhikode South*`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
+  };
+
+  const downloadCSV = () => {
+    if (filtered.length === 0) return;
+
+    const headers = ["#", "Division", "Name", "Mobile", "Designation", "Ticket"];
+    if (attendanceMode) headers.push("Attendance");
+
+    const rows = filtered.map((d, i) => {
+      const row = [
+        String(i + 1),
+        `"${(divisionName || "").replace(/"/g, '""')}"`,
+        `"${(d.name || "").replace(/"/g, '""')}"`,
+        d.mobile || "",
+        `"${(d.designation || "Delegate").replace(/"/g, '""')}"`,
+        d.ticket || "",
+      ];
+      if (attendanceMode) {
+        row.push(d.attendance ? "Present" : "Absent");
+      }
+      return row.join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\r\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `GC26_${divisionName}_Division_Delegates.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 500);
   };
 
   return (
@@ -131,6 +179,15 @@ export default function DivisionDelegatesTable({
           >
             <Share2 className="w-4 h-4" />
             <span>Share Full List</span>
+          </button>
+
+          <button
+            onClick={downloadCSV}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export CSV</span>
           </button>
         </div>
       </div>

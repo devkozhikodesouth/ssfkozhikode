@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Building2, Layers } from "lucide-react";
 import GrandConclave26SectorList from "@/app/components/GrandConclave26SectorList";
 
 export default function GC26AdminSectorPage() {
@@ -32,41 +33,55 @@ export default function GC26AdminSectorPage() {
   }, []);
 
   return (
-    <main className="space-y-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center text-indigo-700 mb-8">
-          Grand Conclave 26 Delegates — Sector Wise Data
-        </h1>
+    <div className="space-y-6">
+      {/* Top Header Card with Division Selector */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-indigo-900 flex items-center gap-2">
+            <Layers className="w-7 h-7 text-purple-600" />
+            Sector Wise Delegates
+          </h1>
+          <p className="text-sm text-slate-500 mt-1 font-medium">
+            Grand Conclave 26 — Sector Level Registrations & Attendance
+          </p>
+        </div>
 
-        <div className="flex justify-center mb-8">
-          {loading ? (
-            <p className="text-gray-600 animate-pulse">Loading divisions...</p>
-          ) : (
+        {/* Division Selector */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Building2 className="absolute left-3.5 top-3 w-4 h-4 text-purple-600 pointer-events-none" />
             <select
               value={divisionName}
               onChange={(e) => setDivisionName(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled={loading}
+              className="w-full pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white shadow-sm transition cursor-pointer"
             >
-              <option value="">Select a Division</option>
-              {divisions.map((division) => (
-                <option key={division} value={division}>
-                  {division}
-                </option>
-              ))}
+              {loading ? (
+                <option value="">Loading divisions...</option>
+              ) : (
+                divisions.map((d) => (
+                  <option key={d} value={d}>
+                    {d} Division
+                  </option>
+                ))
+              )}
             </select>
-          )}
+          </div>
         </div>
-
-        {divisionName ? (
-          <GrandConclave26SectorList divisionName={divisionName} />
-        ) : (
-          !loading && (
-            <p className="text-center text-gray-600">
-              Please select a division to view its data.
-            </p>
-          )
-        )}
       </div>
-    </main>
+
+      {/* Main Sector Content */}
+      {divisionName ? (
+        <GrandConclave26SectorList divisionName={divisionName} />
+      ) : (
+        !loading && (
+          <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <p className="text-slate-500 font-semibold">
+              Please select a division from above to view its sector delegates.
+            </p>
+          </div>
+        )
+      )}
+    </div>
   );
 }
