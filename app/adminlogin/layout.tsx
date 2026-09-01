@@ -12,37 +12,58 @@ import {
   Building2,
   X,
   UserCheck,
-  Shield
+  Shield,
+  Layers,
+  BarChart3,
+  Flame,
+  CheckCircle2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
 
-type NavGroupProps = {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  items: { name: string; path: string }[];
-  open: boolean;
-  onToggle: () => void;
-  expanded: boolean;
-  pathname: string;
-  onNavigate?: () => void;
+type NavItemConfig = {
+  name: string;
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
 };
 
 /* ─────────────────────────────
-   MENU CONFIG
+   MENU CONFIG WITH ICONS
 ────────────────────────────── */
 const MENU = [
   {
     id: "gc26",
     label: "Grand Conclave 26",
-    icon: "✨",
+    subtitle: "Management Suite",
+    icon: Sparkles,
+    badge: "Active",
     items: [
-      { name: "Total Delegates", path: "/adminlogin/gc26/totaldelegates" },
-      { name: "Division Delegates", path: "/adminlogin/gc26/division" },
-      { name: "Sector Delegates", path: "/adminlogin/gc26/sector" },
-      { name: "District Delegates", path: "/adminlogin/gc26/district" },
-      { name: "Mark Attendance", path: "/adminlogin/gc26/attendance" },
+      {
+        name: "Total Delegates",
+        path: "/adminlogin/gc26/totaldelegates",
+        icon: BarChart3,
+      },
+      {
+        name: "Division Delegates",
+        path: "/adminlogin/gc26/division",
+        icon: Building2,
+      },
+      {
+        name: "Sector Delegates",
+        path: "/adminlogin/gc26/sector",
+        icon: Layers,
+      },
+      {
+        name: "District Delegates",
+        path: "/adminlogin/gc26/district",
+        icon: Shield,
+      },
+      {
+        name: "Mark Attendance",
+        path: "/adminlogin/gc26/attendance",
+        icon: UserCheck,
+      },
     ],
   },
 ];
@@ -74,59 +95,162 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-100 text-slate-800 pb-16 md:pb-0">
+    <div className="flex min-h-screen bg-slate-100/90 text-slate-800 pb-16 md:pb-0 font-sans selection:bg-purple-500 selection:text-white">
       {/* ───────── Desktop Sidebar ───────── */}
       <motion.aside
-        animate={{ width: sidebarOpen ? 280 : 84 }}
-        transition={{ type: "spring", stiffness: 120, damping: 20 }}
-        className="hidden md:flex flex-col bg-white border-r border-slate-200 shadow-sm z-30 sticky top-0 h-screen overflow-y-auto shrink-0"
+        animate={{ width: sidebarOpen ? 280 : 88 }}
+        transition={{ type: "spring", stiffness: 140, damping: 22 }}
+        className="hidden md:flex flex-col bg-white/95 backdrop-blur-xl border-r border-slate-200/80 shadow-sm z-30 sticky top-0 h-screen overflow-y-auto shrink-0"
       >
-        {/* Brand */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-extrabold shadow-md">
-              S
+        {/* Brand Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3 overflow-hidden">
+            {/* Monogram Logo */}
+            <div className="relative shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-700 via-indigo-600 to-blue-500 text-white flex items-center justify-center font-black text-lg shadow-md shadow-indigo-600/25 ring-2 ring-white">
+                S
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
+
             {sidebarOpen && (
-              <div>
-                <p className="font-bold leading-tight text-slate-900"><span className="font-cooper">SSF</span> Admin</p>
-                <p className="text-xs text-slate-500 font-medium">Management Panel</p>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="font-extrabold text-sm text-slate-900 tracking-tight truncate">
+                    <span className="font-cooper text-purple-700">SSF</span> Admin
+                  </p>
+                  <span className="px-1.5 py-0.2 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase tracking-wider">
+                    PRO
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 font-semibold truncate">
+                  Kozhikode South
+                </p>
               </div>
             )}
           </div>
 
           <button
+            type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg"
+            className="text-slate-400 hover:text-slate-800 hover:bg-slate-100 p-1.5 rounded-xl transition cursor-pointer"
+            title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
-            {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            {sidebarOpen ? (
+              <ChevronLeft className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-3 overflow-y-auto">
+        {/* Navigation Content */}
+        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
           {MENU.map((group) => (
-            <NavGroup
-              key={group.id}
-              {...group}
-              open={openGroup === group.id}
-              onToggle={() =>
-                setOpenGroup(openGroup === group.id ? null : group.id)
-              }
-              expanded={sidebarOpen}
-              pathname={pathname}
-            />
+            <div key={group.id} className="space-y-1.5">
+              {/* Group Header */}
+              {sidebarOpen ? (
+                <div className="px-3 py-1 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-slate-400">
+                    <group.icon className="w-3.5 h-3.5 text-purple-600" />
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                      {group.label}
+                    </span>
+                  </div>
+                  {group.badge && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black">
+                      {group.badge}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="w-full flex justify-center py-1">
+                  <span className="w-6 h-0.5 bg-slate-200 rounded-full" />
+                </div>
+              )}
+
+              {/* Group Items */}
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = pathname === item.path;
+                  const IconComponent = item.icon;
+
+                  return (
+                    <button
+                      key={item.path}
+                      type="button"
+                      onClick={() => router.push(item.path)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer group relative ${
+                        isActive
+                          ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/25"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
+                      }`}
+                      title={!sidebarOpen ? item.name : undefined}
+                    >
+                      {/* Active Indicator Bar */}
+                      {isActive && (
+                        <motion.span
+                          layoutId="activePill"
+                          className="absolute -left-1.5 top-2.5 bottom-2.5 w-1 rounded-full bg-purple-600"
+                        />
+                      )}
+
+                      <div
+                        className={`p-1 rounded-lg transition ${
+                          isActive
+                            ? "text-white"
+                            : "text-slate-400 group-hover:text-purple-600"
+                        }`}
+                      >
+                        <IconComponent className="w-4 h-4 shrink-0" />
+                      </div>
+
+                      {sidebarOpen && (
+                        <span className="truncate flex-1 text-left">
+                          {item.name}
+                        </span>
+                      )}
+
+                      {sidebarOpen && isActive && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="px-4 py-4 border-t border-slate-200">
+        {/* User Card & Logout Footer */}
+        <div className="p-3 border-t border-slate-100 space-y-2 bg-slate-50/50">
+          {sidebarOpen && (
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-extrabold text-xs shadow-sm">
+                A
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-extrabold text-slate-800 truncate">
+                  Admin Panel
+                </p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <p className="text-[10px] text-slate-400 font-semibold truncate">
+                    Online • Master
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <button
+            type="button"
             onClick={logout}
-            className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition shadow-sm"
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-600 hover:text-white hover:border-red-600 text-xs font-bold transition shadow-xs cursor-pointer active:scale-95`}
+            title="Logout from admin panel"
           >
-            <LogOut className="w-4 h-4" />
-            {sidebarOpen && "Logout"}
+            <LogOut className="w-4 h-4 shrink-0" />
+            {sidebarOpen && <span>Logout</span>}
           </button>
         </div>
       </motion.aside>
@@ -139,44 +263,86 @@ export default function AdminLayout({
               initial={{ x: -300 }}
               animate={{ x: 0 }}
               exit={{ x: -300 }}
-              transition={{ type: "spring", stiffness: 200, damping: 25 }}
-              className="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r shadow-2xl flex flex-col"
+              transition={{ type: "spring", stiffness: 220, damping: 26 }}
+              className="fixed inset-y-0 left-0 z-50 w-72 bg-white/98 backdrop-blur-xl border-r border-slate-200 shadow-2xl flex flex-col"
             >
-              <div className="px-5 py-4 border-b flex justify-between items-center font-bold text-slate-900">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
+              {/* Drawer Header */}
+              <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-700 via-indigo-600 to-blue-500 text-white flex items-center justify-center font-black text-base shadow-md">
                     S
                   </div>
-                  <span><span className="font-cooper">SSF</span> Admin Panel</span>
+                  <div>
+                    <p className="font-extrabold text-sm text-slate-900">
+                      <span className="font-cooper text-purple-700">SSF</span> Admin
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-semibold">
+                      Management Dashboard
+                    </p>
+                  </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setMobileOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-800"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="flex-1 px-3 py-4 space-y-3 overflow-y-auto">
+              {/* Drawer Nav Items */}
+              <nav className="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
                 {MENU.map((group) => (
-                  <NavGroup
-                    key={group.id}
-                    {...group}
-                    open={openGroup === group.id}
-                    onToggle={() =>
-                      setOpenGroup(openGroup === group.id ? null : group.id)
-                    }
-                    expanded
-                    pathname={pathname}
-                    onNavigate={() => setMobileOpen(false)}
-                  />
+                  <div key={group.id} className="space-y-1.5">
+                    <div className="px-2 py-1 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <group.icon className="w-3.5 h-3.5 text-purple-600" />
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                          {group.label}
+                        </span>
+                      </div>
+                      {group.badge && (
+                        <span className="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black">
+                          {group.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      {group.items.map((item) => {
+                        const isActive = pathname === item.path;
+                        const IconComponent = item.icon;
+
+                        return (
+                          <button
+                            key={item.path}
+                            type="button"
+                            onClick={() => {
+                              router.push(item.path);
+                              setMobileOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                              isActive
+                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/30"
+                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                            }`}
+                          >
+                            <IconComponent className="w-4 h-4" />
+                            <span className="flex-1 text-left">{item.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ))}
               </nav>
 
-              <div className="p-4 border-t">
+              {/* Drawer Footer */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50/60">
                 <button
+                  type="button"
                   onClick={logout}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-red-600 text-white text-sm font-bold shadow-md"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md hover:bg-red-700 transition cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>
@@ -184,11 +350,12 @@ export default function AdminLayout({
               </div>
             </motion.aside>
 
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40"
               onClick={() => setMobileOpen(false)}
             />
           </>
@@ -202,25 +369,25 @@ export default function AdminLayout({
       </div>
 
       {/* ───────── Mobile Bottom Navigation Bar ───────── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-lg border-t border-slate-200 z-30 flex items-center justify-around px-1 shadow-lg">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 z-30 flex items-center justify-around px-1 shadow-lg">
         <button
           onClick={() => router.push("/adminlogin/gc26/totaldelegates")}
-          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
+          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
             pathname === "/adminlogin/gc26/totaldelegates"
               ? "text-purple-600"
-              : "text-slate-500 hover:text-slate-800"
+              : "text-slate-400 hover:text-slate-700"
           }`}
         >
-          <Sparkles className="w-4 h-4" />
+          <BarChart3 className="w-4 h-4" />
           <span>Total</span>
         </button>
 
         <button
           onClick={() => router.push("/adminlogin/gc26/division")}
-          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
+          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
             pathname === "/adminlogin/gc26/division"
               ? "text-purple-600"
-              : "text-slate-500 hover:text-slate-800"
+              : "text-slate-400 hover:text-slate-700"
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -229,22 +396,22 @@ export default function AdminLayout({
 
         <button
           onClick={() => router.push("/adminlogin/gc26/sector")}
-          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
+          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
             pathname === "/adminlogin/gc26/sector"
               ? "text-purple-600"
-              : "text-slate-500 hover:text-slate-800"
+              : "text-slate-400 hover:text-slate-700"
           }`}
         >
-          <GraduationCap className="w-4 h-4" />
+          <Layers className="w-4 h-4" />
           <span>Sector</span>
         </button>
 
         <button
           onClick={() => router.push("/adminlogin/gc26/district")}
-          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
+          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
             pathname === "/adminlogin/gc26/district"
               ? "text-purple-600"
-              : "text-slate-500 hover:text-slate-800"
+              : "text-slate-400 hover:text-slate-700"
           }`}
         >
           <Shield className="w-4 h-4" />
@@ -253,10 +420,10 @@ export default function AdminLayout({
 
         <button
           onClick={() => router.push("/adminlogin/gc26/attendance")}
-          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold ${
+          className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
             pathname === "/adminlogin/gc26/attendance"
               ? "text-purple-600"
-              : "text-slate-500 hover:text-slate-800"
+              : "text-slate-400 hover:text-slate-700"
           }`}
         >
           <UserCheck className="w-4 h-4" />
@@ -265,7 +432,7 @@ export default function AdminLayout({
 
         <button
           onClick={() => setMobileOpen(true)}
-          className="flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold text-slate-500 hover:text-slate-800"
+          className="flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold text-slate-400 hover:text-slate-700"
         >
           <Menu className="w-4 h-4" />
           <span>Menu</span>
@@ -282,107 +449,43 @@ function Navbar({ onMenu }: { onMenu: () => void }) {
   const { attendanceMode, toggleAttendanceMode } = useAttendanceMode();
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 py-3.5 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <header className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 py-3 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenu}
-          className="md:hidden text-slate-700 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 transition"
+          className="md:hidden text-slate-700 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 transition cursor-pointer"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">
-          Admin Dashboard
-        </h1>
+        <div>
+          <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900">
+            Admin Dashboard
+          </h1>
+          <p className="hidden sm:block text-[11px] font-semibold text-slate-400">
+            Grand Conclave 26 Management
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Centralized Attendance Mode Toggle Button in Admin Navbar */}
+        {/* Attendance Mode Toggle Button */}
         <button
           type="button"
           onClick={toggleAttendanceMode}
-          className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 border shadow-sm active:scale-95 ${
+          className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 border shadow-xs active:scale-95 cursor-pointer ${
             attendanceMode
-              ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700"
-              : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+              ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20"
+              : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
           }`}
         >
           <UserCheck className="w-4 h-4" />
           <span>{attendanceMode ? "Attendance Mode: ON" : "Attendance Mode: OFF"}</span>
         </button>
 
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-md ring-2 ring-white">
           A
         </div>
       </div>
     </header>
-  );
-}
-
-/* ─────────────────────────────
-   NavGroup
-────────────────────────────── */
-function NavGroup({
-  label,
-  icon,
-  items,
-  open,
-  onToggle,
-  expanded,
-  pathname,
-  onNavigate,
-}: NavGroupProps) {
-  const router = useRouter();
-
-  return (
-    <div>
-      <button
-        onClick={onToggle}
-        className={`flex items-center justify-between w-full px-3 py-3 rounded-xl text-sm font-bold transition ${
-          open
-            ? "bg-indigo-50 text-indigo-700"
-            : "hover:bg-slate-100 text-slate-700"
-        }`}
-      >
-        <div className="flex items-center gap-2.5">
-          <span className="text-base">{icon}</span>
-          {expanded && <span>{label}</span>}
-        </div>
-        {expanded && (
-          <ChevronRight
-            className={`w-4 h-4 transition-transform duration-200 ${
-              open ? "rotate-90 text-indigo-600" : "text-slate-400"
-            }`}
-          />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {open && expanded && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="ml-4 mt-1.5 space-y-1 border-l-2 border-indigo-100 pl-3"
-          >
-            {items.map((item: any) => (
-              <div
-                key={item.path}
-                onClick={() => {
-                  router.push(item.path);
-                  if (onNavigate) onNavigate();
-                }}
-                className={`px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition ${
-                  pathname === item.path
-                    ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-indigo-600"
-                }`}
-              >
-                {item.name}
-              </div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   );
 }
