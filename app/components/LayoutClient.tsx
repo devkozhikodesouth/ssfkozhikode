@@ -12,7 +12,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   return (
     <>
-      <TouchGlowEffect />
+      {!isAdminRoute && <TouchGlowEffect />}
       {!isAdminRoute && <Navbar />}
       {children}
       {!isAdminRoute && <Footer />}

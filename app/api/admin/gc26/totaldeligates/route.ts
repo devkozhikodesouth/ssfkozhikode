@@ -7,25 +7,39 @@ export async function GET() {
   try {
     await connectDB();
 
-    const divisions = await Division.find({}, { divisionName: 1 }).lean();
-
-    const stats = await GrandConclave26.aggregate([
-      {
-        $group: {
-          _id: {
-            divisionId: "$divisionId",
-            hasSector: {
-              $cond: [{ $ifNull: ["$sectorId", false] }, true, false],
+    const [divisions, stats, overall] = await Promise.all([
+      Division.find({}, { divisionName: 1 }).lean(),
+      GrandConclave26.aggregate([
+        {
+          $group: {
+            _id: {
+              divisionId: "$divisionId",
+              hasSector: {
+                $cond: [{ $ifNull: ["$sectorId", false] }, true, false],
+              },
             },
-          },
-          registeredCount: { $sum: 1 },
-          attendedCount: {
-            $sum: {
-              $cond: [{ $eq: ["$attendance", true] }, 1, 0],
+            registeredCount: { $sum: 1 },
+            attendedCount: {
+              $sum: {
+                $cond: [{ $eq: ["$attendance", true] }, 1, 0],
+              },
             },
           },
         },
-      },
+      ]),
+      GrandConclave26.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalRegistered: { $sum: 1 },
+            totalAttended: {
+              $sum: {
+                $cond: [{ $eq: ["$attendance", true] }, 1, 0],
+              },
+            },
+          },
+        },
+      ]),
     ]);
 
     const divisionMap = new Map<
@@ -82,20 +96,6 @@ export async function GET() {
         totalAttended: c.divisionAttended + c.sectorAttended,
       };
     });
-
-    const overall = await GrandConclave26.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalRegistered: { $sum: 1 },
-          totalAttended: {
-            $sum: {
-              $cond: [{ $eq: ["$attendance", true] }, 1, 0],
-            },
-          },
-        },
-      },
-    ]);
 
     return NextResponse.json({
       success: true,

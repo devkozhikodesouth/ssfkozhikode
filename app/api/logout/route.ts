@@ -10,6 +10,7 @@ export async function POST() {
     name: "token",
     value: "",
     httpOnly: true,
+    sameSite: "lax",
     expires: new Date(0),
     path: "/",
   });

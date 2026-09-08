@@ -10,9 +10,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "ssf-kozhikode-secret-jwt-key-2026"
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-    await ensureDefaultAdmin();
-
     const { email, password } = await req.json();
 
     if (!email || !password) {
@@ -22,12 +19,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const admin = await Admin.findOne({ email: email.toLowerCase().trim() });
+    await connectDB();
+
+    let admin = await Admin.findOne({ email: email.toLowerCase().trim() });
     if (!admin) {
-      return NextResponse.json(
-        { message: "Invalid email or password" },
-        { status: 401 }
-      );
+      // If no admin found, check if this is initial setup with 0 admins
+      await ensureDefaultAdmin();
+      admin = await Admin.findOne({ email: email.toLowerCase().trim() });
+      if (!admin) {
+        return NextResponse.json(
+          { message: "Invalid email or password" },
+          { status: 401 }
+        );
+      }
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
@@ -44,18 +48,27 @@ export async function POST(req: NextRequest) {
       { expiresIn: "7d" }
     );
 
+    const isHttps =
+      req.headers.get("x-forwarded-proto") === "https" ||
+      req.nextUrl.protocol === "https:" ||
+      (process.env.NODE_ENV === "production" &&
+        !req.headers.get("host")?.includes("localhost") &&
+        !req.headers.get("host")?.startsWith("192.168.") &&
+        !req.headers.get("host")?.startsWith("10.") &&
+        !req.headers.get("host")?.startsWith("172."));
+
     const res = NextResponse.json({
       success: true,
       message: "Login successful",
-      redirect: "/adminlogin",
+      redirect: "/adminlogin/gc26/totaldelegates",
     });
 
     res.cookies.set({
       name: "token",
       value: token,
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      secure: isHttps,
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
     });

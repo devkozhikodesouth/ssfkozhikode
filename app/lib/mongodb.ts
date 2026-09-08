@@ -6,19 +6,41 @@ if (!MONGODB_URI) {
   throw new Error("⚠️ Please define MONGODB_URI in .env.local");
 }
 
-let isConnected = false; // track the connection
+declare global {
+  var mongooseCache: { conn: any; promise: any } | undefined;
+}
+
+let cached = global.mongooseCache;
+
+if (!cached) {
+  cached = global.mongooseCache = { conn: null, promise: null };
+}
 
 export const connectDB = async () => {
-  if (isConnected) {
-    console.log("✅ MongoDB already connected");
-    return;
+  if (cached!.conn && mongoose.connection.readyState >= 1) {
+    return cached!.conn;
+  }
+
+  if (!cached!.promise) {
+    const opts = {
+      bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+    };
+
+    cached!.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {
+      return m;
+    });
   }
 
   try {
-    await mongoose.connect(MONGODB_URI);
-    isConnected = true;
-    console.log("✅ MongoDB Connected");
+    cached!.conn = await cached!.promise;
   } catch (error) {
+    cached!.promise = null;
     console.error("❌ MongoDB connection failed", error);
+    throw error;
   }
+
+  return cached!.conn;
 };
+

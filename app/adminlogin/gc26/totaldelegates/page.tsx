@@ -36,6 +36,7 @@ type SortKey =
 
 export default function GC26DivisionRegistrationTable() {
   const [data, setData] = useState<DivisionRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>("totalRegistered");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
@@ -51,7 +52,8 @@ export default function GC26DivisionRegistrationTable() {
         const sorted = [...rows].sort((a, b) => b.totalRegistered - a.totalRegistered);
         setData(sorted);
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   const sortBy = (key: SortKey) => {
@@ -233,86 +235,108 @@ export default function GC26DivisionRegistrationTable() {
 
         {/* Mobile Stacked Card View */}
         <div className="space-y-3 md:hidden">
-          {data.map((row) => (
-            <div
-              key={row._id}
-              className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm space-y-2 hover:border-purple-300 transition"
-            >
-              <div className="flex justify-between items-center font-bold text-slate-900 border-b border-slate-100 pb-2">
-                <span className="text-base font-extrabold">{row.divisionName}</span>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-black ${
-                  sortKey === "totalRegistered"
-                    ? "bg-purple-600 text-white shadow-sm"
-                    : "bg-purple-100 text-purple-700"
-                }`}>
-                  Total: {row.totalRegistered}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                <div
-                  onClick={() => sortBy("divisionRegistered")}
-                  className={`p-2 rounded-lg cursor-pointer transition ${
-                    sortKey === "divisionRegistered"
-                      ? "bg-purple-50 border border-purple-200"
-                      : "bg-slate-50"
-                  }`}
-                >
-                  <span className="text-slate-500 block">Division Reg</span>
-                  <span className="font-bold text-slate-800 text-sm">{row.divisionRegistered}</span>
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3 animate-pulse"
+              >
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                  <div className="h-5 bg-slate-200 rounded-md w-32" />
+                  <div className="h-5 bg-purple-100 rounded-full w-16" />
                 </div>
-                <div
-                  onClick={() => sortBy("sectorRegistered")}
-                  className={`p-2 rounded-lg cursor-pointer transition ${
-                    sortKey === "sectorRegistered"
-                      ? "bg-purple-50 border border-purple-200"
-                      : "bg-slate-50"
-                  }`}
-                >
-                  <span className="text-slate-500 block">Sector Reg</span>
-                  <span className="font-bold text-purple-600 text-sm">{row.sectorRegistered}</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="h-12 bg-slate-100 rounded-lg" />
+                  <div className="h-12 bg-slate-100 rounded-lg" />
                 </div>
               </div>
-
-              {attendanceMode && (
-                <div className="grid grid-cols-3 gap-2 text-xs border-t border-slate-100 pt-2">
-                  <div
-                    onClick={() => sortBy("divisionAttended")}
-                    className={`p-2 rounded-lg cursor-pointer transition ${
-                      sortKey === "divisionAttended"
-                        ? "bg-emerald-50 border border-emerald-200"
-                        : "bg-slate-50"
-                    }`}
-                  >
-                    <span className="text-slate-500 block text-[10px]">Div Att</span>
-                    <span className="font-bold text-emerald-700">{row.divisionAttended}</span>
-                  </div>
-                  <div
-                    onClick={() => sortBy("sectorAttended")}
-                    className={`p-2 rounded-lg cursor-pointer transition ${
-                      sortKey === "sectorAttended"
-                        ? "bg-emerald-50 border border-emerald-200"
-                        : "bg-slate-50"
-                    }`}
-                  >
-                    <span className="text-slate-500 block text-[10px]">Sector Att</span>
-                    <span className="font-bold text-emerald-700">{row.sectorAttended}</span>
-                  </div>
-                  <div
-                    onClick={() => sortBy("totalAttended")}
-                    className={`p-2 rounded-lg cursor-pointer transition ${
-                      sortKey === "totalAttended"
-                        ? "bg-emerald-600 text-white shadow-sm"
-                        : "bg-emerald-100 text-emerald-800"
-                    }`}
-                  >
-                    <span className="block text-[10px] opacity-80">Total Att</span>
-                    <span className="font-black text-sm">{row.totalAttended}</span>
-                  </div>
-                </div>
-              )}
+            ))
+          ) : data.length === 0 ? (
+            <div className="p-8 text-center text-slate-400 font-semibold text-sm">
+              No delegate records found.
             </div>
-          ))}
+          ) : (
+            data.map((row) => (
+              <div
+                key={row._id}
+                className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm space-y-2 hover:border-purple-300 transition"
+              >
+                <div className="flex justify-between items-center font-bold text-slate-900 border-b border-slate-100 pb-2">
+                  <span className="text-base font-extrabold">{row.divisionName}</span>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-black ${
+                    sortKey === "totalRegistered"
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "bg-purple-100 text-purple-700"
+                  }`}>
+                    Total: {row.totalRegistered}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                  <div
+                    onClick={() => sortBy("divisionRegistered")}
+                    className={`p-2 rounded-lg cursor-pointer transition ${
+                      sortKey === "divisionRegistered"
+                        ? "bg-purple-50 border border-purple-200"
+                        : "bg-slate-50"
+                    }`}
+                  >
+                    <span className="text-slate-500 block">Division Reg</span>
+                    <span className="font-bold text-slate-800 text-sm">{row.divisionRegistered}</span>
+                  </div>
+                  <div
+                    onClick={() => sortBy("sectorRegistered")}
+                    className={`p-2 rounded-lg cursor-pointer transition ${
+                      sortKey === "sectorRegistered"
+                        ? "bg-purple-50 border border-purple-200"
+                        : "bg-slate-50"
+                    }`}
+                  >
+                    <span className="text-slate-500 block">Sector Reg</span>
+                    <span className="font-bold text-purple-600 text-sm">{row.sectorRegistered}</span>
+                  </div>
+                </div>
+
+                {attendanceMode && (
+                  <div className="grid grid-cols-3 gap-2 text-xs border-t border-slate-100 pt-2">
+                    <div
+                      onClick={() => sortBy("divisionAttended")}
+                      className={`p-2 rounded-lg cursor-pointer transition ${
+                        sortKey === "divisionAttended"
+                          ? "bg-emerald-50 border border-emerald-200"
+                          : "bg-slate-50"
+                      }`}
+                    >
+                      <span className="text-slate-500 block text-[10px]">Div Att</span>
+                      <span className="font-bold text-emerald-700">{row.divisionAttended}</span>
+                    </div>
+                    <div
+                      onClick={() => sortBy("sectorAttended")}
+                      className={`p-2 rounded-lg cursor-pointer transition ${
+                        sortKey === "sectorAttended"
+                          ? "bg-emerald-50 border border-emerald-200"
+                          : "bg-slate-50"
+                      }`}
+                    >
+                      <span className="text-slate-500 block text-[10px]">Sector Att</span>
+                      <span className="font-bold text-emerald-700">{row.sectorAttended}</span>
+                    </div>
+                    <div
+                      onClick={() => sortBy("totalAttended")}
+                      className={`p-2 rounded-lg cursor-pointer transition ${
+                        sortKey === "totalAttended"
+                          ? "bg-emerald-600 text-white shadow-sm"
+                          : "bg-emerald-100 text-emerald-800"
+                      }`}
+                    >
+                      <span className="block text-[10px] opacity-80">Total Att</span>
+                      <span className="font-black text-sm">{row.totalAttended}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Desktop Responsive Table View */}
@@ -357,33 +381,74 @@ export default function GC26DivisionRegistrationTable() {
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {data.map((row, i) => (
-                <motion.tr
-                  key={row._id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="hover:bg-purple-50/50 transition"
-                >
-                  <td className="py-3.5 font-bold text-slate-900">{row.divisionName}</td>
-                  <td className="py-3.5 text-right font-semibold">{row.divisionRegistered}</td>
-                  <td className="py-3.5 text-right font-semibold text-purple-600">
-                    {row.sectorRegistered}
+              {loading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="py-4">
+                      <div className="h-4 bg-slate-200 rounded w-32" />
+                    </td>
+                    <td className="py-4 text-right">
+                      <div className="h-4 bg-slate-100 rounded w-12 ml-auto" />
+                    </td>
+                    <td className="py-4 text-right">
+                      <div className="h-4 bg-purple-100 rounded w-12 ml-auto" />
+                    </td>
+                    <td className="py-4 text-right">
+                      <div className="h-4 bg-emerald-100 rounded w-16 ml-auto" />
+                    </td>
+                    {attendanceMode && (
+                      <>
+                        <td className="py-4 text-right">
+                          <div className="h-4 bg-slate-100 rounded w-12 ml-auto" />
+                        </td>
+                        <td className="py-4 text-right">
+                          <div className="h-4 bg-slate-100 rounded w-12 ml-auto" />
+                        </td>
+                        <td className="py-4 text-right">
+                          <div className="h-4 bg-indigo-100 rounded w-16 ml-auto" />
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))
+              ) : data.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={attendanceMode ? 7 : 4}
+                    className="py-8 text-center text-slate-400 font-semibold"
+                  >
+                    No delegate records found.
                   </td>
-                  <td className="py-3.5 text-right font-bold text-emerald-600">
-                    {row.totalRegistered}
-                  </td>
-                  {attendanceMode && (
-                    <>
-                      <td className="py-3.5 text-right text-slate-600">{row.divisionAttended}</td>
-                      <td className="py-3.5 text-right text-purple-600">{row.sectorAttended}</td>
-                      <td className="py-3.5 text-right text-indigo-600 font-bold">
-                        {row.totalAttended}
-                      </td>
-                    </>
-                  )}
-                </motion.tr>
-              ))}
+                </tr>
+              ) : (
+                data.map((row, i) => (
+                  <motion.tr
+                    key={row._id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="hover:bg-purple-50/50 transition"
+                  >
+                    <td className="py-3.5 font-bold text-slate-900">{row.divisionName}</td>
+                    <td className="py-3.5 text-right font-semibold">{row.divisionRegistered}</td>
+                    <td className="py-3.5 text-right font-semibold text-purple-600">
+                      {row.sectorRegistered}
+                    </td>
+                    <td className="py-3.5 text-right font-bold text-emerald-600">
+                      {row.totalRegistered}
+                    </td>
+                    {attendanceMode && (
+                      <>
+                        <td className="py-3.5 text-right text-slate-600">{row.divisionAttended}</td>
+                        <td className="py-3.5 text-right text-purple-600">{row.sectorAttended}</td>
+                        <td className="py-3.5 text-right text-indigo-600 font-bold">
+                          {row.totalAttended}
+                        </td>
+                      </>
+                    )}
+                  </motion.tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -95,7 +95,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-100/90 text-slate-800 pb-16 md:pb-0 font-sans selection:bg-purple-500 selection:text-white">
+    <div className="flex min-h-screen bg-slate-100/90 text-slate-800 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0 font-sans selection:bg-purple-500 selection:text-white">
       {/* ───────── Desktop Sidebar ───────── */}
       <motion.aside
         animate={{ width: sidebarOpen ? 280 : 88 }}
@@ -369,7 +369,7 @@ export default function AdminLayout({
       </div>
 
       {/* ───────── Mobile Bottom Navigation Bar ───────── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 z-30 flex items-center justify-around px-1 shadow-lg">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-lg border-t border-slate-200/80 z-30 flex items-center justify-around px-1 shadow-lg">
         <button
           onClick={() => router.push("/adminlogin/gc26/totaldelegates")}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
