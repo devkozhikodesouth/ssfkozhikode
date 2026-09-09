@@ -33,9 +33,9 @@ export default function GrandConclave26Page() {
   };
 
   return (
-    <div className="min-h-screen text-white selection:bg-rose-500 selection:text-white relative">
+    <div className="min-h-screen text-white selection:bg-[#7A32D0] selection:text-white relative">
       {/* Animated Background Gradient */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#ff0f47]">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#1F0550]">
         <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-conclave26-radial-1 animate-bgGlow" />
         <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-conclave26-radial-2 animate-bgGlow animate-colorFade" />
       </div>
@@ -53,7 +53,7 @@ export default function GrandConclave26Page() {
           >
             {/* Organization Badge */}
             <motion.div variants={itemAnim} className="mt-10">
-              <span className="text-lg sm:text-sm font-semibold uppercase -ms-32 sm:ms-0 tracking-widest text-rose-200 mb-2">
+              <span className="text-lg sm:text-sm font-semibold uppercase -ms-32 sm:ms-0 tracking-widest text-purple-200 mb-2">
                 <span className="font-cooper">SSF</span> Kozhikode South
               </span>
             </motion.div>
@@ -77,15 +77,15 @@ export default function GrandConclave26Page() {
             {/* Event Info (All in ONE Box) */}
             <motion.div
               variants={itemAnim}
-              className="w-full max-w-xl my-4 sm:my-6 p-4 sm:p-5 rounded-3xl bg-rose-950/40 border border-rose-500/30 backdrop-blur-md shadow-lg divide-y divide-rose-800/50 space-y-3.5"
+              className="w-full max-w-xl my-4 sm:my-6 p-4 sm:p-5 rounded-3xl bg-[#2B095F]/50 border border-[#7A32D0]/30 backdrop-blur-md shadow-lg divide-y divide-[#3E0B78]/60 space-y-3.5"
             >
               {/* Date & Time Row */}
               <div className="flex items-center gap-3.5 sm:gap-4 pb-4">
-                <div className="p-2.5 sm:p-3 rounded-2xl bg-rose-500/20 text-rose-200 shrink-0">
+                <div className="p-2.5 sm:p-3 rounded-2xl bg-[#7A32D0]/20 text-purple-200 shrink-0">
                   <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="text-left min-w-0 flex-1 ">
-                  <p className="text-xs sm:text-sm text-rose-200 font-medium uppercase tracking-wider">Date & Time</p>
+                  <p className="text-xs sm:text-sm text-purple-200 font-medium uppercase tracking-wider">Date & Time</p>
                   <p className="text-base sm:text-lg font-medium text-white truncate">
                     Sep 10, 2026 • 5:30 PM
                   </p>
@@ -109,7 +109,7 @@ export default function GrandConclave26Page() {
 
             {/* Countdown Component */}
             <motion.div variants={itemAnim} className="w-full my-2 sm:my-3">
-              <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-rose-200 mb-2">
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-purple-200 mb-2">
                 Event Starts In
               </p>
               <CountDown />
@@ -119,7 +119,7 @@ export default function GrandConclave26Page() {
             <motion.div variants={itemAnim} className="w-full mt-4 sm:mt-6">
               <button
                 onClick={scrollToForm}
-                className="w-full sm:w-auto px-10 py-4 rounded-2xl text-white font-medium text-base sm:text-lg shadow-xl shadow-rose-900/25 bg-gradient-to-r from-rose-600 via-pink-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
+                className="w-full sm:w-auto px-10 py-4 rounded-2xl text-white font-medium text-base sm:text-lg shadow-xl shadow-[#1F0550]/40 bg-gradient-to-r from-[#5F20A8] via-[#7A32D0] to-[#8739E0] hover:from-[#7A32D0] hover:to-[#8739E0] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
               >
                 <Ticket className="w-5 h-5" />
                 <span>Register Now</span>
@@ -136,7 +136,7 @@ export default function GrandConclave26Page() {
           >
             <div className="relative w-full flex justify-center items-center">
               {/* Subtle backglow behind the image */}
-              <div className="absolute w-44 h-44 lg:w-72 lg:h-72 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
+              <div className="absolute w-44 h-44 lg:w-72 lg:h-72 rounded-full bg-[#7A32D0]/20 blur-3xl pointer-events-none" />
               <motion.img
                 src="/flight.png"
                 alt="Flight to Grand Conclave 26"
@@ -150,7 +150,7 @@ export default function GrandConclave26Page() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="w-full h-auto max-h-[420px] object-contain drop-shadow-[0_20px_50px_rgba(255,15,71,0.25)] hover:scale-105 transition-all duration-500 active:scale-95 cursor-pointer"
+                className="w-full h-auto max-h-[420px] object-contain drop-shadow-[0_20px_50px_rgba(122,50,208,0.35)] hover:scale-105 transition-all duration-500 active:scale-95 cursor-pointer"
               />
             </div>
           </motion.div>
@@ -160,7 +160,7 @@ export default function GrandConclave26Page() {
         <div className="flex justify-center pt-6 sm:pt-10">
           <button
             onClick={scrollToForm}
-            className="flex flex-col items-center gap-1.5 text-rose-200 hover:text-white transition text-xs font-medium uppercase tracking-wider cursor-pointer"
+            className="flex flex-col items-center gap-1.5 text-purple-200 hover:text-white transition text-xs font-medium uppercase tracking-wider cursor-pointer"
           >
             <span>Fill Registration Form</span>
             <ChevronDown className="w-4 h-4 animate-bounce" />

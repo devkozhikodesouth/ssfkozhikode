@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
       className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
         isScrolled
           ? isConclave26
-            ? "bg-rose-950/40 border-b border-rose-500/20 py-3 shadow-lg backdrop-blur-md"
+            ? "bg-[#1F0550]/70 border-b border-[#7A32D0]/30 py-3 shadow-lg backdrop-blur-md"
             : "bg-transparent sm:bg-white border-b border-transparent sm:border-slate-200 py-3 shadow-none sm:shadow-sm"
           : "bg-transparent border-b border-transparent py-4"
       }`}
@@ -92,7 +92,7 @@ const Navbar: React.FC = () => {
             onClick={() => setNavbarOpen(!navbarOpen)}
             className={`p-2 rounded-xl focus:outline-none transition-all ${
               isConclave26
-                ? "text-white bg-rose-950/40 border border-rose-500/30 shadow-md hover:bg-rose-900/40"
+                ? "text-white bg-[#2B095F]/50 border border-[#7A32D0]/30 shadow-md hover:bg-[#3E0B78]/60"
                 : "text-slate-800 bg-white border border-slate-200 shadow-sm"
             }`}
             aria-label="Toggle Menu"

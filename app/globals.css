@@ -11,6 +11,12 @@
 
 @theme {
   --font-cooper: "Cooper Black", "Cooper", var(--font-cooper-font), "Caprasimo", serif;
+  --color-conclave-deep: #2B095F;
+  --color-conclave-dark-violet: #3E0B78;
+  --color-conclave-purple: #5F20A8;
+  --color-conclave-bright-violet: #7A32D0;
+  --color-conclave-light-purple: #8739E0;
+  --color-conclave-bottom: #1F0550;
 }
 
 /* Cooper Black font for SSF branding */
@@ -53,20 +59,24 @@ body {
 .bg-conclave26-radial-1 {
   background-image: radial-gradient(
     ellipse 55% 45% at 50% 55%,
-    #ffab96 0%,
-    #ff8580 35%,
-    #ff475e 60%,
-    #ff0f47 100%
+    #8739E0 0%,
+    #7A32D0 25%,
+    #5F20A8 50%,
+    #3E0B78 72%,
+    #2B095F 88%,
+    #1F0550 100%
   ) !important;
 }
 
 .bg-conclave26-radial-2 {
   background-image: radial-gradient(
     ellipse 55% 45% at 50% 55%,
-    #ff0f47 0%,
-    #ff475e 35%,
-    #ff8580 60%,
-    #ffab96 100%
+    #1F0550 0%,
+    #2B095F 25%,
+    #3E0B78 50%,
+    #5F20A8 72%,
+    #7A32D0 88%,
+    #8739E0 100%
   ) !important;
 }
 

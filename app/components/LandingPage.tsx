@@ -54,7 +54,7 @@ const LandingPage = () => {
               </div>
 
               <Link href="/grandconclave26" className="mt-8">
-                <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-500 hover:from-purple-500 hover:to-teal-400 text-white text-base sm:text-lg font-medium shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+                <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#5F20A8] via-[#7A32D0] to-[#8739E0] hover:from-[#7A32D0] hover:to-[#8739E0] text-white text-base sm:text-lg font-medium shadow-lg shadow-[#1F0550]/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
                   <span>Register Delegate Ticket</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
