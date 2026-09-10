@@ -8,12 +8,15 @@ export async function GET(req: Request) {
   try {
     await connectDB();
 
-    // Ensure models are registered in Mongoose
     void Division;
     void Sector;
 
     const { searchParams } = new URL(req.url);
-    const code = searchParams.get("code") || searchParams.get("query");
+    const code =
+      searchParams.get("code") ||
+      searchParams.get("query") ||
+      searchParams.get("ticket") ||
+      searchParams.get("mobile");
 
     if (!code) {
       return NextResponse.json(
@@ -91,7 +94,9 @@ export async function PATCH(req: Request) {
       id,
       { attendance: true },
       { new: true }
-    );
+    )
+      .populate("divisionId", "divisionName")
+      .populate("sectorId", "sectorName");
 
     return NextResponse.json({
       success: true,

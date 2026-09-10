@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import { Share2 } from "lucide-react";
+import { Share2, ExternalLink } from "lucide-react";
 
 export default function GC26AttendancePage() {
   const [showScanner, setShowScanner] = useState(false);
@@ -97,9 +97,21 @@ export default function GC26AttendancePage() {
       <h1 className="text-3xl font-extrabold text-purple-800">
         Grand Conclave 26 Attendance Scanner
       </h1>
-      <p className="text-gray-600 mt-1 mb-6">
+      <p className="text-gray-600 mt-1 mb-2">
         Scan GC26 Ticket QR code to record attendance
       </p>
+
+      <div className="mb-4">
+        <a
+          href="/gc26/attendance"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-full text-xs font-semibold transition shadow-sm cursor-pointer"
+        >
+          <span>Open External Attendance Page (No login required)</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+      </div>
 
       <button
         onClick={() => setShowScanner(true)}
