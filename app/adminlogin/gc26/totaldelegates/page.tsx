@@ -39,8 +39,10 @@ export default function GC26DivisionRegistrationTable() {
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>("totalRegistered");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [showAttendedOnly, setShowAttendedOnly] = useState(false);
 
-  const { attendanceMode } = useAttendanceMode();
+  const { attendanceMode, toggleAttendanceMode } = useAttendanceMode();
+  const isAttendanceActive = attendanceMode || showAttendedOnly;
 
   useEffect(() => {
     fetch("/api/admin/gc26/totaldeligates", {
@@ -92,6 +94,21 @@ export default function GC26DivisionRegistrationTable() {
     setSortOrder(nextOrder);
   };
 
+  const handleToggleAttendedOnly = () => {
+    const nextState = !showAttendedOnly;
+    setShowAttendedOnly(nextState);
+    if (nextState) {
+      if (!attendanceMode) {
+        toggleAttendanceMode();
+      }
+      sortBy("totalAttended");
+    }
+  };
+
+  const displayedData = showAttendedOnly
+    ? data.filter((row) => row.totalAttended > 0)
+    : data;
+
   const grandTotalRegistered = data.reduce(
     (sum, row) => sum + row.totalRegistered,
     0
@@ -103,64 +120,119 @@ export default function GC26DivisionRegistrationTable() {
   );
 
   const shareSummaryToWhatsApp = () => {
-    if (data.length === 0) return;
+    if (displayedData.length === 0) return;
 
-    const listItems = data
-      .map((row, i) => {
-        let line = `${i + 1}. *${row.divisionName}*\n   Registered: ${row.totalRegistered} (Div: ${row.divisionRegistered}, Sector: ${row.sectorRegistered})`;
-        if (attendanceMode) {
-          line += `\n   Attended: ${row.totalAttended} (Div: ${row.divisionAttended}, Sector: ${row.sectorAttended})`;
-        }
-        return line;
-      })
-      .join("\n\n");
+    let text = "";
+    if (showAttendedOnly) {
+      const listItems = displayedData
+        .map((row, i) => {
+          return `${i + 1}. *${row.divisionName}*\n   Attended: ${row.totalAttended} (Div: ${row.divisionAttended}, Sector: ${row.sectorAttended})`;
+        })
+        .join("\n\n");
 
-    let text = `*Grand Conclave 26 — Division Registration Summary*\n\n📊 *Total Registered:* ${grandTotalRegistered}`;
-    if (attendanceMode) {
-      text += `\n✅ *Total Attended:* ${grandTotalAttended}`;
+      text = `*Grand Conclave 26 — Attended Delegates Summary*\n\n✅ *Total Attended:* ${grandTotalAttended} Delegates\n📍 *Attended Divisions:* ${displayedData.length}\n\n*Attended Divisions Breakdown:*\n${listItems}\n\n*SSF Kozhikode South*`;
+    } else {
+      const listItems = displayedData
+        .map((row, i) => {
+          let line = `${i + 1}. *${row.divisionName}*\n   Registered: ${row.totalRegistered} (Div: ${row.divisionRegistered}, Sector: ${row.sectorRegistered})`;
+          if (isAttendanceActive) {
+            line += `\n   Attended: ${row.totalAttended} (Div: ${row.divisionAttended}, Sector: ${row.sectorAttended})`;
+          }
+          return line;
+        })
+        .join("\n\n");
+
+      text = `*Grand Conclave 26 — Division Registration Summary*\n\n📊 *Total Registered:* ${grandTotalRegistered}`;
+      if (isAttendanceActive) {
+        text += `\n✅ *Total Attended:* ${grandTotalAttended}`;
+      }
+      text += `\n\n*Division Breakdown:*\n${listItems}\n\n*SSF Kozhikode South*`;
     }
-    text += `\n\n*Division Breakdown:*\n${listItems}\n\n*SSF Kozhikode South*`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
   };
 
-  const sortOptions: { key: SortKey; label: string }[] = [
-    { key: "totalRegistered", label: "Total Reg" },
-    { key: "divisionRegistered", label: "Div Reg" },
-    { key: "sectorRegistered", label: "Sector Reg" },
-    { key: "divisionName", label: "Division (A-Z)" },
-    ...(attendanceMode
-      ? [
-          { key: "totalAttended" as SortKey, label: "Total Att" },
-          { key: "divisionAttended" as SortKey, label: "Div Att" },
-          { key: "sectorAttended" as SortKey, label: "Sector Att" },
-        ]
-      : []),
-  ];
+  const sortOptions: { key: SortKey; label: string }[] = showAttendedOnly
+    ? [
+        { key: "totalAttended" as SortKey, label: "Total Att" },
+        { key: "divisionAttended" as SortKey, label: "Div Att" },
+        { key: "sectorAttended" as SortKey, label: "Sector Att" },
+        { key: "divisionName", label: "Division (A-Z)" },
+      ]
+    : [
+        { key: "totalRegistered", label: "Total Reg" },
+        { key: "divisionRegistered", label: "Div Reg" },
+        { key: "sectorRegistered", label: "Sector Reg" },
+        { key: "divisionName", label: "Division (A-Z)" },
+        ...(isAttendanceActive
+          ? [
+              { key: "totalAttended" as SortKey, label: "Total Att" },
+              { key: "divisionAttended" as SortKey, label: "Div Att" },
+              { key: "sectorAttended" as SortKey, label: "Sector Att" },
+            ]
+          : []),
+      ];
+
+  const tableColumns: { key: SortKey; label: string }[] = showAttendedOnly
+    ? [
+        { key: "divisionAttended" as SortKey, label: "Division Att" },
+        { key: "sectorAttended" as SortKey, label: "Sector Att" },
+        { key: "totalAttended" as SortKey, label: "Total Att" },
+      ]
+    : [
+        { key: "divisionRegistered" as SortKey, label: "Division Reg" },
+        { key: "sectorRegistered" as SortKey, label: "Sector Reg" },
+        { key: "totalRegistered" as SortKey, label: "Total Reg" },
+        ...(isAttendanceActive
+          ? [
+              { key: "divisionAttended" as SortKey, label: "Division Att" },
+              { key: "sectorAttended" as SortKey, label: "Sector Att" },
+              { key: "totalAttended" as SortKey, label: "Total Att" },
+            ]
+          : []),
+      ];
 
   return (
     <section className="p-2 sm:p-6 space-y-6">
       {/* Header Metric Cards */}
-      <div className={`grid ${attendanceMode ? "grid-cols-2" : "grid-cols-1"} gap-3 sm:gap-6`}>
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-purple-100 text-purple-700 shrink-0">
-            <Users className="w-6 h-6" />
+      <div
+        className={`grid ${
+          showAttendedOnly
+            ? "grid-cols-1"
+            : isAttendanceActive
+            ? "grid-cols-2"
+            : "grid-cols-1"
+        } gap-3 sm:gap-6`}
+      >
+        {!showAttendedOnly && (
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-purple-100 text-purple-700 shrink-0">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                Total Registered
+              </p>
+              <p className="text-2xl sm:text-3xl font-black text-purple-700">
+                {grandTotalRegistered}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Registered</p>
-            <p className="text-2xl sm:text-3xl font-black text-purple-700">{grandTotalRegistered}</p>
-          </div>
-        </div>
+        )}
 
-        {attendanceMode && (
+        {isAttendanceActive && (
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
             <div className="p-3 rounded-xl bg-emerald-100 text-emerald-700 shrink-0">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Attended</p>
-              <p className="text-2xl sm:text-3xl font-black text-emerald-700">{grandTotalAttended}</p>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                Total Attended {showAttendedOnly && `(${displayedData.length} Divisions)`}
+              </p>
+              <p className="text-2xl sm:text-3xl font-black text-emerald-700">
+                {grandTotalAttended}
+              </p>
             </div>
           </div>
         )}
@@ -170,17 +242,34 @@ export default function GC26DivisionRegistrationTable() {
       <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="font-extrabold text-lg sm:text-xl text-slate-900">
-            Division Breakdown — Grand Conclave 26
+            {showAttendedOnly
+              ? "Attended Divisions Only — Grand Conclave 26"
+              : "Division Breakdown — Grand Conclave 26"}
           </h3>
 
-          <button
-            onClick={shareSummaryToWhatsApp}
-            disabled={data.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto justify-center"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>Share Table List to WhatsApp</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handleToggleAttendedOnly}
+              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition active:scale-95 cursor-pointer shadow-sm ${
+                showAttendedOnly
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-md ring-2 ring-emerald-500/20"
+                  : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+              }`}
+            >
+              <CheckCircle2 className={`w-4 h-4 ${showAttendedOnly ? "text-white" : "text-emerald-600"}`} />
+              <span>{showAttendedOnly ? "Showing Attended Only" : "Show Attended Only"}</span>
+            </button>
+
+            <button
+              onClick={shareSummaryToWhatsApp}
+              disabled={displayedData.length === 0}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto justify-center"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>{showAttendedOnly ? "Share Attended List" : "Share Table List to WhatsApp"}</span>
+            </button>
+          </div>
         </div>
 
         {/* Mobile & Desktop Sort Controls Bar */}
@@ -251,54 +340,76 @@ export default function GC26DivisionRegistrationTable() {
                 </div>
               </div>
             ))
-          ) : data.length === 0 ? (
+          ) : displayedData.length === 0 ? (
             <div className="p-8 text-center text-slate-400 font-semibold text-sm">
-              No delegate records found.
+              {showAttendedOnly
+                ? "No attended delegates found yet."
+                : "No delegate records found."}
             </div>
           ) : (
-            data.map((row) => (
+            displayedData.map((row) => (
               <div
                 key={row._id}
-                className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm space-y-2 hover:border-purple-300 transition"
+                className={`p-4 rounded-xl border bg-white shadow-sm space-y-2 hover:border-purple-300 transition ${
+                  showAttendedOnly ? "border-emerald-200" : "border-slate-200"
+                }`}
               >
                 <div className="flex justify-between items-center font-bold text-slate-900 border-b border-slate-100 pb-2">
                   <span className="text-base font-extrabold">{row.divisionName}</span>
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-black ${
-                    sortKey === "totalRegistered"
-                      ? "bg-purple-600 text-white shadow-sm"
-                      : "bg-purple-100 text-purple-700"
-                  }`}>
-                    Total: {row.totalRegistered}
+                  <span
+                    className={`text-xs px-2.5 py-1 rounded-full font-black ${
+                      showAttendedOnly
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : sortKey === "totalRegistered"
+                        ? "bg-purple-600 text-white shadow-sm"
+                        : "bg-purple-100 text-purple-700"
+                    }`}
+                  >
+                    {showAttendedOnly
+                      ? `Attended: ${row.totalAttended}`
+                      : `Total: ${row.totalRegistered}`}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                  <div
-                    onClick={() => sortBy("divisionRegistered")}
-                    className={`p-2 rounded-lg cursor-pointer transition ${
-                      sortKey === "divisionRegistered"
-                        ? "bg-purple-50 border border-purple-200"
-                        : "bg-slate-50"
-                    }`}
-                  >
-                    <span className="text-slate-500 block">Division Reg</span>
-                    <span className="font-bold text-slate-800 text-sm">{row.divisionRegistered}</span>
+                {!showAttendedOnly && (
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div
+                      onClick={() => sortBy("divisionRegistered")}
+                      className={`p-2 rounded-lg cursor-pointer transition ${
+                        sortKey === "divisionRegistered"
+                          ? "bg-purple-50 border border-purple-200"
+                          : "bg-slate-50"
+                      }`}
+                    >
+                      <span className="text-slate-500 block">Division Reg</span>
+                      <span className="font-bold text-slate-800 text-sm">
+                        {row.divisionRegistered}
+                      </span>
+                    </div>
+                    <div
+                      onClick={() => sortBy("sectorRegistered")}
+                      className={`p-2 rounded-lg cursor-pointer transition ${
+                        sortKey === "sectorRegistered"
+                          ? "bg-purple-50 border border-purple-200"
+                          : "bg-slate-50"
+                      }`}
+                    >
+                      <span className="text-slate-500 block">Sector Reg</span>
+                      <span className="font-bold text-purple-600 text-sm">
+                        {row.sectorRegistered}
+                      </span>
+                    </div>
                   </div>
-                  <div
-                    onClick={() => sortBy("sectorRegistered")}
-                    className={`p-2 rounded-lg cursor-pointer transition ${
-                      sortKey === "sectorRegistered"
-                        ? "bg-purple-50 border border-purple-200"
-                        : "bg-slate-50"
-                    }`}
-                  >
-                    <span className="text-slate-500 block">Sector Reg</span>
-                    <span className="font-bold text-purple-600 text-sm">{row.sectorRegistered}</span>
-                  </div>
-                </div>
+                )}
 
-                {attendanceMode && (
-                  <div className="grid grid-cols-3 gap-2 text-xs border-t border-slate-100 pt-2">
+                {isAttendanceActive && (
+                  <div
+                    className={`grid ${
+                      showAttendedOnly ? "grid-cols-2" : "grid-cols-3"
+                    } gap-2 text-xs ${
+                      !showAttendedOnly ? "border-t border-slate-100 pt-2" : "pt-1"
+                    }`}
+                  >
                     <div
                       onClick={() => sortBy("divisionAttended")}
                       className={`p-2 rounded-lg cursor-pointer transition ${
@@ -307,7 +418,7 @@ export default function GC26DivisionRegistrationTable() {
                           : "bg-slate-50"
                       }`}
                     >
-                      <span className="text-slate-500 block text-[10px]">Div Att</span>
+                      <span className="text-slate-500 block text-[10px]">Div Attended</span>
                       <span className="font-bold text-emerald-700">{row.divisionAttended}</span>
                     </div>
                     <div
@@ -318,20 +429,22 @@ export default function GC26DivisionRegistrationTable() {
                           : "bg-slate-50"
                       }`}
                     >
-                      <span className="text-slate-500 block text-[10px]">Sector Att</span>
+                      <span className="text-slate-500 block text-[10px]">Sector Attended</span>
                       <span className="font-bold text-emerald-700">{row.sectorAttended}</span>
                     </div>
-                    <div
-                      onClick={() => sortBy("totalAttended")}
-                      className={`p-2 rounded-lg cursor-pointer transition ${
-                        sortKey === "totalAttended"
-                          ? "bg-emerald-600 text-white shadow-sm"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
-                    >
-                      <span className="block text-[10px] opacity-80">Total Att</span>
-                      <span className="font-black text-sm">{row.totalAttended}</span>
-                    </div>
+                    {!showAttendedOnly && (
+                      <div
+                        onClick={() => sortBy("totalAttended")}
+                        className={`p-2 rounded-lg cursor-pointer transition ${
+                          sortKey === "totalAttended"
+                            ? "bg-emerald-600 text-white shadow-sm"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
+                        <span className="block text-[10px] opacity-80">Total Att</span>
+                        <span className="font-black text-sm">{row.totalAttended}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -350,22 +463,15 @@ export default function GC26DivisionRegistrationTable() {
                 >
                   <div className="flex items-center">
                     Division
-                    <ArrowUpDown className={`w-4 h-4 ml-1 ${sortKey === "divisionName" ? "text-purple-600" : "text-slate-400"}`} />
+                    <ArrowUpDown
+                      className={`w-4 h-4 ml-1 ${
+                        sortKey === "divisionName" ? "text-purple-600" : "text-slate-400"
+                      }`}
+                    />
                   </div>
                 </th>
 
-                {[
-                  { key: "divisionRegistered" as SortKey, label: "Division Reg" },
-                  { key: "sectorRegistered" as SortKey, label: "Sector Reg" },
-                  { key: "totalRegistered" as SortKey, label: "Total Reg" },
-                  ...(attendanceMode
-                    ? [
-                        { key: "divisionAttended" as SortKey, label: "Division Att" },
-                        { key: "sectorAttended" as SortKey, label: "Sector Att" },
-                        { key: "totalAttended" as SortKey, label: "Total Att" },
-                      ]
-                    : []),
-                ].map(({ key, label }) => (
+                {tableColumns.map(({ key, label }) => (
                   <th
                     key={key}
                     onClick={() => sortBy(key)}
@@ -373,7 +479,11 @@ export default function GC26DivisionRegistrationTable() {
                   >
                     <div className="flex items-center justify-end">
                       {label}
-                      <ArrowUpDown className={`w-4 h-4 ml-1 ${sortKey === key ? "text-purple-600" : "text-slate-400"}`} />
+                      <ArrowUpDown
+                        className={`w-4 h-4 ml-1 ${
+                          sortKey === key ? "text-purple-600" : "text-slate-400"
+                        }`}
+                      />
                     </div>
                   </th>
                 ))}
@@ -387,16 +497,20 @@ export default function GC26DivisionRegistrationTable() {
                     <td className="py-4">
                       <div className="h-4 bg-slate-200 rounded w-32" />
                     </td>
-                    <td className="py-4 text-right">
-                      <div className="h-4 bg-slate-100 rounded w-12 ml-auto" />
-                    </td>
-                    <td className="py-4 text-right">
-                      <div className="h-4 bg-purple-100 rounded w-12 ml-auto" />
-                    </td>
-                    <td className="py-4 text-right">
-                      <div className="h-4 bg-emerald-100 rounded w-16 ml-auto" />
-                    </td>
-                    {attendanceMode && (
+                    {!showAttendedOnly && (
+                      <>
+                        <td className="py-4 text-right">
+                          <div className="h-4 bg-slate-100 rounded w-12 ml-auto" />
+                        </td>
+                        <td className="py-4 text-right">
+                          <div className="h-4 bg-purple-100 rounded w-12 ml-auto" />
+                        </td>
+                        <td className="py-4 text-right">
+                          <div className="h-4 bg-emerald-100 rounded w-16 ml-auto" />
+                        </td>
+                      </>
+                    )}
+                    {isAttendanceActive && (
                       <>
                         <td className="py-4 text-right">
                           <div className="h-4 bg-slate-100 rounded w-12 ml-auto" />
@@ -411,17 +525,19 @@ export default function GC26DivisionRegistrationTable() {
                     )}
                   </tr>
                 ))
-              ) : data.length === 0 ? (
+              ) : displayedData.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={attendanceMode ? 7 : 4}
+                    colSpan={showAttendedOnly ? 4 : isAttendanceActive ? 7 : 4}
                     className="py-8 text-center text-slate-400 font-semibold"
                   >
-                    No delegate records found.
+                    {showAttendedOnly
+                      ? "No attended delegates found yet."
+                      : "No delegate records found."}
                   </td>
                 </tr>
               ) : (
-                data.map((row, i) => (
+                displayedData.map((row, i) => (
                   <motion.tr
                     key={row._id}
                     initial={{ opacity: 0, y: 8 }}
@@ -430,17 +546,27 @@ export default function GC26DivisionRegistrationTable() {
                     className="hover:bg-purple-50/50 transition"
                   >
                     <td className="py-3.5 font-bold text-slate-900">{row.divisionName}</td>
-                    <td className="py-3.5 text-right font-semibold">{row.divisionRegistered}</td>
-                    <td className="py-3.5 text-right font-semibold text-purple-600">
-                      {row.sectorRegistered}
-                    </td>
-                    <td className="py-3.5 text-right font-bold text-emerald-600">
-                      {row.totalRegistered}
-                    </td>
-                    {attendanceMode && (
+                    {!showAttendedOnly && (
                       <>
-                        <td className="py-3.5 text-right text-slate-600">{row.divisionAttended}</td>
-                        <td className="py-3.5 text-right text-purple-600">{row.sectorAttended}</td>
+                        <td className="py-3.5 text-right font-semibold">
+                          {row.divisionRegistered}
+                        </td>
+                        <td className="py-3.5 text-right font-semibold text-purple-600">
+                          {row.sectorRegistered}
+                        </td>
+                        <td className="py-3.5 text-right font-bold text-emerald-600">
+                          {row.totalRegistered}
+                        </td>
+                      </>
+                    )}
+                    {isAttendanceActive && (
+                      <>
+                        <td className="py-3.5 text-right text-slate-600">
+                          {row.divisionAttended}
+                        </td>
+                        <td className="py-3.5 text-right text-purple-600">
+                          {row.sectorAttended}
+                        </td>
                         <td className="py-3.5 text-right text-indigo-600 font-bold">
                           {row.totalAttended}
                         </td>
