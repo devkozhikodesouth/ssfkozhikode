@@ -111,3 +111,40 @@ body {
 .animate-bgGlow {
   animation: bgGlowAnim 15s ease-in-out infinite alternate;
 }
+
+/* It's our Legacy Page Background (poster palette: orchid glow → royal purple, magenta accents) */
+.bg-legacy-radial-1 {
+  background-image: radial-gradient(
+    ellipse 55% 45% at 50% 55%,
+    #DF70EB 0%,
+    #C85FDF 22%,
+    #8836C9 48%,
+    #6513B5 72%,
+    #4A0E95 88%,
+    #3A0A7A 100%
+  ) !important;
+}
+
+.bg-legacy-radial-2 {
+  background-image: radial-gradient(
+    ellipse 55% 45% at 50% 55%,
+    #E415A3 0%,
+    #D6229F 25%,
+    #A712AA 50%,
+    #7829C0 72%,
+    #6513B5 88%,
+    #4A0E95 100%
+  ) !important;
+}
+
+.font-legacy-display {
+  font-family: var(--font-legacy-display), "Orbitron", sans-serif;
+}
+
+.font-legacy-pixel {
+  font-family: var(--font-legacy-pixel), "Silkscreen", monospace;
+}
+
+.font-legacy-body {
+  font-family: var(--font-legacy-body), "Montserrat", sans-serif;
+}

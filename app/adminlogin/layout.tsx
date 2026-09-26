@@ -66,6 +66,40 @@ const MENU = [
       },
     ],
   },
+  {
+    id: "legacy",
+    label: "It’s our Legacy",
+    subtitle: "Izza code Gather",
+    icon: Flame,
+    badge: "Sep 27",
+    items: [
+      {
+        name: "Total Delegates",
+        path: "/adminlogin/legacy/totaldelegates",
+        icon: BarChart3,
+      },
+      {
+        name: "Division Delegates",
+        path: "/adminlogin/legacy/division",
+        icon: Building2,
+      },
+      {
+        name: "Sector Delegates",
+        path: "/adminlogin/legacy/sector",
+        icon: Layers,
+      },
+      {
+        name: "District Delegates",
+        path: "/adminlogin/legacy/district",
+        icon: Shield,
+      },
+      {
+        name: "Mark Attendance",
+        path: "/adminlogin/legacy/attendance",
+        icon: UserCheck,
+      },
+    ],
+  },
 ];
 
 export default function AdminLayout({
@@ -88,6 +122,10 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>("gc26");
+
+  const eventBase = pathname.startsWith("/adminlogin/legacy")
+    ? "/adminlogin/legacy"
+    : "/adminlogin/gc26";
 
   const logout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
@@ -371,9 +409,9 @@ export default function AdminLayout({
       {/* ───────── Mobile Bottom Navigation Bar ───────── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-lg border-t border-slate-200/80 z-30 flex items-center justify-around px-1 shadow-lg">
         <button
-          onClick={() => router.push("/adminlogin/gc26/totaldelegates")}
+          onClick={() => router.push(`${eventBase}/totaldelegates`)}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
-            pathname === "/adminlogin/gc26/totaldelegates"
+            pathname === `${eventBase}/totaldelegates`
               ? "text-purple-600"
               : "text-slate-400 hover:text-slate-700"
           }`}
@@ -383,9 +421,9 @@ export default function AdminLayout({
         </button>
 
         <button
-          onClick={() => router.push("/adminlogin/gc26/division")}
+          onClick={() => router.push(`${eventBase}/division`)}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
-            pathname === "/adminlogin/gc26/division"
+            pathname === `${eventBase}/division`
               ? "text-purple-600"
               : "text-slate-400 hover:text-slate-700"
           }`}
@@ -395,9 +433,9 @@ export default function AdminLayout({
         </button>
 
         <button
-          onClick={() => router.push("/adminlogin/gc26/sector")}
+          onClick={() => router.push(`${eventBase}/sector`)}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
-            pathname === "/adminlogin/gc26/sector"
+            pathname === `${eventBase}/sector`
               ? "text-purple-600"
               : "text-slate-400 hover:text-slate-700"
           }`}
@@ -407,9 +445,9 @@ export default function AdminLayout({
         </button>
 
         <button
-          onClick={() => router.push("/adminlogin/gc26/district")}
+          onClick={() => router.push(`${eventBase}/district`)}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
-            pathname === "/adminlogin/gc26/district"
+            pathname === `${eventBase}/district`
               ? "text-purple-600"
               : "text-slate-400 hover:text-slate-700"
           }`}
@@ -419,9 +457,9 @@ export default function AdminLayout({
         </button>
 
         <button
-          onClick={() => router.push("/adminlogin/gc26/attendance")}
+          onClick={() => router.push(`${eventBase}/attendance`)}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
-            pathname === "/adminlogin/gc26/attendance"
+            pathname === `${eventBase}/attendance`
               ? "text-purple-600"
               : "text-slate-400 hover:text-slate-700"
           }`}
@@ -446,6 +484,7 @@ export default function AdminLayout({
    Navbar with Attendance Toggle
 ────────────────────────────── */
 function Navbar({ onMenu }: { onMenu: () => void }) {
+  const pathname = usePathname();
   const { attendanceMode, toggleAttendanceMode } = useAttendanceMode();
 
   return (
@@ -462,7 +501,9 @@ function Navbar({ onMenu }: { onMenu: () => void }) {
             Admin Dashboard
           </h1>
           <p className="hidden sm:block text-[11px] font-semibold text-slate-400">
-            Grand Conclave 26 Management
+            {pathname.startsWith("/adminlogin/legacy")
+              ? "It’s our Legacy Management"
+              : "Grand Conclave 26 Management"}
           </p>
         </div>
       </div>

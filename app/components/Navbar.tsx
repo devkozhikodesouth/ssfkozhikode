@@ -41,16 +41,19 @@ const Navbar: React.FC = () => {
   const navItems = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
-    { name: "Grand Conclave 26", href: "/grandconclave26" },
+    { name: "It’s our Legacy", href: "/legacy" },
   ];
 
-  const isConclave26 = pathname === "/grandconclave26";
+  const isLegacy = pathname === "/legacy";
+  const isConclave26 = pathname === "/grandconclave26" || isLegacy;
 
   return (
     <header
       className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? isConclave26
+          ? isLegacy
+            ? "bg-[#3A0A7A]/70 border-b border-[#D6229F]/30 py-3 shadow-lg backdrop-blur-md"
+            : isConclave26
             ? "bg-[#1F0550]/70 border-b border-[#7A32D0]/30 py-3 shadow-lg backdrop-blur-md"
             : "bg-transparent sm:bg-white border-b border-transparent sm:border-slate-200 py-3 shadow-none sm:shadow-sm"
           : "bg-transparent border-b border-transparent py-4"

@@ -37,24 +37,25 @@ const LandingPage = () => {
 
           {/* Primary Event Card */}
           <div className="w-full max-w-2xl text-left mt-2">
-            <div className="group relative rounded-3xl p-8 sm:p-10 bg-white/90 border border-purple-200/80 hover:border-purple-400 transition-all duration-300 shadow-xl hover:shadow-2xl flex flex-col justify-between backdrop-blur-sm">
+            {/* It's our Legacy Event Card */}
+            <div className="group relative rounded-3xl p-8 sm:p-10 bg-white/90 border border-fuchsia-200/80 hover:border-fuchsia-400 transition-all duration-300 shadow-xl hover:shadow-2xl flex flex-col justify-between backdrop-blur-sm">
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="px-3.5 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium uppercase tracking-wider border border-purple-200">
-                    2026 Sep 10 • 5:30 PM
+                  <span className="px-3.5 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 text-xs font-medium uppercase tracking-wider border border-fuchsia-200">
+                    2026 Sep 27 • 12:00 PM
                   </span>
-                  <Sparkles className="w-6 h-6 text-amber-500" />
+                  <Sparkles className="w-6 h-6 text-[#E415A3]" />
                 </div>
-                <h3 className="text-3xl sm:text-4xl font-medium text-slate-900 group-hover:text-purple-600 transition">
-                  Grand Conclave 26
+                <h3 className="text-3xl sm:text-4xl font-medium text-slate-900 group-hover:text-[#D6229F] transition">
+                  It’s our Legacy
                 </h3>
                 <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed font-normal">
-                  Jamia Markaz, Karanthur. The flagship delegate conference empowering student leadership across sectors and divisions in <span className="font-cooper">SSF</span> Kozhikode South.
+                  Izza code Gather at Cheenadath, Puthiyangadi. With Sayyid VPA Darimi Atteeri & Jabir Kanthapuram.
                 </p>
               </div>
 
-              <Link href="/grandconclave26" className="mt-8">
-                <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#5F20A8] via-[#7A32D0] to-[#8739E0] hover:from-[#7A32D0] hover:to-[#8739E0] text-white text-base sm:text-lg font-medium shadow-lg shadow-[#1F0550]/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+              <Link href="/legacy" className="mt-8">
+                <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#6513B5] via-[#A712AA] to-[#E415A3] hover:from-[#7829C0] hover:to-[#E415A3] text-white text-base sm:text-lg font-medium shadow-lg shadow-[#3A0A7A]/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
                   <span>Register Delegate Ticket</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
