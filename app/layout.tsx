@@ -26,10 +26,6 @@ export const metadata: Metadata = {
   title: "Grand Conclave 26 | SSF Kozhikode South",
   description: "Official portal of Grand Conclave 26 — SSF Kozhikode South",
 
-  icons: {
-    icon: "/logo.png",
-  },
-
   openGraph: {
     type: "website",
     locale: "en_US",
