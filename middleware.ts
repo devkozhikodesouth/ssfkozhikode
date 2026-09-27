@@ -18,7 +18,7 @@ export function middleware(req: NextRequest) {
 
   // 2. Already logged in user trying to access public auth page (login/forgot/reset)
   if (token && isPublicAuthPage) {
-    const dashboardUrl = new URL("/adminlogin/gc26/totaldelegates", req.url);
+    const dashboardUrl = new URL("/adminlogin/legacy/totaldelegates", req.url);
     return NextResponse.redirect(dashboardUrl);
   }
 

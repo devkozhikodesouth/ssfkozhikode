@@ -31,10 +31,19 @@ type NavItemConfig = {
 /* ─────────────────────────────
    MENU CONFIG WITH ICONS
 ────────────────────────────── */
-const MENU = [
+const MENU: {
+  id: string;
+  label: string;
+  subtitle: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+  hidden?: boolean;
+  items: NavItemConfig[];
+}[] = [
   {
     id: "gc26",
     label: "Grand Conclave 26",
+    hidden: true, // hidden from sidebar; pages still reachable by URL
     subtitle: "Management Suite",
     icon: Sparkles,
     badge: "Active",
@@ -69,6 +78,7 @@ const MENU = [
   {
     id: "legacy",
     label: "It’s our Legacy",
+    hidden: false,
     subtitle: "Izza code Gather",
     icon: Flame,
     badge: "Sep 27",
@@ -121,11 +131,11 @@ export default function AdminLayout({
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openGroup, setOpenGroup] = useState<string | null>("gc26");
+  const [openGroup, setOpenGroup] = useState<string | null>("legacy");
 
-  const eventBase = pathname.startsWith("/adminlogin/legacy")
-    ? "/adminlogin/legacy"
-    : "/adminlogin/gc26";
+  const eventBase = pathname.startsWith("/adminlogin/gc26")
+    ? "/adminlogin/gc26"
+    : "/adminlogin/legacy";
 
   const logout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
@@ -184,7 +194,7 @@ export default function AdminLayout({
 
         {/* Navigation Content */}
         <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
-          {MENU.map((group) => (
+          {MENU.filter((group) => !group.hidden).map((group) => (
             <div key={group.id} className="space-y-1.5">
               {/* Group Header */}
               {sidebarOpen ? (
@@ -330,7 +340,7 @@ export default function AdminLayout({
 
               {/* Drawer Nav Items */}
               <nav className="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
-                {MENU.map((group) => (
+                {MENU.filter((group) => !group.hidden).map((group) => (
                   <div key={group.id} className="space-y-1.5">
                     <div className="px-2 py-1 flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
@@ -501,9 +511,9 @@ function Navbar({ onMenu }: { onMenu: () => void }) {
             Admin Dashboard
           </h1>
           <p className="hidden sm:block text-[11px] font-semibold text-slate-400">
-            {pathname.startsWith("/adminlogin/legacy")
-              ? "It’s our Legacy Management"
-              : "Grand Conclave 26 Management"}
+            {pathname.startsWith("/adminlogin/gc26")
+              ? "Grand Conclave 26 Management"
+              : "It’s our Legacy Management"}
           </p>
         </div>
       </div>

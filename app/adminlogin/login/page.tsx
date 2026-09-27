@@ -31,7 +31,7 @@ export default function LoginPage() {
 
       if (res.ok && data.success) {
         setRedirecting(true);
-        const target = data.redirect || "/adminlogin/gc26/totaldelegates";
+        const target = data.redirect || "/adminlogin/legacy/totaldelegates";
         router.replace(target);
         router.refresh();
         setTimeout(() => {
