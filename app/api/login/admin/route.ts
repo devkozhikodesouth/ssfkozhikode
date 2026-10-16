@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({
       success: true,
       message: "Login successful",
-      redirect: "/adminlogin/legacy/totaldelegates",
+      redirect: "/adminlogin/fund",
     });
 
     res.cookies.set({

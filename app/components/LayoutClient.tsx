@@ -8,7 +8,9 @@ import TouchGlowEffect from "./TouchGlowEffect";
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAdminRoute = pathname.startsWith("/adminlogin");
+  // Admin and the standalone Fund Challenge app render without site chrome
+  const isAdminRoute =
+    pathname.startsWith("/adminlogin") || pathname.startsWith("/fundchallenge");
 
   return (
     <>

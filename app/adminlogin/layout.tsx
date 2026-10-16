@@ -9,6 +9,7 @@ import {
   LogOut,
   Sparkles,
   GraduationCap,
+  Wallet,
   Building2,
   X,
   UserCheck,
@@ -78,7 +79,7 @@ const MENU: {
   {
     id: "legacy",
     label: "It’s our Legacy",
-    hidden: false,
+    hidden: true, // hidden from sidebar; pages still reachable by URL
     subtitle: "Izza code Gather",
     icon: Flame,
     badge: "Sep 27",
@@ -110,6 +111,20 @@ const MENU: {
       },
     ],
   },
+  {
+    id: "fund",
+    label: "Fund Challenge",
+    subtitle: "Members & Targets",
+    icon: Wallet,
+    hidden: false,
+    items: [
+      {
+        name: "Members & Targets",
+        path: "/adminlogin/fund",
+        icon: BarChart3,
+      },
+    ],
+  },
 ];
 
 export default function AdminLayout({
@@ -131,11 +146,14 @@ export default function AdminLayout({
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openGroup, setOpenGroup] = useState<string | null>("legacy");
+  const [openGroup, setOpenGroup] = useState<string | null>("fund");
 
+  // Event shortcuts in the mobile bottom bar only while on a (hidden) event page
   const eventBase = pathname.startsWith("/adminlogin/gc26")
     ? "/adminlogin/gc26"
-    : "/adminlogin/legacy";
+    : pathname.startsWith("/adminlogin/legacy")
+    ? "/adminlogin/legacy"
+    : null;
 
   const logout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
@@ -418,6 +436,8 @@ export default function AdminLayout({
 
       {/* ───────── Mobile Bottom Navigation Bar ───────── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-lg border-t border-slate-200/80 z-30 flex items-center justify-around px-1 shadow-lg">
+        {eventBase ? (
+          <>
         <button
           onClick={() => router.push(`${eventBase}/totaldelegates`)}
           className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
@@ -478,6 +498,21 @@ export default function AdminLayout({
           <span>Attendance</span>
         </button>
 
+          </>
+        ) : (
+          <button
+            onClick={() => router.push("/adminlogin/fund")}
+            className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
+              pathname === "/adminlogin/fund"
+                ? "text-purple-600"
+                : "text-slate-400 hover:text-slate-700"
+            }`}
+          >
+            <Wallet className="w-4 h-4" />
+            <span>Fund Challenge</span>
+          </button>
+        )}
+
         <button
           onClick={() => setMobileOpen(true)}
           className="flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold text-slate-400 hover:text-slate-700"
@@ -513,7 +548,9 @@ function Navbar({ onMenu }: { onMenu: () => void }) {
           <p className="hidden sm:block text-[11px] font-semibold text-slate-400">
             {pathname.startsWith("/adminlogin/gc26")
               ? "Grand Conclave 26 Management"
-              : "It’s our Legacy Management"}
+              : pathname.startsWith("/adminlogin/legacy")
+              ? "It’s our Legacy Management"
+              : "Fund Challenge Management"}
           </p>
         </div>
       </div>

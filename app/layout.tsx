@@ -23,8 +23,8 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 
-  title: "Grand Conclave 26 | SSF Kozhikode South",
-  description: "Official portal of Grand Conclave 26 — SSF Kozhikode South",
+  title: "SSF Kozhikode South",
+  description: "Official portal of SSF Kozhikode South",
 
   openGraph: {
     type: "website",
@@ -32,25 +32,25 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "SSF Kozhikode South",
 
-    title: "Grand Conclave 26 | SSF Kozhikode South",
+    title: "SSF Kozhikode South",
     description:
-      "Official portal of Grand Conclave 26 — SSF Kozhikode South",
+      "Official portal of SSF Kozhikode South",
 
     images: [
       {
         url: `${siteUrl}/thumb.jpg`,
         width: 1200,
         height: 630,
-        alt: "Grand Conclave 26",
+        alt: "SSF Kozhikode South",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Grand Conclave 26 | SSF Kozhikode South",
+    title: "SSF Kozhikode South",
     description:
-      "Official portal of Grand Conclave 26 — SSF Kozhikode South",
+      "Official portal of SSF Kozhikode South",
     images: [`${siteUrl}/thumb.jpg`],
   },
 };
