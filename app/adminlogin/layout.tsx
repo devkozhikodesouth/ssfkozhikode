@@ -44,7 +44,7 @@ const MENU: {
   {
     id: "gc26",
     label: "Grand Conclave 26",
-    hidden: true, // hidden from sidebar; pages still reachable by URL
+    hidden: false,
     subtitle: "Management Suite",
     icon: Sparkles,
     badge: "Active",

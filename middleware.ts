@@ -4,14 +4,26 @@ import { NextRequest, NextResponse } from "next/server";
  * Grand Conclave (2025 + 26) is closed to the public.
  * Its pages and public APIs 404 for everyone; the public APIs stay
  * available to logged-in admins because admin GC pages reuse them.
+ * Exception: the GC26 division pages (/gc26/division/<code>) and the
+ * APIs they read stay public so each division can see its delegates.
  * Data is untouched in the database.
  */
 const HIDDEN_GC_PAGES = [/^\/grandconclave(26)?(\/|$)/, /^\/gc(26)?(\/|$)/];
 const HIDDEN_GC_APIS = [/^\/api\/grandconclave(26)?(\/|$)/, /^\/api\/gc(26)?(\/|$)/];
+const PUBLIC_GC26_DIVISION = [
+  /^\/gc26\/division\/[^/]+\/?$/,
+  /^\/api\/gc26\/divdelegates\/[^/]+\/?$/,
+  /^\/api\/gc26\/sector\/[^/]+\/?$/,
+  /^\/api\/gc26\/sector\/studentsdata\/[^/]+\/?$/,
+];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
+
+  if (PUBLIC_GC26_DIVISION.some((re) => re.test(pathname))) {
+    return NextResponse.next();
+  }
 
   if (HIDDEN_GC_PAGES.some((re) => re.test(pathname))) {
     return NextResponse.rewrite(new URL("/_not-found", req.url), { status: 404 });
