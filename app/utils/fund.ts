@@ -1,5 +1,35 @@
 /* Shared Fund Challenge helpers (used by client and API) */
 
+/* Two separate challenges with their own members, totals, receipt series and
+   secret public link (keys live server-side in app/lib/fundLinks.ts) */
+export type FundGroup = "executive" | "council";
+
+export const FUND_GROUPS: Record<
+  FundGroup,
+  { label: string; memberLabel: string; target: number; receiptPrefix: string; counterName: string }
+> = {
+  executive: {
+    label: "Executive",
+    memberLabel: "Executive member",
+    target: 25000, // fixed per member
+    receiptPrefix: "FC",
+    counterName: "fundReceipt", // existing series, keeps FC-0001… continuous
+  },
+  council: {
+    label: "Executive Council",
+    memberLabel: "Council member",
+    target: 15000, // fixed per member
+    receiptPrefix: "EC",
+    counterName: "fundReceiptCouncil",
+  },
+};
+
+export const parseGroup = (v: unknown): FundGroup => (v === "council" ? "council" : "executive");
+
+/* Members saved before groups existed have no group: they are Executive */
+export const groupFilter = (g: FundGroup) =>
+  g === "council" ? { group: "council" } : { group: { $ne: "council" } };
+
 export type FundMemberSummary = {
   _id: string;
   name: string;
@@ -93,24 +123,6 @@ export const formatTime = (d: string | Date) =>
     hour12: true,
   });
 
-/* Formatted text receipt for WhatsApp */
-export function receiptMessage(e: FundEntryRow): string {
-  return [
-    "💰 *Fund Challenge — SSF Kozhikode South*",
-    "🧾 *Receipt*",
-    "",
-    `🔖 *Receipt No:* ${e.receiptNo}`,
-    `📅 *Date:* ${formatDate(e.date)}, ${formatTime(e.createdAt)}`,
-    `👤 *Received from:* ${e.contributorName}`,
-    `💵 *Amount:* ${formatINR(e.amount)}`,
-    `✍️ _(${amountInWords(e.amount)})_`,
-    `🙋 *Collected by:* ${e.memberName}`,
-    "",
-    "🤲 Thank you for your generous contribution to the Fund Challenge.",
-    "💚 — SSF Kozhikode South District Committee",
-  ].join("\n");
-}
-
 /* Opens that chat directly when a mobile number exists, else WhatsApp's contact picker */
 export function whatsappUrl(message: string, mobile?: string | null): string {
   const text = encodeURIComponent(message);
@@ -125,10 +137,12 @@ const STATUS_EMOJI = { green: "🟢", orange: "🟠", red: "🔴" } as const;
 /* WhatsApp summary: ranked members with collected amount and % */
 export function membersSummaryMessage(
   rows: RankedMember[],
-  totals: { target: number; collected: number; balance: number; percent: number }
+  totals: { target: number; collected: number; balance: number; percent: number },
+  groupLabel: string
 ): string {
   return [
-    "💰 *Fund Challenge — SSF Kozhikode South*",
+    `💰 *Fund Challenge — ${groupLabel}*`,
+    "SSF Kozhikode South District Committee",
     `📊 Collection status · 📅 ${formatDate(new Date())}`,
     "",
     `🎯 *Target:* ${formatINR(totals.target)}`,
@@ -154,7 +168,7 @@ const csvCell = (v: string | number) => {
 };
 
 /* Download members as CSV (BOM so Excel reads ₹/Malayalam names correctly) */
-export function downloadMembersCsv(rows: RankedMember[]) {
+export function downloadMembersCsv(rows: RankedMember[], groupLabel: string) {
   const header = ["Rank", "Name", "Target", "Collected", "Balance", "Achieved %"];
   const lines = rows.map((m) =>
     [m.rank, m.name, m.target, m.collected, m.balance, m.percent].map(csvCell).join(",")
@@ -166,7 +180,7 @@ export function downloadMembersCsv(rows: RankedMember[]) {
   const date = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
   const link = document.createElement("a");
   link.href = url;
-  link.download = `Fund_Challenge_Members_${date}.csv`;
+  link.download = `Fund_Challenge_${groupLabel.replace(/\s+/g, "_")}_${date}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

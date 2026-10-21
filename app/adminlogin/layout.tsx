@@ -119,9 +119,14 @@ const MENU: {
     hidden: false,
     items: [
       {
-        name: "Members & Targets",
-        path: "/adminlogin/fund",
+        name: "Executive",
+        path: "/adminlogin/fund/executive",
         icon: BarChart3,
+      },
+      {
+        name: "Executive Council",
+        path: "/adminlogin/fund/council",
+        icon: Building2,
       },
     ],
   },
@@ -501,9 +506,9 @@ export default function AdminLayout({
           </>
         ) : (
           <button
-            onClick={() => router.push("/adminlogin/fund")}
+            onClick={() => router.push("/adminlogin/fund/executive")}
             className={`flex flex-col items-center justify-center w-full py-1 text-[10px] font-bold transition ${
-              pathname === "/adminlogin/fund"
+              pathname.startsWith("/adminlogin/fund")
                 ? "text-purple-600"
                 : "text-slate-400 hover:text-slate-700"
             }`}

@@ -2,18 +2,24 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
 import FundMember from "@/app/models/FundMember";
 import FundEntry from "@/app/models/FundEntry";
-import { percentOf } from "@/app/utils/fund";
+import { FUND_GROUPS, groupFilter, percentOf } from "@/app/utils/fund";
+import { resolveFundKey } from "@/app/lib/fundLinks";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* GET : live dashboard data — every active member with collected totals */
-export async function GET() {
+/* GET ?key= : live dashboard data for the group behind the secret link key */
+export async function GET(req: Request) {
   try {
     await connectDB();
+    const group = await resolveFundKey(new URL(req.url).searchParams.get("key"));
+    if (!group) {
+      return NextResponse.json({ success: false, message: "Not found" }, { status: 404 });
+    }
+    const target = FUND_GROUPS[group].target; // fixed per member
 
     const [members, stats] = await Promise.all([
-      FundMember.find({ active: true }).select("name target").lean(),
+      FundMember.find({ active: true, ...groupFilter(group) }).select("name target").lean(),
       FundEntry.aggregate([
         {
           $group: {
@@ -31,7 +37,6 @@ export async function GET() {
       .map((m: any) => {
         const s: any = statMap.get(String(m._id));
         const collected = s?.collected || 0;
-        const target = m.target || 0;
         return {
           _id: String(m._id),
           name: m.name,

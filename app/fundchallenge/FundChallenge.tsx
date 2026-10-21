@@ -12,12 +12,13 @@ import {
   ArrowUpNarrowWide,
 } from "lucide-react";
 import {
+  FUND_GROUPS,
   FundEntryRow,
+  FundGroup,
   FundMemberSummary,
   formatDate,
   formatINR,
   progressTone,
-  receiptMessage,
   membersSummaryMessage,
   downloadMembersCsv,
 } from "@/app/utils/fund";
@@ -44,24 +45,32 @@ const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
 
 const matchesStatus = (m: FundMemberSummary, f: StatusFilter) =>
   f === "all" ? true : f === "zero" ? m.collected === 0 : progressTone(m.percent) === f;
-const STORAGE_KEY = "fc:selectedMember";
+// Executive keeps the original key so existing phones remember their selection
+const storageKey = (g: FundGroup) => (g === "executive" ? "fc:selectedMember" : `fc:selectedMember:${g}`);
 
-const readStored = () => {
+const readStored = (g: FundGroup) => {
   try {
-    return localStorage.getItem(STORAGE_KEY) || "";
+    return localStorage.getItem(storageKey(g)) || "";
   } catch {
     return "";
   }
 };
-const writeStored = (v: string) => {
+const writeStored = (g: FundGroup, v: string) => {
   try {
-    v ? localStorage.setItem(STORAGE_KEY, v) : localStorage.removeItem(STORAGE_KEY);
+    v ? localStorage.setItem(storageKey(g), v) : localStorage.removeItem(storageKey(g));
   } catch {
     /* storage unavailable: selection just isn't remembered */
   }
 };
 
-export default function FundChallenge() {
+export default function FundChallenge({
+  group,
+  fundKey,
+}: {
+  group: FundGroup;
+  fundKey: string; // secret link key, sent with every API call
+}) {
+  const cfg = FUND_GROUPS[group];
   const [members, setMembers] = useState<FundMemberSummary[]>([]);
   const [totals, setTotals] = useState<Totals>({ target: 0, collected: 0, balance: 0, percent: 0 });
   const [loading, setLoading] = useState(true);
@@ -82,7 +91,7 @@ export default function FundChallenge() {
   /* ---------------- Data loading ---------------- */
   const loadDashboard = useCallback(async () => {
     try {
-      const res = await fetch("/api/fund", { cache: "no-store" });
+      const res = await fetch(`/api/fund?key=${encodeURIComponent(fundKey)}`, { cache: "no-store" });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
       setMembers(data.members);
@@ -93,13 +102,16 @@ export default function FundChallenge() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fundKey]);
 
   const loadEntries = useCallback(async (memberId: string) => {
     if (!memberId) return setEntries([]);
     setEntriesLoading(true);
     try {
-      const res = await fetch(`/api/fund/entries?memberId=${memberId}`, { cache: "no-store" });
+      const res = await fetch(
+        `/api/fund/entries?key=${encodeURIComponent(fundKey)}&memberId=${memberId}`,
+        { cache: "no-store" }
+      );
       const data = await res.json();
       setEntries(data.success ? data.entries : []);
     } catch {
@@ -107,12 +119,12 @@ export default function FundChallenge() {
     } finally {
       setEntriesLoading(false);
     }
-  }, []);
+  }, [fundKey]);
 
   useEffect(() => {
-    setSelectedId(readStored());
+    setSelectedId(readStored(group));
     loadDashboard();
-  }, [loadDashboard]);
+  }, [loadDashboard, group]);
 
   // Live: refresh while visible, and immediately when the tab comes back
   useEffect(() => {
@@ -135,7 +147,7 @@ export default function FundChallenge() {
   useEffect(() => {
     if (!loading && selectedId && !members.some((m) => m._id === selectedId)) {
       setSelectedId("");
-      writeStored("");
+      writeStored(group, "");
     }
   }, [loading, members, selectedId]);
 
@@ -171,7 +183,7 @@ export default function FundChallenge() {
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
-    writeStored(id);
+    writeStored(group, id);
   };
 
   // Picking from the list: select, then bring the member summary into view
@@ -223,7 +235,7 @@ export default function FundChallenge() {
             <img src="/icon.png" alt="SSF" width={34} height={34} />
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-bold leading-tight">Fund Challenge</h1>
+            <h1 className="text-xl font-bold leading-tight">Fund Challenge · {cfg.label}</h1>
             <p className="text-sm text-white/85 truncate">SSF Kozhikode South · District Committee</p>
           </div>
           <button
@@ -247,7 +259,7 @@ export default function FundChallenge() {
         {/* ===== MEMBER SELECTION ===== */}
         <section ref={memberSectionRef} className="scroll-mt-4 bg-white rounded-2xl border border-slate-200 p-4">
           <label htmlFor="fc-member" className="block text-sm font-semibold text-slate-700 mb-2">
-            Executive member
+            {cfg.memberLabel}
           </label>
           <MemberPicker
             members={alphabetical}
@@ -299,20 +311,11 @@ export default function FundChallenge() {
                       <button
                         type="button"
                         onClick={() => setReceipt(e)}
-                        className="p-3 rounded-xl text-slate-600 active:bg-slate-100 cursor-pointer"
-                        aria-label={`View receipt ${e.receiptNo}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-[#15803D] bg-green-50 text-xs font-semibold active:bg-green-100 cursor-pointer"
+                        aria-label={`Open receipt ${e.receiptNo} to view or share`}
                       >
-                        <ReceiptText className="w-5 h-5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSharing({ title: `Receipt ${e.receiptNo}`, message: receiptMessage(e), mobile: e.mobile })
-                        }
-                        className="p-3 rounded-xl text-[#15803D] active:bg-green-50 cursor-pointer"
-                        aria-label={`Share receipt ${e.receiptNo} on WhatsApp`}
-                      >
-                        <Share2 className="w-5 h-5" />
+                        <ReceiptText className="w-4 h-4" />
+                        Receipt
                       </button>
                     </li>
                   ))}
@@ -350,7 +353,7 @@ export default function FundChallenge() {
                 <button
                   type="button"
                   onClick={() =>
-                    setSharing({ title: "Members summary", message: membersSummaryMessage(visibleRows, totals) })
+                    setSharing({ title: "Members summary", message: membersSummaryMessage(visibleRows, totals, cfg.label) })
                   }
                   disabled={visibleRows.length === 0}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#25D366] text-[#0B3B1E] text-sm font-semibold active:opacity-80 disabled:opacity-50 cursor-pointer"
@@ -360,7 +363,7 @@ export default function FundChallenge() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => downloadMembersCsv(visibleRows)}
+                  onClick={() => downloadMembersCsv(visibleRows, cfg.label)}
                   disabled={visibleRows.length === 0}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm font-semibold active:bg-slate-100 disabled:opacity-50 cursor-pointer"
                 >
@@ -507,7 +510,12 @@ export default function FundChallenge() {
       </main>
 
       {showAdd && selected && (
-        <AddEntryDrawer member={selected} onClose={() => setShowAdd(false)} onSaved={handleSaved} />
+        <AddEntryDrawer
+          member={selected}
+          fundKey={fundKey}
+          onClose={() => setShowAdd(false)}
+          onSaved={handleSaved}
+        />
       )}
       {receipt && <ReceiptView entry={receipt} onClose={() => setReceipt(null)} />}
       {sharing && <SharePreview request={sharing} onClose={() => setSharing(null)} />}

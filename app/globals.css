@@ -148,3 +148,12 @@ body {
 .font-legacy-body {
   font-family: var(--font-legacy-body), "Montserrat", sans-serif;
 }
+
+/*
+ * html2canvas measures font baselines with this 1×1 image (its SMALL_IMAGE).
+ * Tailwind's `img { display:block }` breaks that measurement and draws text too
+ * low in exported images (receipts, tickets). Restore the default for it only.
+ */
+img[src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"] {
+  display: inline !important;
+}

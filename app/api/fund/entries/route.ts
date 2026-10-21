@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import { connectDB } from "@/app/lib/mongodb";
 import FundMember from "@/app/models/FundMember";
 import FundEntry from "@/app/models/FundEntry";
+import { groupFilter } from "@/app/utils/fund";
+import { resolveFundKey } from "@/app/lib/fundLinks";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,11 +21,16 @@ const toRow = (e: any, memberName: string) => ({
   receiptNo: e.receiptNo,
 });
 
-/* GET ?memberId= : a member's past entries, newest first */
+const notFound = () =>
+  NextResponse.json({ success: false, message: "Not found" }, { status: 404 });
+
+/* GET ?key=&memberId= : a member's past entries, newest first */
 export async function GET(req: Request) {
   try {
-    await connectDB();
-    const memberId = new URL(req.url).searchParams.get("memberId");
+    const params = new URL(req.url).searchParams;
+    const group = await resolveFundKey(params.get("key"));
+    if (!group) return notFound();
+    const memberId = params.get("memberId");
 
     if (!memberId || !mongoose.Types.ObjectId.isValid(memberId)) {
       return NextResponse.json(
@@ -32,7 +39,10 @@ export async function GET(req: Request) {
       );
     }
 
-    const member: any = await FundMember.findById(memberId).select("name").lean();
+    // The member must belong to this link's group
+    const member: any = await FundMember.findOne({ _id: memberId, ...groupFilter(group) })
+      .select("name")
+      .lean();
     if (!member) {
       return NextResponse.json(
         { success: false, message: "Member not found" },
@@ -57,11 +67,12 @@ export async function GET(req: Request) {
   }
 }
 
-/* POST : save a contribution and issue its receipt number */
+/* POST : save a contribution and issue its receipt number (key required) */
 export async function POST(req: Request) {
   try {
-    await connectDB();
     const body = await req.json();
+    const group = await resolveFundKey(body.key);
+    if (!group) return notFound();
 
     const memberId = String(body.memberId || "");
     const contributorName = String(body.contributorName || "").trim();
@@ -99,7 +110,7 @@ export async function POST(req: Request) {
       ? new Date(`${dateRaw}T00:00:00+05:30`)
       : new Date();
 
-    const member: any = await FundMember.findOne({ _id: memberId, active: true })
+    const member: any = await FundMember.findOne({ _id: memberId, active: true, ...groupFilter(group) })
       .select("name")
       .lean();
     if (!member) {
@@ -124,6 +135,7 @@ export async function POST(req: Request) {
         amount: Number(amountRaw),
         mobile: mobile || null,
         date,
+        group,
         requestId,
       });
       return NextResponse.json({ success: true, entry: toRow(entry, member.name) });

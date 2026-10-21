@@ -17,11 +17,12 @@ const DRAWER_MS = 250;
 
 type Props = {
   member: FundMemberSummary;
+  fundKey: string;
   onClose: () => void;
   onSaved: (entry: FundEntryRow) => void;
 };
 
-export default function AddEntryDrawer({ member, onClose, onSaved }: Props) {
+export default function AddEntryDrawer({ member, fundKey, onClose, onSaved }: Props) {
   const [contributorName, setContributorName] = useState("");
   const [amount, setAmount] = useState("");
   const [mobile, setMobile] = useState("");
@@ -85,6 +86,7 @@ export default function AddEntryDrawer({ member, onClose, onSaved }: Props) {
           mobile,
           date,
           requestId: requestId.current,
+          key: fundKey,
         }),
       });
       const data = await res.json();

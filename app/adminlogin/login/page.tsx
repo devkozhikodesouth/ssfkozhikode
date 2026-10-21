@@ -31,7 +31,7 @@ export default function LoginPage() {
 
       if (res.ok && data.success) {
         setRedirecting(true);
-        const target = data.redirect || "/adminlogin/fund";
+        const target = data.redirect || "/adminlogin/fund/executive";
         router.replace(target);
         router.refresh();
         setTimeout(() => {

@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 const unauthorized = () =>
   NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
 
-/* PATCH : update { name?, target?, active? } */
+/* PATCH : update { name?, active? } — target is fixed per group */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!isAdmin(req)) return unauthorized();
   try {
@@ -26,13 +26,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const n = String(body.name).trim();
       if (!n) return NextResponse.json({ success: false, message: "Name is required" }, { status: 400 });
       update.name = n;
-    }
-    if (body.target !== undefined) {
-      const t = Number(body.target);
-      if (!Number.isFinite(t) || t < 0) {
-        return NextResponse.json({ success: false, message: "Enter a valid target" }, { status: 400 });
-      }
-      update.target = Math.round(t);
     }
     if (body.active !== undefined) update.active = Boolean(body.active);
 

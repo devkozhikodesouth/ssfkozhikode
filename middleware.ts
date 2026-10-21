@@ -52,7 +52,7 @@ export function middleware(req: NextRequest) {
 
   // 2. Already logged in user trying to access public auth page (login/forgot/reset)
   if (token && isPublicAuthPage) {
-    const dashboardUrl = new URL("/adminlogin/fund", req.url);
+    const dashboardUrl = new URL("/adminlogin/fund/executive", req.url);
     return NextResponse.redirect(dashboardUrl);
   }
 
