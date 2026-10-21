@@ -12,6 +12,7 @@ type AdminMember = {
   active: boolean;
   collected: number;
   entryCount: number;
+  paid: number; // handed over to admin
 };
 
 export default function FundMembersAdmin({ group }: { group: FundGroup }) {
@@ -49,8 +50,9 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
   }, [group]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeMembers = members.filter((m) => m.active);
-  const totalTarget = activeMembers.length * cfg.target;
+  const totalTarget = cfg.totalTarget; // fixed group total
   const totalCollected = activeMembers.reduce((t, m) => t + m.collected, 0);
+  const totalPaid = members.reduce((t, m) => t + m.paid, 0);
 
   const copyLink = async () => {
     if (!publicUrl) return;
@@ -148,7 +150,7 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
         <h1 className="text-xl sm:text-2xl font-black text-slate-900">Fund Challenge — {cfg.label}</h1>
         <p className="text-sm text-slate-500">
           Target {formatINR(cfg.target)} per member · {activeMembers.length} active · Total target{" "}
-          {formatINR(totalTarget)} · Collected {formatINR(totalCollected)}
+          {formatINR(totalTarget)} · Collected {formatINR(totalCollected)} · Paid {formatINR(totalPaid)}
         </p>
       </div>
 
@@ -215,12 +217,13 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
 
       {/* Members table */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
-        <table className="w-full min-w-[680px] text-sm">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3 text-right">Target</th>
               <th className="px-4 py-3 text-right">Collected</th>
+              <th className="px-4 py-3 text-right">Paid</th>
               <th className="px-4 py-3 text-center">Entries</th>
               <th className="px-4 py-3 text-center">Active</th>
               <th className="px-4 py-3 text-right">Actions</th>
@@ -229,11 +232,11 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-500">Loading…</td>
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">Loading…</td>
               </tr>
             ) : members.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                   No members yet. Add the {cfg.label.toLowerCase()} members above.
                 </td>
               </tr>
@@ -251,6 +254,9 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
                     </td>
                     <td className="px-4 py-2.5 text-right tabular-nums text-slate-600">{formatINR(cfg.target)}</td>
                     <td className="px-4 py-2.5 text-right tabular-nums font-semibold">{formatINR(m.collected)}</td>
+                    <td className="px-4 py-2.5 text-right tabular-nums font-semibold text-emerald-700">
+                      {formatINR(m.paid)}
+                    </td>
                     <td className="px-4 py-2.5 text-center tabular-nums">{m.entryCount}</td>
                     <td className="px-4 py-2.5 text-center">
                       <input

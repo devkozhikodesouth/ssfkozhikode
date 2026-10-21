@@ -2,17 +2,28 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, X } from "lucide-react";
-import { FundMemberSummary } from "@/app/utils/fund";
+export type PickerItem = {
+  _id: string;
+  name: string;
+  tag?: string; // small label on the right, also searchable (e.g. group)
+};
 
 type Props = {
-  members: FundMemberSummary[]; // already in display order (A–Z)
+  members: PickerItem[]; // already in display order
   value: string;
   onChange: (id: string) => void;
   loading?: boolean;
+  placeholder?: string;
 };
 
 /* Searchable member dropdown (combobox) — large tap targets for phones */
-export default function MemberPicker({ members, value, onChange, loading }: Props) {
+export default function MemberPicker({
+  members,
+  value,
+  onChange,
+  loading,
+  placeholder = "Select your name",
+}: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlight, setHighlight] = useState(0);
@@ -25,7 +36,9 @@ export default function MemberPicker({ members, value, onChange, loading }: Prop
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q ? members.filter((m) => m.name.toLowerCase().includes(q)) : members;
+    return q
+      ? members.filter((m) => m.name.toLowerCase().includes(q) || m.tag?.toLowerCase().includes(q))
+      : members;
   }, [members, query]);
 
   // Close on outside tap
@@ -88,7 +101,7 @@ export default function MemberPicker({ members, value, onChange, loading }: Prop
         className="w-full flex items-center justify-between gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-left text-base outline-none focus:ring-2 focus:ring-[#1C75BC] disabled:opacity-60 cursor-pointer"
       >
         <span className={`truncate ${selected ? "text-slate-900 font-medium" : "text-slate-500"}`}>
-          {loading ? "Loading members…" : selected ? selected.name : "Select your name"}
+          {loading ? "Loading members…" : selected ? selected.name : placeholder}
         </span>
         <ChevronDown className={`w-5 h-5 shrink-0 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
@@ -143,6 +156,9 @@ export default function MemberPicker({ members, value, onChange, loading }: Prop
                     } ${isSelected ? "font-semibold text-[#15803D]" : "text-slate-800"}`}
                   >
                     <span className="truncate">{m.name}</span>
+                    {m.tag && (
+                      <span className="ml-auto shrink-0 text-xs font-normal text-slate-500">{m.tag}</span>
+                    )}
                     {isSelected && <Check className="w-4 h-4 shrink-0" />}
                   </li>
                 );

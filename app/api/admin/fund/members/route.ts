@@ -3,6 +3,7 @@ import { connectDB } from "@/app/lib/mongodb";
 import { isAdmin } from "@/app/lib/adminAuth";
 import FundMember from "@/app/models/FundMember";
 import FundEntry from "@/app/models/FundEntry";
+import FundHandover from "@/app/models/FundHandover";
 import { FUND_GROUPS, groupFilter, parseGroup } from "@/app/utils/fund";
 import { fundLinkPath } from "@/app/lib/fundLinks";
 
@@ -18,13 +19,15 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const group = parseGroup(req.nextUrl.searchParams.get("group"));
-    const [members, stats] = await Promise.all([
+    const [members, stats, paid] = await Promise.all([
       FundMember.find(groupFilter(group)).sort({ name: 1 }).lean(),
       FundEntry.aggregate([
         { $group: { _id: "$memberId", collected: { $sum: "$amount" }, entryCount: { $sum: 1 } } },
       ]),
+      FundHandover.aggregate([{ $group: { _id: "$memberId", paid: { $sum: "$amount" } } }]),
     ]);
     const statMap = new Map(stats.map((s: any) => [String(s._id), s]));
+    const paidMap = new Map(paid.map((p: any) => [String(p._id), p.paid as number]));
 
     return NextResponse.json({
       success: true,
@@ -39,6 +42,7 @@ export async function GET(req: NextRequest) {
           active: m.active,
           collected: s?.collected || 0,
           entryCount: s?.entryCount || 0,
+          paid: paidMap.get(String(m._id)) || 0, // handed over to admin
         };
       }),
     });

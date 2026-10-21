@@ -113,7 +113,7 @@ const ReceiptCard = forwardRef<HTMLDivElement, { entry: FundEntryRow; scale: num
               flexShrink: 0,
             }}
           >
-            <img src="/logo.png" alt="SSF" crossOrigin="anonymous" style={{ height: 92, width: "auto" }} />
+            <img src="/icon.png" alt="SSF" crossOrigin="anonymous" style={{ width: 74, height: 74 }} />
           </div>
           <div style={{ color: "#FFFFFF", fontSize: 40, fontWeight: 600, lineHeight: 1.12 }}>
             <div>

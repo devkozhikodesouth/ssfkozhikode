@@ -49,7 +49,8 @@ export async function GET(req: Request) {
       })
       .sort((a, b) => b.collected - a.collected || a.name.localeCompare(b.name));
 
-    const totalTarget = rows.reduce((t, r) => t + r.target, 0);
+    // Group total is fixed (₹15,00,000), not the sum of member targets
+    const totalTarget = FUND_GROUPS[group].totalTarget;
     const totalCollected = rows.reduce((t, r) => t + r.collected, 0);
 
     return NextResponse.json(

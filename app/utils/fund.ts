@@ -6,12 +6,20 @@ export type FundGroup = "executive" | "council";
 
 export const FUND_GROUPS: Record<
   FundGroup,
-  { label: string; memberLabel: string; target: number; receiptPrefix: string; counterName: string }
+  {
+    label: string;
+    memberLabel: string;
+    target: number; // per member
+    totalTarget: number; // whole group (dashboard total, balance and overall %)
+    receiptPrefix: string;
+    counterName: string;
+  }
 > = {
   executive: {
     label: "Executive",
     memberLabel: "Executive member",
     target: 25000, // fixed per member
+    totalTarget: 1500000,
     receiptPrefix: "FC",
     counterName: "fundReceipt", // existing series, keeps FC-0001… continuous
   },
@@ -19,6 +27,7 @@ export const FUND_GROUPS: Record<
     label: "Executive Council",
     memberLabel: "Council member",
     target: 15000, // fixed per member
+    totalTarget: 1500000,
     receiptPrefix: "EC",
     counterName: "fundReceiptCouncil",
   },
