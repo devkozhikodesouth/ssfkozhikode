@@ -83,6 +83,12 @@ export default function FundHandoverPage() {
   const visible = filterId === "all" ? handovers : handovers.filter((h) => h.memberId === filterId);
   const visibleTotal = visible.reduce((t, h) => t + h.amount, 0);
 
+  // Member's current balance not yet paid (collected − paid)
+  const balanceOf = useMemo(() => {
+    const map = new Map(members.map((m) => [m._id, Math.max(m.collected - m.paid, 0)]));
+    return (memberId: string) => map.get(memberId) ?? 0;
+  }, [members]);
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (saving) return;
@@ -263,24 +269,25 @@ export default function FundHandoverPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[620px] text-sm">
+          <table className="w-full min-w-[720px] text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3">Date & time</th>
                 <th className="px-4 py-3">Member</th>
                 <th className="px-4 py-3">Group</th>
                 <th className="px-4 py-3 text-right">Amount</th>
+                <th className="px-4 py-3 text-right">Balance (not paid)</th>
                 <th className="px-4 py-3 w-16" />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500">Loading…</td>
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">Loading…</td>
                 </tr>
               ) : visible.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500">No handovers yet.</td>
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">No handovers yet.</td>
                 </tr>
               ) : (
                 visible.map((h) => (
@@ -292,6 +299,13 @@ export default function FundHandoverPage() {
                     <td className="px-4 py-3 text-slate-600">{FUND_GROUPS[h.group].label}</td>
                     <td className="px-4 py-3 text-right tabular-nums font-bold text-emerald-700">
                       {formatINR(h.amount)}
+                    </td>
+                    <td
+                      className={`px-4 py-3 text-right tabular-nums font-semibold ${
+                        balanceOf(h.memberId) > 0 ? "text-amber-700" : "text-slate-400"
+                      }`}
+                    >
+                      {formatINR(balanceOf(h.memberId))}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button

@@ -256,6 +256,18 @@ export default function FundChallenge({
           </p>
         )}
 
+        {/* ===== SUMMARY CARDS ===== */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <SummaryCard label="Total Target" value={formatINR(totals.target)} loading={loading} />
+          <SummaryCard label="Total Collected" value={formatINR(totals.collected)} loading={loading} accent />
+          <SummaryCard label="Balance" value={formatINR(totals.balance)} loading={loading} />
+          <SummaryCard label="Overall achieved" value={`${totals.percent}%`} loading={loading}>
+            <div className="mt-2">
+              <ProgressBar percent={totals.percent} showLabel={false} size="sm" />
+            </div>
+          </SummaryCard>
+        </section>
+
         {/* ===== MEMBER SELECTION ===== */}
         <section ref={memberSectionRef} className="scroll-mt-4 bg-white rounded-2xl border border-slate-200 p-4">
           <label htmlFor="fc-member" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -270,14 +282,33 @@ export default function FundChallenge({
 
           {selected && (
             <div className="mt-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+              <div className="grid grid-cols-3 gap-2 text-center">
                 <Stat label="Target" value={formatINR(selected.target)} />
                 <Stat label="Collected" value={formatINR(selected.collected)} />
-                <Stat label="Paid" value={formatINR(selected.paid)} />
                 <Stat label="Balance" value={formatINR(selected.balance)} />
               </div>
               <div className="mt-3">
                 <ProgressBar percent={selected.percent} />
+              </div>
+
+              {/* Payment status: money handed over to the admin */}
+              <div className="mt-4 rounded-xl border border-slate-200 p-3">
+                <h3 className="text-sm font-semibold text-slate-700 mb-2">Payment status</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-[#F0FDF4] border border-green-200 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Paid</p>
+                    <p className="text-base font-bold tabular-nums text-[#15803D] truncate">
+                      {formatINR(selected.paid)}
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Balance</p>
+                    <p className="text-base font-bold tabular-nums text-amber-800 truncate">
+                      {formatINR(Math.max(selected.collected - selected.paid, 0))}
+                    </p>
+                    <p className="text-[10px] text-slate-500">collected − paid</p>
+                  </div>
+                </div>
               </div>
 
               <button
@@ -324,18 +355,6 @@ export default function FundChallenge({
               )}
             </div>
           )}
-        </section>
-
-        {/* ===== SUMMARY CARDS ===== */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <SummaryCard label="Total Target" value={formatINR(totals.target)} loading={loading} />
-          <SummaryCard label="Total Collected" value={formatINR(totals.collected)} loading={loading} accent />
-          <SummaryCard label="Balance" value={formatINR(totals.balance)} loading={loading} />
-          <SummaryCard label="Overall achieved" value={`${totals.percent}%`} loading={loading}>
-            <div className="mt-2">
-              <ProgressBar percent={totals.percent} showLabel={false} size="sm" />
-            </div>
-          </SummaryCard>
         </section>
 
         {/* ===== TABLE ===== */}
@@ -450,13 +469,8 @@ export default function FundChallenge({
                   <div className="mt-3">
                     <ProgressBar percent={m.percent} size="sm" />
                   </div>
-                  <p className="mt-1.5 flex justify-between gap-2 text-xs text-slate-500">
-                    <span>
-                      Paid <span className="font-semibold tabular-nums text-[#15803D]">{formatINR(m.paid)}</span>
-                    </span>
-                    <span>
-                      Balance <span className="font-semibold tabular-nums text-slate-800">{formatINR(m.balance)}</span>
-                    </span>
+                  <p className="mt-1.5 text-xs text-slate-500">
+                    Balance <span className="font-semibold tabular-nums text-slate-800">{formatINR(m.balance)}</span>
                   </p>
                 </button>
               </li>
@@ -472,14 +486,13 @@ export default function FundChallenge({
 
           {/* Tablet / desktop: table */}
           <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full min-w-[720px] text-sm">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-slate-500 border-b border-slate-200">
                   <th className="py-2.5 pr-2 w-12">Rank</th>
                   <th className="py-2.5 pr-2">Name</th>
                   <th className="py-2.5 pr-2 text-right">Target</th>
                   <th className="py-2.5 pr-2 text-right">Collected</th>
-                  <th className="py-2.5 pr-2 text-right">Paid</th>
                   <th className="py-2.5 pr-3 text-right">Balance</th>
                   <th className="py-2.5 w-40">Achieved</th>
                 </tr>
@@ -495,7 +508,6 @@ export default function FundChallenge({
                     <td className="py-3 pr-2 font-medium text-slate-900">{m.name}</td>
                     <td className="py-3 pr-2 text-right tabular-nums">{formatINR(m.target)}</td>
                     <td className="py-3 pr-2 text-right tabular-nums font-semibold">{formatINR(m.collected)}</td>
-                    <td className="py-3 pr-2 text-right tabular-nums font-semibold text-[#15803D]">{formatINR(m.paid)}</td>
                     <td className="py-3 pr-3 text-right tabular-nums">{formatINR(m.balance)}</td>
                     <td className="py-3">
                       <ProgressBar percent={m.percent} size="sm" />
@@ -504,7 +516,7 @@ export default function FundChallenge({
                 ))}
                 {!loading && visibleRows.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="py-6 text-center text-slate-500">
+                    <td colSpan={6} className="py-6 text-center text-slate-500">
                       {members.length === 0
                         ? "No members added yet. The admin can add members and targets from the admin panel."
                         : "No member matches these filters."}
