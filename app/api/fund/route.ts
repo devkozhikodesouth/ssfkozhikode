@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
 import FundMember from "@/app/models/FundMember";
 import FundEntry from "@/app/models/FundEntry";
+import FundHandover from "@/app/models/FundHandover";
 import { FUND_GROUPS, groupFilter, percentOf } from "@/app/utils/fund";
 import { resolveFundKey } from "@/app/lib/fundLinks";
 
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
     }
     const target = FUND_GROUPS[group].target; // fixed per member
 
-    const [members, stats] = await Promise.all([
+    const [members, stats, handovers] = await Promise.all([
       FundMember.find({ active: true, ...groupFilter(group) }).select("name target").lean(),
       FundEntry.aggregate([
         {
@@ -29,9 +30,11 @@ export async function GET(req: Request) {
           },
         },
       ]),
+      FundHandover.aggregate([{ $group: { _id: "$memberId", paid: { $sum: "$amount" } } }]),
     ]);
 
     const statMap = new Map(stats.map((s: any) => [String(s._id), s]));
+    const paidMap = new Map(handovers.map((h: any) => [String(h._id), h.paid as number]));
 
     const rows = members
       .map((m: any) => {
@@ -45,6 +48,7 @@ export async function GET(req: Request) {
           balance: Math.max(target - collected, 0),
           percent: percentOf(collected, target),
           entryCount: s?.entryCount || 0,
+          paid: paidMap.get(String(m._id)) || 0, // handed over to admin
         };
       })
       .sort((a, b) => b.collected - a.collected || a.name.localeCompare(b.name));

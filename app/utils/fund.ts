@@ -47,6 +47,7 @@ export type FundMemberSummary = {
   balance: number;
   percent: number;
   entryCount: number;
+  paid: number; // handed over to admin
 };
 
 export type FundEntryRow = {
@@ -178,9 +179,9 @@ const csvCell = (v: string | number) => {
 
 /* Download members as CSV (BOM so Excel reads ₹/Malayalam names correctly) */
 export function downloadMembersCsv(rows: RankedMember[], groupLabel: string) {
-  const header = ["Rank", "Name", "Target", "Collected", "Balance", "Achieved %"];
+  const header = ["Rank", "Name", "Target", "Collected", "Paid", "Balance", "Achieved %"];
   const lines = rows.map((m) =>
-    [m.rank, m.name, m.target, m.collected, m.balance, m.percent].map(csvCell).join(",")
+    [m.rank, m.name, m.target, m.collected, m.paid, m.balance, m.percent].map(csvCell).join(",")
   );
   const csv = "﻿" + [header.join(","), ...lines].join("\r\n");
 

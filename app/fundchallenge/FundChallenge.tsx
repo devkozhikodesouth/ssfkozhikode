@@ -270,9 +270,10 @@ export default function FundChallenge({
 
           {selected && (
             <div className="mt-4">
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                 <Stat label="Target" value={formatINR(selected.target)} />
                 <Stat label="Collected" value={formatINR(selected.collected)} />
+                <Stat label="Paid" value={formatINR(selected.paid)} />
                 <Stat label="Balance" value={formatINR(selected.balance)} />
               </div>
               <div className="mt-3">
@@ -449,8 +450,13 @@ export default function FundChallenge({
                   <div className="mt-3">
                     <ProgressBar percent={m.percent} size="sm" />
                   </div>
-                  <p className="mt-1.5 text-xs text-slate-500">
-                    Balance <span className="font-semibold tabular-nums text-slate-800">{formatINR(m.balance)}</span>
+                  <p className="mt-1.5 flex justify-between gap-2 text-xs text-slate-500">
+                    <span>
+                      Paid <span className="font-semibold tabular-nums text-[#15803D]">{formatINR(m.paid)}</span>
+                    </span>
+                    <span>
+                      Balance <span className="font-semibold tabular-nums text-slate-800">{formatINR(m.balance)}</span>
+                    </span>
                   </p>
                 </button>
               </li>
@@ -466,13 +472,14 @@ export default function FundChallenge({
 
           {/* Tablet / desktop: table */}
           <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-slate-500 border-b border-slate-200">
                   <th className="py-2.5 pr-2 w-12">Rank</th>
                   <th className="py-2.5 pr-2">Name</th>
                   <th className="py-2.5 pr-2 text-right">Target</th>
                   <th className="py-2.5 pr-2 text-right">Collected</th>
+                  <th className="py-2.5 pr-2 text-right">Paid</th>
                   <th className="py-2.5 pr-3 text-right">Balance</th>
                   <th className="py-2.5 w-40">Achieved</th>
                 </tr>
@@ -488,6 +495,7 @@ export default function FundChallenge({
                     <td className="py-3 pr-2 font-medium text-slate-900">{m.name}</td>
                     <td className="py-3 pr-2 text-right tabular-nums">{formatINR(m.target)}</td>
                     <td className="py-3 pr-2 text-right tabular-nums font-semibold">{formatINR(m.collected)}</td>
+                    <td className="py-3 pr-2 text-right tabular-nums font-semibold text-[#15803D]">{formatINR(m.paid)}</td>
                     <td className="py-3 pr-3 text-right tabular-nums">{formatINR(m.balance)}</td>
                     <td className="py-3">
                       <ProgressBar percent={m.percent} size="sm" />
@@ -496,7 +504,7 @@ export default function FundChallenge({
                 ))}
                 {!loading && visibleRows.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-6 text-center text-slate-500">
+                    <td colSpan={7} className="py-6 text-center text-slate-500">
                       {members.length === 0
                         ? "No members added yet. The admin can add members and targets from the admin panel."
                         : "No member matches these filters."}

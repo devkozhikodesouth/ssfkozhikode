@@ -30,6 +30,9 @@ type NavItemConfig = {
   badge?: string;
 };
 
+// Admin sections where the Attendance Mode toggle is shown (Gala, GC, GC26)
+const ATTENDANCE_SECTIONS = ["/adminlogin/gala", "/adminlogin/grand", "/adminlogin/gc26"];
+
 /* ─────────────────────────────
    MENU CONFIG WITH ICONS
 ────────────────────────────── */
@@ -541,6 +544,7 @@ export default function AdminLayout({
 ────────────────────────────── */
 function Navbar({ onMenu }: { onMenu: () => void }) {
   const pathname = usePathname();
+  const showAttendanceToggle = ATTENDANCE_SECTIONS.some((p) => pathname.startsWith(p));
   const { attendanceMode, toggleAttendanceMode } = useAttendanceMode();
 
   return (
@@ -567,23 +571,21 @@ function Navbar({ onMenu }: { onMenu: () => void }) {
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Attendance Mode Toggle Button */}
-        <button
-          type="button"
-          onClick={toggleAttendanceMode}
-          className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 border shadow-xs active:scale-95 cursor-pointer ${
-            attendanceMode
-              ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20"
-              : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-          }`}
-        >
-          <UserCheck className="w-4 h-4" />
-          <span>{attendanceMode ? "Attendance Mode: ON" : "Attendance Mode: OFF"}</span>
-        </button>
-
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-md ring-2 ring-white">
-          A
-        </div>
+        {/* Attendance Mode Toggle — only on event pages that track attendance */}
+        {showAttendanceToggle && (
+          <button
+            type="button"
+            onClick={toggleAttendanceMode}
+            className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 border shadow-xs active:scale-95 cursor-pointer ${
+              attendanceMode
+                ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20"
+                : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+            }`}
+          >
+            <UserCheck className="w-4 h-4" />
+            <span>{attendanceMode ? "Attendance Mode: ON" : "Attendance Mode: OFF"}</span>
+          </button>
+        )}
       </div>
     </header>
   );
