@@ -2,7 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
-import { Plus, Save, Trash2, ExternalLink, Loader2, Copy, Check, Link2, Columns3, Share2 } from "lucide-react";
+import {
+  Plus,
+  Save,
+  Trash2,
+  ExternalLink,
+  Loader2,
+  Copy,
+  Check,
+  Link2,
+  Columns3,
+  Share2,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+} from "lucide-react";
 import { FUND_GROUPS, FundGroup, formatDate, formatINR } from "@/app/utils/fund";
 import SharePreview, { ShareRequest } from "@/app/fundchallenge/SharePreview";
 
@@ -50,6 +64,8 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
   const [colMenuOpen, setColMenuOpen] = useState(false);
   const colMenuRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState<ShareRequest | null>(null);
+  // Paid column sort: off (A–Z) → highest first → lowest first
+  const [paidSort, setPaidSort] = useState<"off" | "desc" | "asc">("off");
 
   const [publicPath, setPublicPath] = useState("");
   const [copied, setCopied] = useState(false);
@@ -191,6 +207,14 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
 
   const unpaidOf = (m: AdminMember) => Math.max(m.collected - m.paid, 0);
 
+  const rows =
+    paidSort === "off"
+      ? members
+      : [...members].sort((a, b) =>
+          paidSort === "desc" ? b.paid - a.paid || a.name.localeCompare(b.name) : a.paid - b.paid || a.name.localeCompare(b.name)
+        );
+  const cyclePaidSort = () => setPaidSort((s) => (s === "off" ? "desc" : s === "desc" ? "asc" : "off"));
+
   /* WhatsApp message from the table: same rows, only the visible columns */
   const tableMessage = () => {
     const cell = (m: AdminMember, id: ColumnId) => {
@@ -219,7 +243,7 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
       `✅ *Collected:* ${formatINR(totalCollected)}`,
       `💵 *Paid:* ${formatINR(totalPaid)}`,
       "",
-      ...members.map((m, i) => {
+      ...rows.map((m, i) => {
         const parts = shown.map((id) => cell(m, id)).filter(Boolean);
         const inactive = show("active") && !m.active ? " _(inactive)_" : "";
         return `${i + 1}. *${m.name}*${inactive}${parts.length ? " — " + parts.join(" · ") : ""}`;
@@ -361,7 +385,27 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
               <th className="px-4 py-3">Name</th>
               {show("target") && <th className="px-4 py-3 text-right">Target</th>}
               {show("collected") && <th className="px-4 py-3 text-right">Collected</th>}
-              {show("paid") && <th className="px-4 py-3 text-right">Paid</th>}
+              {show("paid") && (
+                <th className="px-4 py-3 text-right" aria-sort={paidSort === "off" ? "none" : paidSort === "desc" ? "descending" : "ascending"}>
+                  <button
+                    type="button"
+                    onClick={cyclePaidSort}
+                    title="Sort by paid"
+                    className={`inline-flex items-center gap-1 uppercase cursor-pointer hover:text-slate-800 ${
+                      paidSort !== "off" ? "text-purple-700" : ""
+                    }`}
+                  >
+                    Paid
+                    {paidSort === "desc" ? (
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    ) : paidSort === "asc" ? (
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <ArrowUpDown className="w-3.5 h-3.5 opacity-50" />
+                    )}
+                  </button>
+                </th>
+              )}
               {show("unpaid") && <th className="px-4 py-3 text-right">Balance (not paid)</th>}
               {show("entries") && <th className="px-4 py-3 text-center">Entries</th>}
               {show("active") && <th className="px-4 py-3 text-center">Active</th>}
@@ -380,7 +424,7 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
                 </td>
               </tr>
             ) : (
-              members.map((m) => {
+              rows.map((m) => {
                 const busy = savingId === m._id;
                 return (
                   <tr key={m._id} className={m.active ? "" : "opacity-60"}>
