@@ -1,9 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
-import { Plus, Save, Trash2, ExternalLink, Loader2, Copy, Check, Link2 } from "lucide-react";
-import { FUND_GROUPS, FundGroup, formatINR } from "@/app/utils/fund";
+import { Plus, Save, Trash2, ExternalLink, Loader2, Copy, Check, Link2, Columns3, Share2 } from "lucide-react";
+import { FUND_GROUPS, FundGroup, formatDate, formatINR } from "@/app/utils/fund";
+import SharePreview, { ShareRequest } from "@/app/fundchallenge/SharePreview";
+
+/* Optional table columns (Name and Actions always show) */
+type ColumnId = "target" | "collected" | "paid" | "unpaid" | "entries" | "active";
+const COLUMNS: { id: ColumnId; label: string }[] = [
+  { id: "target", label: "Target" },
+  { id: "collected", label: "Collected" },
+  { id: "paid", label: "Paid" },
+  { id: "unpaid", label: "Balance (not paid)" },
+  { id: "entries", label: "Entries" },
+  { id: "active", label: "Active" },
+];
+const DEFAULT_COLUMNS: ColumnId[] = ["target", "collected", "paid", "entries", "active"];
+const COLUMNS_KEY = "fc:adminColumns";
+
+const readColumns = (): ColumnId[] => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COLUMNS_KEY) || "null");
+    if (Array.isArray(saved)) return saved.filter((c) => COLUMNS.some((x) => x.id === c));
+  } catch {}
+  return DEFAULT_COLUMNS;
+};
 
 type AdminMember = {
   _id: string;
@@ -23,6 +45,11 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
   const [adding, setAdding] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+
+  const [cols, setCols] = useState<ColumnId[]>(DEFAULT_COLUMNS);
+  const [colMenuOpen, setColMenuOpen] = useState(false);
+  const colMenuRef = useRef<HTMLDivElement>(null);
+  const [sharing, setSharing] = useState<ShareRequest | null>(null);
 
   const [publicPath, setPublicPath] = useState("");
   const [copied, setCopied] = useState(false);
@@ -141,6 +168,65 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
     }
   };
 
+  // Remember chosen columns on this browser
+  useEffect(() => setCols(readColumns()), []);
+  const toggleCol = (id: ColumnId) =>
+    setCols((prev) => {
+      const next = prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id];
+      try {
+        localStorage.setItem(COLUMNS_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  const show = (id: ColumnId) => cols.includes(id);
+
+  useEffect(() => {
+    if (!colMenuOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (!colMenuRef.current?.contains(e.target as Node)) setColMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [colMenuOpen]);
+
+  const unpaidOf = (m: AdminMember) => Math.max(m.collected - m.paid, 0);
+
+  /* WhatsApp message from the table: same rows, only the visible columns */
+  const tableMessage = () => {
+    const cell = (m: AdminMember, id: ColumnId) => {
+      switch (id) {
+        case "target":
+          return `Target ${formatINR(cfg.target)}`;
+        case "collected":
+          return `Collected ${formatINR(m.collected)}`;
+        case "paid":
+          return `Paid ${formatINR(m.paid)}`;
+        case "unpaid":
+          return `Balance ${formatINR(unpaidOf(m))}`;
+        case "entries":
+          return `${m.entryCount} ${m.entryCount === 1 ? "entry" : "entries"}`;
+        default:
+          return "";
+      }
+    };
+    const shown = COLUMNS.map((c) => c.id).filter((id) => show(id) && id !== "active");
+    return [
+      `💰 *Fund Challenge — ${cfg.label}*`,
+      "SSF Kozhikode South District Committee",
+      `📅 ${formatDate(new Date())}`,
+      "",
+      `🎯 *Total target:* ${formatINR(totalTarget)}`,
+      `✅ *Collected:* ${formatINR(totalCollected)}`,
+      `💵 *Paid:* ${formatINR(totalPaid)}`,
+      "",
+      ...members.map((m, i) => {
+        const parts = shown.map((id) => cell(m, id)).filter(Boolean);
+        const inactive = show("active") && !m.active ? " _(inactive)_" : "";
+        return `${i + 1}. *${m.name}*${inactive}${parts.length ? " — " + parts.join(" · ") : ""}`;
+      }),
+    ].join("\n");
+  };
+
   const draftOf = (m: AdminMember) => drafts[m._id] ?? m.name;
   const isDirty = (m: AdminMember) => drafts[m._id] !== undefined && drafts[m._id].trim() !== m.name;
 
@@ -215,28 +301,81 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
         </button>
       </form>
 
+      {/* Table toolbar: column control + WhatsApp share */}
+      <div className="flex items-center justify-end gap-2">
+        <div ref={colMenuRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setColMenuOpen((o) => !o)}
+            aria-expanded={colMenuOpen}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+          >
+            <Columns3 className="w-4 h-4" /> Columns
+          </button>
+          {colMenuOpen && (
+            <div className="absolute right-0 z-30 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+              {COLUMNS.map((c) => (
+                <label
+                  key={c.id}
+                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={show(c.id)}
+                    onChange={() => toggleCol(c.id)}
+                    className="w-4 h-4 accent-purple-600"
+                  />
+                  {c.label}
+                </label>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setCols(DEFAULT_COLUMNS);
+                  try {
+                    localStorage.removeItem(COLUMNS_KEY);
+                  } catch {}
+                }}
+                className="mt-1 w-full px-2.5 py-2 rounded-lg text-xs font-semibold text-purple-700 hover:bg-purple-50 text-left cursor-pointer"
+              >
+                Reset to default
+              </button>
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setSharing({ title: `${cfg.label} table`, message: tableMessage() })}
+          disabled={loading || members.length === 0}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#25D366] text-[#0B3B1E] text-xs font-bold hover:opacity-90 disabled:opacity-50 cursor-pointer"
+        >
+          <Share2 className="w-4 h-4" /> WhatsApp
+        </button>
+      </div>
+
       {/* Members table */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
-        <table className="w-full min-w-[760px] text-sm">
+        <table className="w-full text-sm" style={{ minWidth: 360 + cols.length * 110 }}>
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3 text-right">Target</th>
-              <th className="px-4 py-3 text-right">Collected</th>
-              <th className="px-4 py-3 text-right">Paid</th>
-              <th className="px-4 py-3 text-center">Entries</th>
-              <th className="px-4 py-3 text-center">Active</th>
+              {show("target") && <th className="px-4 py-3 text-right">Target</th>}
+              {show("collected") && <th className="px-4 py-3 text-right">Collected</th>}
+              {show("paid") && <th className="px-4 py-3 text-right">Paid</th>}
+              {show("unpaid") && <th className="px-4 py-3 text-right">Balance (not paid)</th>}
+              {show("entries") && <th className="px-4 py-3 text-center">Entries</th>}
+              {show("active") && <th className="px-4 py-3 text-center">Active</th>}
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">Loading…</td>
+                <td colSpan={2 + cols.length} className="px-4 py-8 text-center text-slate-500">Loading…</td>
               </tr>
             ) : members.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={2 + cols.length} className="px-4 py-8 text-center text-slate-500">
                   No members yet. Add the {cfg.label.toLowerCase()} members above.
                 </td>
               </tr>
@@ -252,22 +391,39 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
                         className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500"
                       />
                     </td>
-                    <td className="px-4 py-2.5 text-right tabular-nums text-slate-600">{formatINR(cfg.target)}</td>
-                    <td className="px-4 py-2.5 text-right tabular-nums font-semibold">{formatINR(m.collected)}</td>
-                    <td className="px-4 py-2.5 text-right tabular-nums font-semibold text-emerald-700">
-                      {formatINR(m.paid)}
-                    </td>
-                    <td className="px-4 py-2.5 text-center tabular-nums">{m.entryCount}</td>
-                    <td className="px-4 py-2.5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={m.active}
-                        disabled={busy}
-                        onChange={(e) => patch(m._id, { active: e.target.checked })}
-                        className="w-5 h-5 accent-purple-600 cursor-pointer"
-                        aria-label={`${m.name} active`}
-                      />
-                    </td>
+                    {show("target") && (
+                      <td className="px-4 py-2.5 text-right tabular-nums text-slate-600">{formatINR(cfg.target)}</td>
+                    )}
+                    {show("collected") && (
+                      <td className="px-4 py-2.5 text-right tabular-nums font-semibold">{formatINR(m.collected)}</td>
+                    )}
+                    {show("paid") && (
+                      <td className="px-4 py-2.5 text-right tabular-nums font-semibold text-emerald-700">
+                        {formatINR(m.paid)}
+                      </td>
+                    )}
+                    {show("unpaid") && (
+                      <td
+                        className={`px-4 py-2.5 text-right tabular-nums font-semibold ${
+                          unpaidOf(m) > 0 ? "text-amber-700" : "text-slate-400"
+                        }`}
+                      >
+                        {formatINR(unpaidOf(m))}
+                      </td>
+                    )}
+                    {show("entries") && <td className="px-4 py-2.5 text-center tabular-nums">{m.entryCount}</td>}
+                    {show("active") && (
+                      <td className="px-4 py-2.5 text-center">
+                        <input
+                          type="checkbox"
+                          checked={m.active}
+                          disabled={busy}
+                          onChange={(e) => patch(m._id, { active: e.target.checked })}
+                          className="w-5 h-5 accent-purple-600 cursor-pointer"
+                          aria-label={`${m.name} active`}
+                        />
+                      </td>
+                    )}
                     <td className="px-4 py-2.5">
                       <div className="flex justify-end gap-2">
                         <button
@@ -300,6 +456,7 @@ export default function FundMembersAdmin({ group }: { group: FundGroup }) {
       <p className="text-xs text-slate-500">
         Inactive members are hidden from the public page; their entries are kept.
       </p>
+      {sharing && <SharePreview request={sharing} onClose={() => setSharing(null)} />}
     </div>
   );
 }

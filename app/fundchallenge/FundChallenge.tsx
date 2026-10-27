@@ -31,6 +31,7 @@ import SharePreview, { ShareRequest } from "./SharePreview";
 type Totals = { target: number; collected: number; balance: number; percent: number };
 
 const REFRESH_MS = 30_000;
+const ENTRY_PREVIEW = 3; // latest entries shown before "Show all"
 
 type StatusFilter = "all" | "green" | "orange" | "red" | "zero";
 type SortDir = "desc" | "asc";
@@ -79,6 +80,7 @@ export default function FundChallenge({
   const [selectedId, setSelectedId] = useState("");
   const [entries, setEntries] = useState<FundEntryRow[]>([]);
   const [entriesLoading, setEntriesLoading] = useState(false);
+  const [showAllEntries, setShowAllEntries] = useState(false);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -141,6 +143,7 @@ export default function FundChallenge({
 
   useEffect(() => {
     loadEntries(selectedId);
+    setShowAllEntries(false);
   }, [selectedId, loadEntries]);
 
   // Drop a remembered member who no longer exists / was deactivated
@@ -329,7 +332,7 @@ export default function FundChallenge({
                 <p className="py-4 text-center text-sm text-slate-500">No entries yet. Tap “Add New” to record one.</p>
               ) : (
                 <ul className="divide-y divide-slate-100 border border-slate-100 rounded-xl">
-                  {entries.map((e) => (
+                  {(showAllEntries ? entries : entries.slice(0, ENTRY_PREVIEW)).map((e) => (
                     <li key={e._id} className="flex items-center gap-2 px-3 py-3">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-slate-900 truncate">{e.contributorName}</p>
@@ -352,6 +355,15 @@ export default function FundChallenge({
                     </li>
                   ))}
                 </ul>
+              )}
+              {entries.length > ENTRY_PREVIEW && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllEntries((v) => !v)}
+                  className="mt-2 w-full py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 active:bg-slate-100 cursor-pointer"
+                >
+                  {showAllEntries ? "Show less" : `Show all ${entries.length} entries`}
+                </button>
               )}
             </div>
           )}
