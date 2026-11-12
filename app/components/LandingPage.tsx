@@ -37,26 +37,26 @@ const LandingPage = () => {
 
           {/* Primary Event Card */}
           <div className="w-full max-w-2xl text-left mt-2">
-            {/* It's our Legacy Event Card */}
+            {/* Muta'allim Sammelanam Event Card */}
             <div className="group relative rounded-3xl p-8 sm:p-10 bg-white/90 border border-fuchsia-200/80 hover:border-fuchsia-400 transition-all duration-300 shadow-xl hover:shadow-2xl flex flex-col justify-between backdrop-blur-sm">
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <span className="px-3.5 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 text-xs font-medium uppercase tracking-wider border border-fuchsia-200">
-                    2026 Sep 27 • 12:00 PM
+                    2026 Nov 25 • Wednesday
                   </span>
                   <Sparkles className="w-6 h-6 text-[#E415A3]" />
                 </div>
                 <h3 className="text-3xl sm:text-4xl font-medium text-slate-900 group-hover:text-[#D6229F] transition">
-                  It’s our Legacy
+                  Muta&apos;allim Sammelanam
                 </h3>
                 <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed font-normal">
-                  Izza code Gather at Cheenadath, Puthiyangadi. With Sayyid VPA Darimi Atteeri & Jabir Kanthapuram.
+                  Muta&apos;allim Sammelanam at Mukkam, organised by SSF Kozhikode South. Register with your mobile number to get your QR pass.
                 </p>
               </div>
 
-              <Link href="/legacy" className="mt-8">
+              <Link href="/mutaallim" className="mt-8">
                 <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#6513B5] via-[#A712AA] to-[#E415A3] hover:from-[#7829C0] hover:to-[#E415A3] text-white text-base sm:text-lg font-medium shadow-lg shadow-[#3A0A7A]/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
-                  <span>Register Delegate Ticket</span>
+                  <span>Register for Muta&apos;allim Sammelanam</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </Link>

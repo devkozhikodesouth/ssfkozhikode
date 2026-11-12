@@ -30,10 +30,13 @@ export const metadata: Metadata = {
     title: "It’s our Legacy | SSF Kozhikode South",
     description:
       "Izza code Gather — 2026 Sep 27, Sunday 12:00 PM at Cheenadath, Puthiyangadi",
+    // A route's own openGraph replaces the root one, so repeat the site thumbnail
+    images: [{ url: "/thumb.jpg", width: 1200, height: 630, alt: "SSF Kozhikode South" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "It’s our Legacy | SSF Kozhikode South",
+    images: ["/thumb.jpg"],
   },
 };
 

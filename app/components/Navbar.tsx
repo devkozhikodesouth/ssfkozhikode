@@ -45,13 +45,16 @@ const Navbar: React.FC = () => {
   ];
 
   const isLegacy = pathname === "/legacy";
-  const isConclave26 = pathname === "/grandconclave26" || isLegacy;
+  const isMutaallim = pathname === "/mutaallim";
+  const isConclave26 = pathname === "/grandconclave26" || isLegacy || isMutaallim;
 
   return (
     <header
       className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? isLegacy
+          ? isMutaallim
+            ? "bg-[#3B0A2A]/80 border-b border-[#FFE5A8]/20 py-3 shadow-lg backdrop-blur-md"
+            : isLegacy
             ? "bg-[#3A0A7A]/70 border-b border-[#D6229F]/30 py-3 shadow-lg backdrop-blur-md"
             : isConclave26
             ? "bg-[#1F0550]/70 border-b border-[#7A32D0]/30 py-3 shadow-lg backdrop-blur-md"
@@ -62,7 +65,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
-          <img src="/logo.png" width={32} height={32} alt="SSF Logo" className="drop-shadow-sm" />
+          <img src="/logo.jpeg" width={32} height={32} alt="SSF Logo" className="drop-shadow-sm" />
           <h2 className={`hidden sm:block text-xl sm:text-2xl font-medium tracking-tight ${isConclave26 ? "text-white" : "text-slate-900"}`}>
             <span className="font-cooper">SSF</span> Kozhikode South
           </h2>
@@ -114,7 +117,7 @@ const Navbar: React.FC = () => {
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50/80">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" width={24} height={24} alt="SSF Logo" />
+            <img src="/logo.jpeg" width={24} height={24} alt="SSF Logo" />
             <h2 className="text-base font-medium text-slate-900"><span className="font-cooper">SSF</span> Kozhikode</h2>
           </div>
           <button

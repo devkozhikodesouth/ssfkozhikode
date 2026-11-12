@@ -20,6 +20,10 @@ import {
   BarChart3,
   Flame,
   CheckCircle2,
+  BookOpen,
+  School,
+  ListChecks,
+  Settings2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAttendanceMode } from "@/app/utils/useAttendanceMode";
@@ -114,6 +118,19 @@ const MENU: {
         path: "/adminlogin/legacy/attendance",
         icon: UserCheck,
       },
+    ],
+  },
+  {
+    id: "mutaallim",
+    label: "Muta'allim Sammelanam",
+    subtitle: "Mukkam",
+    icon: BookOpen,
+    badge: "New",
+    items: [
+      { name: "Divisions", path: "/adminlogin/mutaallim", icon: Building2 },
+      { name: "Campuses", path: "/adminlogin/mutaallim/campuses", icon: School },
+      { name: "All Registrations", path: "/adminlogin/mutaallim/registrations", icon: ListChecks },
+      { name: "Manage Campuses", path: "/adminlogin/mutaallim/manage", icon: Settings2 },
     ],
   },
   {

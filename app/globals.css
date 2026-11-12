@@ -17,6 +17,21 @@
   --color-conclave-bright-violet: #7A32D0;
   --color-conclave-light-purple: #8739E0;
   --color-conclave-bottom: #1F0550;
+
+  /* Muta'allim Sammelanam — sampled from public/content.webp + elment1.webp */
+  --color-mut-ink: #3B0A2A;       /* page background (deep plum) */
+  --color-mut-ink-2: #5A1040;     /* background gradient end */
+  --color-mut-plum: #9B2268;      /* primary (title shadow) */
+  --color-mut-plum-deep: #7A1A52; /* primary hover / strong text (7:1+ on cream) */
+  --color-mut-red: #9E1D1D;       /* errors, swoosh inner line (8:1 on cream) */
+  --color-mut-orange: #F4895A;    /* accent (title gradient start) */
+  --color-mut-amber: #F29F1F;     /* accent (swoosh) */
+  --color-mut-gold: #FAD764;      /* accent text on dark (title gradient end) */
+  --color-mut-cream: #FFF7E6;     /* card background */
+  --color-mut-parchment: #FFE5A8; /* soft text on dark / borders */
+  --color-mut-muted: #6B4A5C;     /* secondary text on cream (6:1) */
+  --font-mut-display: var(--nf-mut-display), var(--font-google-sans), sans-serif;
+  --font-mut: var(--font-google-sans), var(--nf-mut-ml), sans-serif;
 }
 
 /* Cooper Black font for SSF branding */
@@ -156,4 +171,17 @@ body {
  */
 img[src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"] {
   display: inline !important;
+}
+
+/* Muta'allim: gentle floating motion for the manuscript (element 2) */
+@keyframes mut-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-6deg); }
+  50% { transform: translate3d(0, -18px, 0) rotate(-3.5deg); }
+}
+.mut-float {
+  animation: mut-float 7s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mut-float { animation: none; transform: rotate(-6deg); }
 }
