@@ -19,7 +19,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────
 interface Contact {
   name: string;
   mobile: string;
