@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
   ];
 
   const isLegacy = pathname === "/legacy";
-  const isMutaallim = pathname === "/mutaallim";
+  const isMutaallim = pathname === "/mutaallim-conference";
   const isConclave26 = pathname === "/grandconclave26" || isLegacy || isMutaallim;
 
   return (
