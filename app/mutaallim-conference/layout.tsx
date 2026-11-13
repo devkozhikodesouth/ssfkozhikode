@@ -21,7 +21,7 @@ const image = { url: "/mutaallim-og.jpg", width: 1200, height: 630, alt: "മു
 export const metadata: Metadata = {
   title,
   description,
-  openGraph: { type: "website", url: "/mutaallim", title, description, images: [image], siteName: "SSF Kozhikode South" },
+  openGraph: { type: "website", url: "/mutaallim-conference", title, description, images: [image], siteName: "SSF Kozhikode South" },
   twitter: { card: "summary_large_image", title, description, images: [image.url] },
 };
 

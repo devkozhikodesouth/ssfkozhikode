@@ -35,6 +35,27 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+/* Rounded-rect path without ctx.roundRect (missing in older Android WebViews / Samsung Internet) */
+function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/* Decorative art is optional: try the optimised URL, then the raw file, else skip it */
+async function loadOptional(path: string, w: number): Promise<HTMLImageElement | null> {
+  for (const src of [nextImg(path, w), path]) {
+    try {
+      return await loadImage(src);
+    } catch {}
+  }
+  return null;
+}
+
 function fit(ctx: CanvasRenderingContext2D, text: string, maxW: number) {
   if (ctx.measureText(text).width <= maxW) return text;
   let t = text;
@@ -43,9 +64,13 @@ function fit(ctx: CanvasRenderingContext2D, text: string, maxW: number) {
 }
 
 async function drawTicket(t: TicketData, family: string): Promise<HTMLCanvasElement> {
-  await Promise.all(
-    [500, 700, 800].map((w) => document.fonts.load(`${w} 20px ${family}`, `${t.name} മുതഅല്ലിം MUT-0123`))
-  );
+  // Fonts: best effort, never block the ticket (some mobile browsers stall or lack document.fonts)
+  try {
+    await Promise.race([
+      Promise.all([500, 700, 800].map((w) => document.fonts.load(`${w} 20px ${family}`, `${t.name} മുതഅല്ലിം MUT-0123`))),
+      new Promise((res) => setTimeout(res, 2500)),
+    ]);
+  } catch {}
   const [qrUrl, title, swoosh] = await Promise.all([
     QRCode.toDataURL(t.registrationCode, {
       errorCorrectionLevel: "Q",
@@ -53,22 +78,30 @@ async function drawTicket(t: TicketData, family: string): Promise<HTMLCanvasElem
       width: 560,
       color: { dark: C.ink, light: "#FFFFFF" },
     }),
-    loadImage(nextImg("/content.webp", 750)),
-    loadImage(nextImg("/elment1.webp", 640)),
+    loadOptional("/content.webp", 750),
+    loadOptional("/elment1.webp", 640),
   ]);
   const qr = await loadImage(qrUrl);
 
-  const canvas = document.createElement("canvas");
-  canvas.width = W * SCALE;
-  canvas.height = H * SCALE;
-  const ctx = canvas.getContext("2d")!;
-  ctx.scale(SCALE, SCALE);
+  // Some Android devices refuse very large canvases: step the export scale down
+  let canvas = document.createElement("canvas");
+  let ctx: CanvasRenderingContext2D | null = null;
+  for (const scale of [SCALE, 2, 1]) {
+    canvas = document.createElement("canvas");
+    canvas.width = W * scale;
+    canvas.height = H * scale;
+    ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.scale(scale, scale);
+      break;
+    }
+  }
+  if (!ctx) throw new Error("canvas unavailable");
   ctx.textBaseline = "alphabetic";
 
   // Card silhouette
   ctx.save();
-  ctx.beginPath();
-  ctx.roundRect(0, 0, W, H, 22);
+  rr(ctx, 0, 0, W, H, 22);
   ctx.clip();
 
   const g = ctx.createLinearGradient(0, 0, W, SPLIT);
@@ -80,15 +113,23 @@ async function drawTicket(t: TicketData, family: string): Promise<HTMLCanvasElem
   ctx.fillRect(0, SPLIT, W, H - SPLIT);
 
   // Decorative swoosh (element 1), top-right
-  ctx.save();
-  ctx.translate(W - 36, 8);
-  ctx.rotate((8 * Math.PI) / 180);
-  ctx.drawImage(swoosh, -120, -120, 240, 240 * (swoosh.height / swoosh.width));
-  ctx.restore();
+  if (swoosh) {
+    ctx.save();
+    ctx.translate(W - 36, 8);
+    ctx.rotate((8 * Math.PI) / 180);
+    ctx.drawImage(swoosh, -120, -120, 240, 240 * (swoosh.height / swoosh.width));
+    ctx.restore();
+  }
 
   // Title art
   const tw = 256;
-  ctx.drawImage(title, (W - tw) / 2, 16, tw, tw * (title.height / title.width));
+  if (title) ctx.drawImage(title, (W - tw) / 2, 16, tw, tw * (title.height / title.width));
+  else {
+    ctx.textAlign = "center";
+    ctx.fillStyle = C.gold;
+    ctx.font = `800 30px ${family}`;
+    ctx.fillText(EVENT_NAME, W / 2, 140);
+  }
 
   ctx.textAlign = "center";
   ctx.fillStyle = C.gold;
@@ -143,8 +184,7 @@ async function drawTicket(t: TicketData, family: string): Promise<HTMLCanvasElem
   const box = 170;
   const bx = (W - box) / 2;
   ctx.fillStyle = "#FFFFFF";
-  ctx.beginPath();
-  ctx.roundRect(bx, 434, box, box, 14);
+  rr(ctx, bx, 434, box, box, 14);
   ctx.fill();
   ctx.strokeStyle = C.parchment;
   ctx.lineWidth = 1;
@@ -173,6 +213,7 @@ export default function Ticket({ ticket }: { ticket: TicketData }) {
   const [src, setSrc] = useState("");
   const [blob, setBlob] = useState<Blob | null>(null);
   const [failed, setFailed] = useState(false);
+  const [fallbackQr, setFallbackQr] = useState("");
   const [canShare, setCanShare] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -187,10 +228,27 @@ export default function Ticket({ ticket }: { ticket: TicketData }) {
     drawTicket(ticket, family)
       .then((canvas) => {
         if (!live) return;
-        setSrc(canvas.toDataURL("image/png"));
-        canvas.toBlob((b) => live && setBlob(b), "image/png");
+        const url = canvas.toDataURL("image/png");
+        setSrc(url);
+        canvas.toBlob(
+          (b) => {
+            if (!live) return;
+            if (b) return setBlob(b);
+            // toBlob can return null on some Android builds: rebuild from the data URL
+            fetch(url).then((r) => r.blob()).then((bb) => live && setBlob(bb)).catch(() => {});
+          },
+          "image/png"
+        );
       })
-      .catch(() => live && setFailed(true));
+      .catch(() => {
+        if (!live) return;
+        setFailed(true);
+        // Plain on-screen pass so the person always gets their code + QR
+        // SVG output needs no canvas, so it still works when canvas is unavailable
+        QRCode.toString(ticket.registrationCode, { type: "svg", errorCorrectionLevel: "Q", margin: 2, color: { dark: C.ink, light: "#FFFFFF" } })
+          .then((svg) => live && setFallbackQr(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`))
+          .catch(() => {});
+      });
     return () => {
       live = false;
     };
@@ -247,9 +305,20 @@ export default function Ticket({ ticket }: { ticket: TicketData }) {
         ) : (
           <div role="status" className="grid h-full w-full place-items-center rounded-[22px] bg-mut-ink-2/60 text-mut-parchment">
             {failed ? (
-              <p className="px-6 text-center text-sm">
-                Could not draw the pass image. Your code is <b className="text-mut-gold">{ticket.registrationCode}</b>.
-              </p>
+              <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-[22px] bg-mut-cream px-6 py-8 text-center text-mut-ink">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-mut-muted">{EVENT_NAME} · Delegate pass</p>
+                <p className="font-mut-display text-2xl font-extrabold leading-tight text-mut-plum-deep">{ticket.name}</p>
+                <p className="text-sm font-semibold">{ticket.campus}</p>
+                <p className="text-xs text-mut-muted">{ticket.division} · {ticket.category}</p>
+                {fallbackQr ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={fallbackQr} width={176} height={176} alt={`QR code for ${ticket.registrationCode}`} className="h-44 w-44 rounded-xl border border-mut-parchment bg-white p-1" />
+                ) : (
+                  <Loader2 className="h-6 w-6 animate-spin text-mut-plum-deep" aria-hidden />
+                )}
+                <p className="font-mut-display text-2xl font-extrabold tracking-widest text-mut-plum-deep">{ticket.registrationCode}</p>
+                <p className="text-xs text-mut-muted">Take a screenshot to keep this pass.</p>
+              </div>
             ) : (
               <span className="inline-flex items-center gap-2 text-sm">
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Preparing your pass…

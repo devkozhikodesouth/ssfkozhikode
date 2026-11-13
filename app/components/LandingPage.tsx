@@ -54,7 +54,7 @@ const LandingPage = () => {
                 </p>
               </div>
 
-              <Link href="/mutaallim" className="mt-8">
+              <Link href="/mutaallim-conference" className="mt-8">
                 <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#6513B5] via-[#A712AA] to-[#E415A3] hover:from-[#7829C0] hover:to-[#E415A3] text-white text-base sm:text-lg font-medium shadow-lg shadow-[#3A0A7A]/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
                   <span>Register for Muta&apos;allim Sammelanam</span>
                   <ArrowRight className="w-5 h-5" />
