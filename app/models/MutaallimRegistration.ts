@@ -10,6 +10,8 @@ export interface IMutaallimRegistration extends Document {
   place: string;
   phone: string;
   category: (typeof CATEGORIES)[number];
+  attended: boolean;
+  attendedAt: Date | null;
   createdAt: Date;
 }
 
@@ -23,6 +25,9 @@ const RegistrationSchema: Schema<IMutaallimRegistration> = new Schema(
     place: { type: String, required: true, trim: true },
     phone: { type: String, required: true, match: /^[6-9]\d{9}$/ },
     category: { type: String, enum: CATEGORIES, required: true, index: true },
+    // Event-day attendance (marked by QR scan or code/phone lookup)
+    attended: { type: Boolean, default: false, index: true },
+    attendedAt: { type: Date, default: null },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

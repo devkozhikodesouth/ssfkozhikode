@@ -130,6 +130,7 @@ const MENU: {
       { name: "Divisions", path: "/adminlogin/mutaallim", icon: Building2 },
       { name: "Campuses", path: "/adminlogin/mutaallim/campuses", icon: School },
       { name: "All Registrations", path: "/adminlogin/mutaallim/registrations", icon: ListChecks },
+      { name: "Mark Attendance", path: "/adminlogin/mutaallim/attendance", icon: UserCheck },
       { name: "Manage Campuses", path: "/adminlogin/mutaallim/manage", icon: Settings2 },
     ],
   },
