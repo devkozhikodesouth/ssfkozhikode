@@ -6,6 +6,7 @@ import MutaallimRegistration from "@/app/models/MutaallimRegistration";
 import { lookupLimited } from "@/app/lib/rateLimit";
 import { normalizePhone, parseRegistration } from "@/app/utils/mutaallim";
 import { toTicket } from "@/app/lib/mutaallimTicket";
+import { REGISTRATION_CLOSED_MESSAGE, isMutaallimRegistrationOpen } from "@/app/lib/mutaallimSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ async function findTicket(phone: string, req?: NextRequest) {
     const wait = lookupLimited(req);
     if (wait) {
       return NextResponse.json(
-        { success: false, message: "Too many attempts. Please wait a moment and try again." },
+        { success: false, message: `Too many tries in a short time. Please wait ${wait} seconds and try again.` },
         { status: 429, headers: { "Retry-After": String(wait) } }
       );
     }
@@ -35,13 +36,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => null);
     errBody = body;
     if (!body || typeof body !== "object") {
-      return NextResponse.json({ success: false, message: "Invalid request" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Something went wrong. Please refresh the page and try again." }, { status: 400 });
     }
 
     const parsed = parseRegistration(body);
     if (!parsed.ok) {
       return NextResponse.json(
-        { success: false, message: "Please fix the highlighted fields.", errors: parsed.errors },
+        { success: false, message: "Some details are missing or incorrect. Check the fields marked in red.", errors: parsed.errors },
         { status: 400 }
       );
     }
@@ -49,13 +50,27 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
+    // Closed: no new registrations, but an existing registrant still gets their pass
+    if (!(await isMutaallimRegistrationOpen())) {
+      const existing = await findTicket(input.phone, req);
+      if (existing) return existing;
+      return NextResponse.json(
+        { success: false, closed: true, message: REGISTRATION_CLOSED_MESSAGE },
+        { status: 403 }
+      );
+    }
+
     const [division, campus] = await Promise.all([
       Division.findById(input.divisionId).lean<any>(),
       Campus.findById(input.campusId).lean<any>(),
     ]);
     if (!division) {
       return NextResponse.json(
-        { success: false, message: "Invalid division", errors: { divisionId: "Invalid division." } },
+        {
+          success: false,
+          message: "That division isn't available. Please choose your division again.",
+          errors: { divisionId: "Choose your division from the list." },
+        },
         { status: 400 }
       );
     }
@@ -63,8 +78,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Campus does not belong to the selected division",
-          errors: { campusId: "Select a campus from the chosen division." },
+          message: "That campus isn't in the division you chose.",
+          errors: { campusId: "Choose your campus from the list for this division." },
         },
         { status: 400 }
       );
@@ -98,6 +113,6 @@ export async function POST(req: NextRequest) {
       if (existing) return existing;
     }
     console.error("Muta'allim registration error:", error);
-    return NextResponse.json({ success: false, message: "Registration failed. Please try again." }, { status: 500 });
+    return NextResponse.json({ success: false, message: "We couldn't complete your registration. Please try again in a moment." }, { status: 500 });
   }
 }

@@ -3,7 +3,20 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowDown, ArrowUp, ArrowUpDown, Check, Columns3, Copy, ExternalLink, Link2, Share2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Check,
+  Columns3,
+  Copy,
+  DoorClosed,
+  DoorOpen,
+  ExternalLink,
+  Link2,
+  Loader2,
+  Share2,
+} from "lucide-react";
 import { CATEGORIES } from "@/app/utils/mutaallim";
 import SharePreview, { ShareRequest } from "@/app/fundchallenge/SharePreview";
 
@@ -109,6 +122,7 @@ export function PageShell({ title, children }: { title: string; children: React.
           </Link>
         ))}
       </nav>
+      {!src.isPublic && <RegistrationSwitch />}
       {!src.isPublic && <ReportLinkBar />}
       {children}
     </div>
@@ -519,6 +533,101 @@ export function ColumnsMenu({ cols }: { cols: ReturnType<typeof useColumns> }) {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/* ───────── Registration open / closed (admin only) ───────── */
+function RegistrationSwitch() {
+  const [open, setOpen] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/mutaallim/settings", { credentials: "include", cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => (d.success ? setOpen(d.registrationOpen) : setError(d.message || "Failed to load")))
+      .catch(() => setError("Failed to load"));
+  }, []);
+
+  const flip = async () => {
+    if (open === null || busy) return;
+    const next = !open;
+    const ok = window.confirm(
+      next
+        ? "Open registration? New people will be able to register again."
+        : "Close registration? New people can no longer register. Already registered people can still get their pass."
+    );
+    if (!ok) return;
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/mutaallim/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ registrationOpen: next }),
+      });
+      const d = await res.json();
+      if (!d.success) throw new Error(d.message);
+      setOpen(d.registrationOpen);
+    } catch (e: any) {
+      setError(e.message || "Could not update");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      className={`flex flex-col gap-3 rounded-2xl p-3 shadow-sm ring-1 sm:flex-row sm:items-center ${
+        open === false ? "bg-red-50 ring-red-200" : "bg-white ring-slate-200"
+      }`}
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        {open === false ? (
+          <DoorClosed className="h-5 w-5 shrink-0 text-red-600" aria-hidden />
+        ) : (
+          <DoorOpen className="h-5 w-5 shrink-0 text-emerald-600" aria-hidden />
+        )}
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-slate-900">
+            Registration{" "}
+            {open === null ? (
+              <span className="font-semibold text-slate-400">…</span>
+            ) : open ? (
+              <span className="text-emerald-700">open</span>
+            ) : (
+              <span className="text-red-700">closed</span>
+            )}
+          </p>
+          <p className="text-xs text-slate-500">
+            {open === false
+              ? "New people can't register. Registered people can still get their pass."
+              : "Anyone can register on the public page."}
+          </p>
+          {error && <p className="text-xs font-semibold text-red-600">{error}</p>}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={flip}
+        disabled={open === null || busy}
+        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold disabled:opacity-50 sm:min-h-10 cursor-pointer ${
+          open === false
+            ? "bg-emerald-600 text-white hover:bg-emerald-700"
+            : "bg-white text-red-700 ring-1 ring-red-300 hover:bg-red-50"
+        }`}
+      >
+        {busy ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : open === false ? (
+          <DoorOpen className="h-4 w-4" />
+        ) : (
+          <DoorClosed className="h-4 w-4" />
+        )}
+        {open === false ? "Open registration" : "Close registration"}
+      </button>
     </div>
   );
 }

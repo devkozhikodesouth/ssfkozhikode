@@ -26,7 +26,10 @@ export const phoneSchema = z
   .string({ error: "Please enter your mobile number." })
   .trim()
   .min(1, "Please enter your mobile number.")
-  .refine((v) => !v || normalizePhone(v) !== null, "Enter a valid 10-digit Indian mobile number (starts with 6–9).")
+  .refine(
+    (v) => !v || normalizePhone(v) !== null,
+    "Mobile number should be 10 digits and start with 6, 7, 8 or 9 (for example 98765 43210)."
+  )
   .transform((v) => normalizePhone(v) ?? v);
 
 export const registrationSchema = z.object({

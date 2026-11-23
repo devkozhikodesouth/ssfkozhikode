@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { AlertTriangle, ArrowRight, ChevronDown, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, ChevronDown, Info, Loader2 } from "lucide-react";
 import { CATEGORIES, phoneSchema, validateRegistration, type TicketData } from "@/app/utils/mutaallim";
+import { useRegistrationOpen } from "./useRegistrationOpen";
 import Ticket from "./Ticket";
 
 type Division = { _id: string; divisionName: string };
@@ -32,18 +33,43 @@ function Select({ children, ...p }: React.SelectHTMLAttributes<HTMLSelectElement
   );
 }
 
-function Banner({ message }: { message: string }) {
+/* A message with a short headline and what to do next.
+ * "error": something the person can fix · "notice": information, not a mistake */
+type Notice = { title: string; text?: string; tone?: "error" | "notice" };
+
+function Banner({ message }: { message: Notice | null }) {
   if (!message) return null;
+  const notice = message.tone === "notice";
+  const Icon = notice ? Info : AlertTriangle;
   return (
-    <div role="alert" className="mb-5 flex items-start gap-2 rounded-lg border border-mut-red/40 bg-white px-4 py-3 text-sm font-medium text-mut-red">
-      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-      <span>{message}</span>
+    <div
+      role={notice ? "status" : "alert"}
+      className={`mb-5 flex items-start gap-3 rounded-xl border px-4 py-3 ${
+        notice ? "border-mut-plum/30 bg-white text-mut-plum-deep" : "border-mut-red/40 bg-white text-mut-red"
+      }`}
+    >
+      <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+      <div className="min-w-0">
+        <p className="text-base font-bold leading-snug">{message.title}</p>
+        {message.text && <p className="mt-0.5 text-sm leading-relaxed text-mut-muted">{message.text}</p>}
+      </div>
     </div>
   );
 }
 
+const OFFLINE: Notice = {
+  title: "No internet connection",
+  text: "Check your mobile data or Wi-Fi, then try again.",
+};
+/* Server messages are already written for people; show them as the headline */
+const fromServer = (message: string | undefined, fallback: string): Notice => ({
+  title: message || fallback,
+});
+const pretty = (n: string) => (n.length === 10 ? `${n.slice(0, 5)} ${n.slice(5)}` : n);
+
 export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Step) => void }) {
   const [step, setStep] = useState<Step>("phone");
+  const registrationOpen = useRegistrationOpen(); // null while loading
   const [phoneInput, setPhoneInput] = useState("");
   const [phone, setPhone] = useState(""); // normalised, once checked
   const [ticket, setTicket] = useState<TicketData | null>(null);
@@ -55,7 +81,7 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
   const [campuses, setCampuses] = useState<Option[]>([]);
   const [loadingDivs, setLoadingDivs] = useState(false);
   const [loadingCampuses, setLoadingCampuses] = useState(false);
-  const [banner, setBanner] = useState("");
+  const [banner, setBanner] = useState<Notice | null>(null);
   const [busy, setBusy] = useState(false);
 
   const lock = useRef(false); // blocks double submit before state re-renders
@@ -80,9 +106,9 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
       .then((d) => {
         if (d?.success && Array.isArray(d.data)) {
           setDivisions([...d.data].sort((a: Division, b: Division) => a.divisionName.localeCompare(b.divisionName)));
-        } else setBanner("Could not load divisions. Please refresh.");
+        } else setBanner({ title: "Couldn't load the division list", text: "Check your connection and refresh this page." });
       })
-      .catch(() => setBanner("Could not load divisions. Please refresh."))
+      .catch(() => setBanner({ title: "Couldn't load the division list", text: "Check your connection and refresh this page." }))
       .finally(() => setLoadingDivs(false));
   }, [step, divisions.length]);
 
@@ -94,7 +120,7 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
     setForm(emptyForm);
     setCampuses([]);
     setErrors({});
-    setBanner("");
+    setBanner(null);
   };
 
   /* ───── Step A: check phone ───── */
@@ -111,7 +137,7 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
     lock.current = true;
     setBusy(true);
     setErrors({});
-    setBanner("");
+    setBanner(null);
     try {
       const res = await fetch("/api/mutaallim/registration/lookup", {
         method: "POST",
@@ -120,18 +146,25 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
       });
       const data = await res.json();
       if (!data.success) {
-        setBanner(data.message || "Something went wrong. Please try again.");
+        setBanner(fromServer(data.message, "Something went wrong. Please try again in a moment."));
       } else if (data.registered) {
         setPhone(n);
         setTicket(data.ticket);
         setReturning(true);
         setStep("ticket");
+      } else if (data.registrationOpen === false) {
+        // Closed: no form for new people; existing registrants already got their pass above
+        setBanner({
+          tone: "notice",
+          title: "Registration has closed",
+          text: `We couldn't find a registration for ${pretty(n)}. New registrations are no longer accepted. If you registered with a different number, enter that number instead.`,
+        });
       } else {
         setPhone(n);
         setStep("form");
       }
     } catch {
-      setBanner("Network error. Please check your connection and try again.");
+      setBanner(OFFLINE);
     } finally {
       lock.current = false;
       setBusy(false);
@@ -142,14 +175,14 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
   const set = (name: keyof typeof emptyForm, value: string) => {
     setForm((p) => ({ ...p, [name]: value }));
     setErrors((p) => ({ ...p, [name]: "" }));
-    setBanner("");
+    setBanner(null);
   };
 
   const onDivision = (divisionId: string) => {
     setForm((p) => ({ ...p, divisionId, campusId: "" })); // reset campus
     setErrors((p) => ({ ...p, divisionId: "", campusId: "" }));
     setCampuses([]);
-    setBanner("");
+    setBanner(null);
     if (!divisionId) return;
     const req = ++campusReq.current;
     setLoadingCampuses(true);
@@ -172,7 +205,7 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
     }
     lock.current = true;
     setBusy(true);
-    setBanner("");
+    setBanner(null);
     try {
       const res = await fetch("/api/mutaallim/register", {
         method: "POST",
@@ -187,10 +220,18 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         if (data.errors) setErrors(data.errors);
-        setBanner(data.message || "Registration failed. Please try again.");
+        setBanner(
+          data.closed
+            ? {
+                tone: "notice",
+                title: "Registration has closed",
+                text: "New registrations are no longer accepted. If you registered earlier with another number, go back and enter that number to get your pass.",
+              }
+            : fromServer(data.message, "We couldn't complete your registration. Please try again.")
+        );
       }
     } catch {
-      setBanner("Network error. Please check your connection and try again.");
+      setBanner(OFFLINE);
     } finally {
       lock.current = false;
       setBusy(false);
@@ -224,7 +265,9 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
                 Get your pass
               </h2>
               <p className="mt-2 text-base leading-relaxed text-mut-muted">
-                Enter your mobile number. If you are already registered we will show your pass; otherwise you can register in a minute.
+                {registrationOpen === false
+                  ? "Registration is closed. Already registered? Enter that mobile number to get your pass."
+                  : "Enter your mobile number. If you are already registered we will show your pass; otherwise you can register in a minute."}
               </p>
               <Banner message={banner} />
               <div className="mt-6">
@@ -239,7 +282,7 @@ export default function MutaallimForm({ onStepChange }: { onStepChange?: (s: Ste
                   onChange={(e) => {
                     setPhoneInput(e.target.value);
                     setErrors({});
-                    setBanner("");
+                    setBanner(null);
                   }}
                   maxLength={18}
                   className={cls("phone")}

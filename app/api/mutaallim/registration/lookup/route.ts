@@ -4,6 +4,7 @@ import { lookupLimited } from "@/app/lib/rateLimit";
 import MutaallimRegistration from "@/app/models/MutaallimRegistration";
 import { phoneSchema } from "@/app/utils/mutaallim";
 import { toTicket } from "@/app/lib/mutaallimTicket";
+import { isMutaallimRegistrationOpen } from "@/app/lib/mutaallimSettings";
 import "@/app/models/Division";
 import "@/app/models/Campus";
 
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
   const wait = lookupLimited(req);
   if (wait) {
     return NextResponse.json(
-      { success: false, message: "Too many attempts. Please wait a moment and try again." },
+      { success: false, message: `Too many tries in a short time. Please wait ${wait} seconds and try again.` },
       { status: 429, headers: { "Retry-After": String(wait) } }
     );
   }
@@ -30,10 +31,14 @@ export async function POST(req: NextRequest) {
       .populate("divisionId", "divisionName")
       .populate("campusId", "name")
       .lean();
-    if (!reg) return NextResponse.json({ success: true, registered: false, phone });
+    if (!reg) {
+      // Not registered: the form is only offered while registration is open
+      const registrationOpen = await isMutaallimRegistrationOpen();
+      return NextResponse.json({ success: true, registered: false, registrationOpen, phone });
+    }
     return NextResponse.json({ success: true, registered: true, phone, ticket: toTicket(reg) });
   } catch (error) {
     console.error("Muta'allim lookup error:", error);
-    return NextResponse.json({ success: false, message: "Something went wrong. Please try again." }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Something went wrong on our side. Please try again in a moment." }, { status: 500 });
   }
 }

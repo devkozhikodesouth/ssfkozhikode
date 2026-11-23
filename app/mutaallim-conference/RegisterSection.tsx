@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import MutaallimForm from "./MutaallimForm";
+import { useRegistrationOpen } from "./useRegistrationOpen";
 
 const SECTION_ID = "register";
 
 /* Hero button: smooth-scrolls to the registration section below (same behaviour
  * as the other event pages). Falls back to an instant jump for reduced motion. */
 export function RegisterButton() {
+  const open = useRegistrationOpen();
   const go = () => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.getElementById(SECTION_ID)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
@@ -22,7 +24,7 @@ export function RegisterButton() {
       }}
       className="mt-8 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-mut-orange to-mut-gold px-8 text-lg font-extrabold text-mut-ink shadow-lg shadow-black/30 transition hover:brightness-105 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mut-gold cursor-pointer sm:w-auto"
     >
-      Register now <ArrowRight className="h-5 w-5 rotate-90" aria-hidden />
+      {open === false ? "Get your pass" : "Register now"} <ArrowRight className="h-5 w-5 rotate-90" aria-hidden />
     </a>
   );
 }
